@@ -1,4 +1,5 @@
 var app = require('express')();
+const jwt = require('jsonwebtoken');
 
 var peliasConfig = require( 'pelias-config' ).generate(require('./schema'));
 

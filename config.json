@@ -1,0 +1,5 @@
+{
+  "secret": "Pelias JWT test",
+  "audience": "nodejs-jwt-auth",
+  "issuer": "VeniceGeo"
+}

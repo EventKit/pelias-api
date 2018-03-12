@@ -5,6 +5,39 @@ const all = require('predicates').all;
 const any = require('predicates').any;
 const not = require('predicates').not;
 const _ = require('lodash');
+const jwt = require('jsonwebtoken');
+const jwtChecker = require('express-jwt');
+const config = require('../config');
+
+const jwtCheck = jwtChecker({
+  secret: config.secret,
+  audience: config.audience,
+  issuer: config.issuer
+});
+
+
+/** START TEMPORARY: GENERATE UNIQUE ACCESS TOKEN */
+function createAccessToken() {
+  return jwt.sign({
+    iss: config.issuer,
+    aud: config.audience,
+    exp: Math.floor(Date.now() / 1000) + (60 * 60),
+    jti: genJti(), // unique identifier for the token
+    alg: 'HS256'
+  }, config.secret);
+}
+
+// Generate Unique Identifier for the access token
+function genJti() {
+  let jti = '';
+  let possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  for (let i = 0; i < 16; i++) {
+      jti += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+  return jti;
+}
+/** END TEMPORARY */
+
 
 /** ----------------------- sanitizers ----------------------- **/
 var sanitizers = {
@@ -411,7 +444,12 @@ function addRoutes(app, peliasConfig) {
   app.get ( base + 'attribution',          routers.attribution );
   app.get (        '/attribution',         routers.attribution );
   app.get (        '/status',              routers.status );
-  app.get ( base + 'convert',              routers.convert );
+  app.get ( base + 'convert', jwtCheck, routers.convert );
+  app.get ( base + 'generatejwt', function(req, res) {
+    res.status(201).send({
+      access_token: createAccessToken()
+    });
+  });
 
   // backend dependent endpoints
   app.get ( base + 'place',                routers.place );
