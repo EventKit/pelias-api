@@ -1,5 +1,7 @@
 {
   "secret": "Pelias JWT test",
   "audience": "nodejs-jwt-auth",
-  "issuer": "VeniceGeo"
+  "issuer": "https://gxisaccess.io",
+  "sub":"test",
+  "dn":"dn"
 }
