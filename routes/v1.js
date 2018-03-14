@@ -6,25 +6,45 @@ const Router = require('express').Router,
       _ = require('lodash'),
       jwt = require('jsonwebtoken'),
       jwtChecker = require('express-jwt'),
-      config = require('../config');
+      jwtConfig = require('../config/jwt'),
+      peliasConfig = require( 'pelias-config' ).generate(require('../schema'));
 
-const jwtCheck = jwtChecker({
-  secret: config.secret,
-  audience: config.audience,
-  issuer: config.issuer
-});
+      
+/**
+ * Reads configuration's API 'auth' key and determines auth method if any
+ *
+ * @returns {function} authentication method or done() statement
+ */
+     
+function determineAuth() {
+  let method;
+  switch (peliasConfig.api.auth) {
+    case 'jwt':
+      method = jwtChecker({
+        secret: jwtConfig.secret,
+        audience: jwtConfig.audience,
+        issuer: jwtConfig.issuer
+      });
+      break;
+    default:
+      method = (req, res, done) => {
+        done();
+      };
+  }
+  return method;
+}
 
 /** START TEMPORARY: GENERATE UNIQUE ACCESS TOKEN */
 function createAccessToken() {
   return jwt.sign({
-    iss: config.issuer,
-    aud: config.audience,
-    sub: config.sub,
-    dn: config.dn,
+    iss: jwtConfig.issuer,
+    aud: jwtConfig.audience,
+    sub: jwtConfig.sub,
+    dn: jwtConfig.dn,
     exp: Math.floor(Date.now() / 1000) + (60 * 60),
     jti: genJti(), // unique identifier for the token
     alg: 'HS256'
-  }, config.secret);
+  }, jwtConfig.secret);
 }
 
 // Generate Unique Identifier for the access token
@@ -438,6 +458,9 @@ function addRoutes(app, peliasConfig) {
     ])
   };
 
+  //Set authorization method based on pelias config
+  let authMethod = determineAuth();
+
   // static data endpoints
   app.get ( base, routers.index );
   app.get ( base + 'attribution', routers.attribution );
@@ -452,7 +475,9 @@ function addRoutes(app, peliasConfig) {
   app.get ( base + 'search/structured', routers.structured );
   app.get ( base + 'reverse', routers.reverse );
   app.get ( base + 'nearby', routers.nearby );
-  app.get ( base + 'convert', jwtCheck, routers.convert );
+  app.get ( base + 'convert', authMethod, routers.convert );
+
+  // temporary
   app.get ( base + 'generatejwt', (req, res) => {
     res.status(201).send({
       access_token: createAccessToken()
