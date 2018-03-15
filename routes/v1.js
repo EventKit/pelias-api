@@ -7,29 +7,10 @@ const Router = require('express').Router,
       jwt = require('jsonwebtoken'),
       jwtChecker = require('express-jwt'),
       jwtConfig = require('../config/jwt'),
-      peliasConfig = require( 'pelias-config' ).generate(require('../schema'));
+      peliasConfig = require( 'pelias-config' ).generate(require('../schema')),
+      authService = require('../service/auth');
 
 
-/**
- * Reads configuration's API 'auth' key and determines auth method if any
- *
- * @returns {function} authentication method or done() statement
- */
-     
-function determineAuth() {  
-  if (peliasConfig.api.auth === 'jwt') {
-    return jwtChecker({
-      secret: jwtConfig.secret,
-      audience: jwtConfig.audience,
-      issuer: jwtConfig.issuer
-    });
-  }
-  else {
-    return (req, res, done) => {
-      done();
-    };
-  }
-}
 
 /** START TEMPORARY: GENERATE UNIQUE ACCESS TOKEN */
 function createAccessToken() {
@@ -456,7 +437,7 @@ function addRoutes(app, peliasConfig) {
   };
 
   //Set authorization method based on pelias config
-  let authMethod = determineAuth();
+  let authMethod = authService.determineAuth();
 
   // static data endpoints
   app.get ( base, routers.index );
