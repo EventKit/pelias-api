@@ -3,7 +3,7 @@
 const logger = require( 'pelias-logger' ).get( 'api' );
 const axios = require('axios');
 const geotransIP = process.env.GEOTRANS_IP;
-const geotransPort = process.env.GEOTRANS_PORT;
+const geotransPort = process.env.GEOTRANS_PORT||3000;
 
 function geotrans(coord) { 
     let url = `http://${geotransIP}:${geotransPort}`;
