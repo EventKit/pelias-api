@@ -448,10 +448,10 @@ function addRoutes(app, peliasConfig) {
   // backend dependent endpoints
   app.get ( base + 'place', routers.place );
   app.get ( base + 'autocomplete', routers.autocomplete );
-  app.get ( base + 'search', routers.search );
-  app.post( base + 'search', routers.search );
-  app.get ( base + 'search/structured', routers.structured );
-  app.get ( base + 'reverse', routers.reverse );
+  app.get ( base + 'search', authMethod, routers.search );
+  app.post( base + 'search', authMethod, routers.search );
+  app.get ( base + 'search/structured', authMethod, routers.structured );
+  app.get ( base + 'reverse', authMethod, routers.reverse );
   app.get ( base + 'nearby', routers.nearby );
   app.get ( base + 'convert', authMethod, routers.convert );
 
