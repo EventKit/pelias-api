@@ -13,7 +13,7 @@ ENV WORK=/opt/pelias
 ENV HOME=/opt/pelias
 
 #Set geotrans IP
-ENV GEOTRANS_IP=172.17.0.1
+ENV GEOTRANS_URL=
 
 WORKDIR ${WORK}
 COPY . ${WORK}
