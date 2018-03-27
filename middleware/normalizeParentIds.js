@@ -42,7 +42,7 @@ function normalizeParentIds(place) {
         // geonames sometimes has its own ids in the parent hierarchy, so it's dangerous to assume that
         // it's always WOF ids and hardcode to that
         if (place.source === 'geonames' && place.source_id === placetype_ids[0]) {
-          source = place.source
+          source = place.source;
 
           // This also applies to GNDB as it is a subset of geonames (more or less)
         } else if (place.source === 'gndb' && place.source_id === placetype_ids[0]) {
