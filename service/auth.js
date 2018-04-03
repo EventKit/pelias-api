@@ -1,8 +1,10 @@
 'use strict';
 
 const jwtChecker = require('express-jwt'),
-    jwtConfig = require('../config/jwt'),
     peliasConfig = require( 'pelias-config' ).generate(require('../schema'));
+    
+
+
 
 
 /**
@@ -14,9 +16,9 @@ const jwtChecker = require('express-jwt'),
 function determineAuth() {  
     if (peliasConfig.api.auth === 'jwt') {
       return jwtChecker({
-        secret: jwtConfig.secret,
-        audience: jwtConfig.audience,
-        issuer: jwtConfig.issuer
+        secret: process.env.JWT_SECRET,
+        audience: process.env.JWT_AUDIENCE,
+        issuer: process.env.JWT_ISSUER
       });
     }
     else {
