@@ -35,6 +35,9 @@ module.exports.tests.functionality = (test, common) => {
           'headers': {
           }
         };
+      process.env.JWT_SECRET = 'a';
+      process.env.JWT_AUDIENCE = 'a';
+      process.env.JWT_ISSUER = 'a';
       let service = proxyquire('../../../service/auth', {
         'logger': {
           get: (section) => {
