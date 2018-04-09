@@ -16,9 +16,7 @@ const jwtChecker = require('express-jwt'),
 function determineAuth() {  
     if (peliasConfig.api.auth === 'jwt') {
       return jwtChecker({
-        secret: process.env.JWT_SECRET,
-        audience: process.env.JWT_AUDIENCE,
-        issuer: process.env.JWT_ISSUER
+        secret: process.env.JWT_SECRET
       });
     }
     else {

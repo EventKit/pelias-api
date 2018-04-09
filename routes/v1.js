@@ -6,7 +6,6 @@ const Router = require('express').Router,
       _ = require('lodash'),
       jwt = require('jsonwebtoken'),
       jwtChecker = require('express-jwt'),
-      jwtConfig = require('../config/jwt'),
       peliasConfig = require( 'pelias-config' ).generate(require('../schema')),
       authService = require('../service/auth');
 
@@ -15,14 +14,10 @@ const Router = require('express').Router,
 /** START TEMPORARY: GENERATE UNIQUE ACCESS TOKEN */
 function createAccessToken() {
   return jwt.sign({
-    iss: jwtConfig.issuer,
-    aud: jwtConfig.audience,
-    sub: jwtConfig.sub,
-    dn: jwtConfig.dn,
     exp: Math.floor(Date.now() / 1000) + (60 * 60),
     jti: genJti(), // unique identifier for the token
     alg: 'HS256'
-  }, jwtConfig.secret);
+  }, process.env.JWT_SECRET);
 }
 
 // Generate Unique Identifier for the access token
