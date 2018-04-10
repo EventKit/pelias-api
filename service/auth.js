@@ -1,7 +1,8 @@
 'use strict';
 
 const jwtChecker = require('express-jwt'),
-    peliasConfig = require( 'pelias-config' ).generate(require('../schema'));
+    peliasConfig = require( 'pelias-config' ).generate(require('../schema')),
+    jwt = require('jsonwebtoken');
     
 
 
@@ -18,6 +19,16 @@ function determineAuth() {
       return jwtChecker({
         secret: process.env.JWT_SECRET
       });
+    }
+    else if(peliasConfig.api.auth === 'geoaxis_jwt') {
+      return (req, res, done) => {
+        if(jwt.decode(req.header('Authorization').split(' ')[1]).user === process.env.GEOAXIS_NPE_USER){
+          done();
+        }
+        else{
+          res.status(401).send({ error: 'Unauthorized' });
+        }
+      };
     }
     else {
       return (req, res, done) => {
