@@ -45,7 +45,7 @@ function normalizeParentIds(place) {
           source = place.source;
 
           // This also applies to GNDB as it is a subset of geonames (more or less)
-        } else if (place.source === 'gndb' && place.source_id === placetype_ids[0]) {
+        } else if (place.source === 'geographicnames' && place.source_id === placetype_ids[0]) {
           source = place.source;
         }
 
