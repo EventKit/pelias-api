@@ -4,10 +4,6 @@ const jwtChecker = require('express-jwt'),
     peliasConfig = require( 'pelias-config' ).generate(require('../schema')),
     jwt = require('jsonwebtoken');
     
-
-
-
-
 /**
  * Reads configuration's API 'auth' key and determines auth method if any
  *
@@ -22,7 +18,8 @@ function determineAuth() {
     }
     else if(peliasConfig.api.auth === 'geoaxis_jwt') {
       return (req, res, done) => {
-        if(jwt.decode(req.header('Authorization').split(' ')[1]).dn === process.env.GEOAXIS_DN){
+        let jwtPayload = jwt.decode(req.header('Authorization')).split(' ')[1];
+        if(jwtPayload.dn === process.env.GEOAXIS_DN && checkTime(jwtPayload.exp)){
           done();
         }
         else{
@@ -37,6 +34,9 @@ function determineAuth() {
     }
   }
 
+function checkTime(timeStamp){
+  return timeStamp > Date.now() / 1000 | 0;
+}
     
 module.exports = {
     determineAuth: determineAuth
