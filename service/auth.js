@@ -22,7 +22,7 @@ function determineAuth() {
     }
     else if(peliasConfig.api.auth === 'geoaxis_jwt') {
       return (req, res, done) => {
-        if(jwt.decode(req.header('Authorization').split(' ')[1]).user === process.env.GEOAXIS_NPE_USER){
+        if(jwt.decode(req.header('Authorization').split(' ')[1]).dn === process.env.GEOAXIS_DN){
           done();
         }
         else{
