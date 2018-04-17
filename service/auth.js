@@ -18,13 +18,20 @@ function determineAuth() {
     }
     else if(peliasConfig.api.auth === 'geoaxis_jwt') {
       return (req, res, done) => {
-        let jwtPayload = jwt.decode(req.header('Authorization').split(' ')[1]);
-        if(jwtPayload.dn === process.env.GEOAXIS_DN && checkTime(jwtPayload.exp)){
-          done();
+        if(req.header('Authorization')){
+          let jwtPayload = jwt.decode(req.header('Authorization').split(' ')[1]);
+          if(jwtPayload.dn === process.env.GEOAXIS_DN && checkTime(jwtPayload.exp)){
+            done();
+          }
+          else{
+            res.status(401).send({ error: 'Invalid token' });
+          }
         }
         else{
-          res.status(401).send({ error: 'Unauthorized' });
+          res.status(401).send({ error: 'Missing token' });
         }
+        let jwtPayload = jwt.decode(req.header('Authorization').split(' ')[1]);
+        
       };
     }
     else {
