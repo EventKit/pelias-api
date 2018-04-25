@@ -23,7 +23,10 @@ function determineAuth() {
           if(jwtPayload.dn === process.env.GEOAXIS_DN && checkTime(jwtPayload.exp)){
             done();
           }
-          else{
+          else if(!checkTime(jwtPayload.exp)){
+            res.status(401).send({ error: 'Expired token' });
+          }
+          else {
             res.status(401).send({ error: 'Invalid token' });
           }
         }
