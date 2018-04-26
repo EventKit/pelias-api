@@ -1,17 +1,15 @@
-"use strict";
+'use strict';
 
 const logger = require( 'pelias-logger' ).get( 'api' );
 const axios = require('axios');
 const geotransURL = process.env.GEOTRANS_URL;
 
-function geotrans(coord) { 
+function geotrans(query) { 
     let url = geotransURL;
     logger.info(`GET ${url}`);
+    query.datum = 'WGE';
     return axios.get(url, {
-        params:{
-            'datum':'WGE',
-            'coord':coord
-        }
+        params:query
     })
     .then(function (response){
         logger.info('200');
