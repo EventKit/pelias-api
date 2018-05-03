@@ -68,6 +68,7 @@ module.exports.tests.functionality = (test, common) => {
       });
 
       service.geotrans('18TXM9963493438').then(function(response){
+
         let res = {
           'type': 'Feature',
           'geometry': {

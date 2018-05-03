@@ -72,6 +72,7 @@ var tests = [
   require('./sanitizer/_geonames_deprecation'),
   require('./sanitizer/_geonames_warnings'),
   require('./sanitizer/_geo_common'),
+  require('./sanitizer/_geometries'),
   require('./sanitizer/_geo_reverse'),
   require('./sanitizer/_groups'),
   require('./sanitizer/_ids'),
@@ -106,7 +107,8 @@ var tests = [
   require('./service/configurations/PointInPolygon'),
   require('./service/mget'),
   require('./service/search'),
-  require('./service/external')
+  require('./service/external'),
+  require('./service/auth')
 ];
 
 tests.map(function(t) {
