@@ -7,7 +7,6 @@ const geotransURL = process.env.GEOTRANS_URL;
 function geotrans(query) { 
     let url = geotransURL;
     logger.info(`GET ${url}`);
-    query.datum = 'WGE';
     return axios.get(url, {
         params:query
     })
