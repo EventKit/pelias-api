@@ -5,9 +5,11 @@ const collectDetails = require('./geojsonify_place_details');
 const _ = require('lodash');
 const Document = require('pelias-model').Document;
 
-function geojsonifyPlaces(params, docs, geometriesParam){
+function geojsonifyPlaces(params, docs, geometriesParam, errors){
+
   // Parse geometries param for valid types
-  let requestedGeometries = parseGeometries(geometriesParam) || ['point'];
+  let requestedGeometries = geometriesParam ? parseGeometries(geometriesParam, errors) : ['point'];
+  console.log(requestedGeometries);
   // Weed out non-geo data.
   const geodata = docs.filter(doc => !!_.has(doc, 'center_point'));
   
@@ -201,14 +203,20 @@ function computeBBox(geojson, geojsonExtentPoints) {
  * Check that geometries parameter includes at least one valid geometry type if specified at all.
  * Otherwise default to point data.
  * @param {string} geometriesParam parameter to split and compare to valid types array.
+ * @param {array} errorList list of errors to be displayed on geocoding result.
  * @returns {boolean} Whether there is at least one valid type in the parameter or not.
  */
-function parseGeometries(geometriesParam){
-  if(geometriesParam){
-   const validTypes = ['point','polygon'];
-   const requestedGeometries = geometriesParam.split(',');
-   return requestedGeometries.some(r=> validTypes.includes(r)) ? requestedGeometries : false;
-  }
+function parseGeometries(geometriesParam, errorList){
+    const validTypes = ['point','polygon'];
+    const requestedGeometries = geometriesParam.split(',');
+    let invalid = 0;
+    requestedGeometries.forEach( entry => { 
+      if(validTypes.indexOf(entry) === -1){
+        errorList.push(entry + ' is not a valid geometry type');
+        invalid++;
+      }
+    });
+    return invalid < requestedGeometries.length ? requestedGeometries : false;
 }
 
 module.exports = geojsonifyPlaces;
