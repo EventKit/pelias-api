@@ -34,15 +34,15 @@ RUN ln -s /usr/bin/nodejs /usr/local/bin/node
 
 # Build and set permissions for arbitrary non-root user
 RUN npm install && \
-  #npm test && \
+  npm test && \
   chmod -R a+rwX .
 
 # Run geotrans env variable script
 #RUN . ./node_modules/geotrans-mgrs-converter/install.sh
 # Don't run as root, because there's no reason to (https://docs.docker.com/engine/articles/dockerfile_best-practices/#user).
 # This also reveals permission problems on local Docker.
-# RUN chown -R 9999:9999 ${WORK}
-# USER 9999
+ RUN chown -R 9999:9999 ${WORK}
+ USER 9999
 
 # start service
 CMD [ "npm", "start" ]
