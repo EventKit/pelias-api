@@ -73,7 +73,15 @@ function convertToGeocodeJSON(req, res, next, opts) {
 
   // convert docs to geojson and merge with geocoding block
   let geometries = req.query.geometries || undefined;
+  
+  // create errors array 
+  res.body.geocoding.errors = [];
   _.extend(res.body, geojsonify(req.clean, res.data || [], geometries, res.body.geocoding.errors || []));
+
+  // remove empty array if necessary
+  if(!res.body.geocoding.errors.length){
+    delete res.body.geocoding.errors;
+  }
 
   next();
 }
