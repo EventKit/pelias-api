@@ -9,7 +9,6 @@ function geojsonifyPlaces(params, docs, geometriesParam, errors){
 
   // Parse geometries param for valid types
   let requestedGeometries = geometriesParam ? parseGeometries(geometriesParam, errors) : ['point'];
-  console.log(requestedGeometries);
   // Weed out non-geo data.
   const geodata = docs.filter(doc => !!_.has(doc, 'center_point'));
   

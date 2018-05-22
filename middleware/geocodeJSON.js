@@ -76,7 +76,7 @@ function convertToGeocodeJSON(req, res, next, opts) {
   
   // create errors array 
   res.body.geocoding.errors = [];
-  _.extend(res.body, geojsonify(req.clean, res.data || [], geometries, res.body.geocoding.errors || []));
+  _.extend(res.body, geojsonify(req.clean, res.data || [], geometries, res.body.geocoding.warnings || []));
 
   // remove empty array if necessary
   if(!res.body.geocoding.errors.length){
