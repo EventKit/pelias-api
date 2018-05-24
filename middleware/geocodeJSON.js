@@ -75,12 +75,12 @@ function convertToGeocodeJSON(req, res, next, opts) {
   let geometries = req.query.geometries || undefined;
   
   // create errors array 
-  res.body.geocoding.errors = [];
-  _.extend(res.body, geojsonify(req.clean, res.data || [], geometries, res.body.geocoding.warnings || []));
+  res.body.geocoding.warnings = [];
+  _.extend(res.body, geojsonify(req.clean, res.data || [], geometries, res.body.geocoding.warnings));
 
   // remove empty array if necessary
-  if(!res.body.geocoding.errors.length){
-    delete res.body.geocoding.errors;
+  if(!res.body.geocoding.warnings.length){
+    delete res.body.geocoding.warnings;
   }
 
   next();
