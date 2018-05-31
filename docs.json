@@ -1,0 +1,384 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Pelias API Overview",
+    "version": "v1"
+  },
+  "paths": {
+    "/v1": {
+      "get": {
+        "operationId": "v1",
+        "summary": "Version Landing Page",
+        "produces": [
+          "text/html"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "examples": {
+              "text/html": "<style>html{font-family:monospace}</style><h1>Pelias API</h1>\n<h3>Version: <a href=\"https://github.com/venicegeo/pelias-api/releases\">1.0</a></h3>\n<h3><a href=\"https://github.com/venicegeo/pelias-documentation/blob/master/README.md\">View our documentation on GitHub</a></h3>"
+            }
+          }
+        }
+      }
+    },
+    "/v1/attribution": {
+      "get": {
+        "operationId": "attribution",
+        "summary": "Attribution Page",
+        "produces": [
+          "text/html"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "examples": {
+              "text/html": "<style>html{font-family:monospace}</style><h1>Pelias API</h1>\n<h3>Version: <a href=\"https://github.com/venicegeo/pelias-api/releases\">1.0</a></h3>\n<h3><a href=\"https://github.com/venicegeo/pelias-documentation/blob/master/README.md\">View our documentation on GitHub</a></h3>\n<h2>Attribution</h2>\n<ul><li>Geocoding by <a href=\"https://mapzen.com/pelias\">Pelias</a> from <a href=\"https://mapzen.com\">Mapzen</a></li><li>Data from<ul><li><a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a> © OpenStreetMap contributors under <a href=\"http://opendatacommons.org/licenses/odbl/\">ODbL</a></li><li><a href=\"http://openaddresses.io\">OpenAddresses</a> under a <a href=\"https://github.com/openaddresses/openaddresses/blob/master/sources/LICENSE\">Creative Commons Zero</a> public domain designation</li><li><a href=\"http://www.geonames.org/\">GeoNames</a> under <a href=\"https://creativecommons.org/licenses/by/2.0/\">CC-BY-3.0</a></li><li><a href=\"http://whosonfirst.mapzen.com\">WhosOnFirst</a> under <a href=\"https://github.com/whosonfirst/whosonfirst-data/blob/master/LICENSE.md\">various licenses</a></li><li><a href=\"http://geonames.nga.mil/gns/html/index.html\">Geographic Names Database</a></li></ul></li></ul>"
+            }
+          }
+        }
+      }
+    },
+    "/status": {
+      "get": {
+        "operationId": "status",
+        "summary": "System Status Page",
+        "produces": [
+          "text/plain"
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "examples": {
+              "text/plain": "status:ok"
+            }
+          }
+        }
+      }
+    },
+    "/v1/place": {
+      "get": {
+        "operationId": "place",
+        "summary": "Place Search",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "description": "Specific place ID(s) to query",
+            "type": "array",
+            "items": {"type":"string", "pattern":"^[A-z]*.:[A-z]*.:[0-9]*$"},
+            "required": "true"
+
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "examples": {
+              "application/json": "// 20180525142043\n// https://pelias.dev.dev.east.paas.geointservices.io/v1/place?ids=whosonfirst:country:85633147\n\n{\n  \"geocoding\": {\n    \"version\": \"0.2\",\n    \"attribution\": \"http://pelias.mapzen.com/v1/attribution\",\n    \"query\": {\n      \"ids\": [\n        {\n          \"source\": \"whosonfirst\",\n          \"layer\": \"country\",\n          \"id\": \"85633147\"\n        }\n      ],\n      \"private\": false,\n      \"lang\": {\n        \"name\": \"English\",\n        \"iso6391\": \"en\",\n        \"iso6393\": \"eng\",\n        \"defaulted\": false\n      }\n    },\n    \"engine\": {\n      \"name\": \"Pelias\",\n      \"author\": \"Mapzen\",\n      \"version\": \"1.0\"\n    },\n    \"timestamp\": 1527272263786\n  },\n  \"type\": \"FeatureCollection\",\n  \"features\": [\n    {\n      \"type\": \"Feature\",\n      \"geometry\": {\n        \"type\": \"Point\",\n        \"coordinates\": [\n          2.549047,\n          46.698481\n        ]\n      },\n      \"properties\": {\n        \"id\": \"85633147\",\n        \"gid\": \"whosonfirst:country:85633147\",\n        \"layer\": \"country\",\n        \"source\": \"whosonfirst\",\n        \"source_id\": \"85633147\",\n        \"name\": \"France\",\n        \"accuracy\": \"centroid\",\n        \"country\": \"France\",\n        \"country_gid\": \"whosonfirst:country:85633147\",\n        \"country_a\": \"FRA\",\n        \"label\": \"France\"\n      },\n      \"bbox\": [\n        -5.132188,\n        41.365694,\n        9.560119,\n        51.087167\n      ]\n    }\n  ],\n  \"bbox\": [\n    -5.132188,\n    41.365694,\n    9.560119,\n    51.087167\n  ]\n}"
+            }
+          },
+          "400": {
+            "description": "400 bad request",
+            "examples": {
+              "application/json": "// 20180529135354// https://pelias.dev.dev.east.paas.geointservices.io/v1/place?ids=whosonfirst:country{  \"geocoding\": {    \"version\": \"0.2\",    \"attribution\": \"/v1/attribution\",    \"query\": {      \"private\": false,      \"lang\": {        \"name\": \"English\",        \"iso6391\": \"en\",        \"iso6393\": \"eng\",        \"defaulted\": false      }    },    \"errors\": [      \"id `whosonfirst:country is invalid: must be of the format source:layer:id for ex: 'geonames:venue:4163334'\"    ],    \"engine\": {      \"name\": \"Pelias\",      \"author\": \"Mapzen\",      \"version\": \"1.0\"    },    \"timestamp\": 1527616433967  },  \"type\": \"FeatureCollection\",  \"features\": [      ]}"
+            }
+          }
+        }
+      }
+    },
+    "/v1/autocomplete": {
+      "get": {
+        "operationId": "autocomplete",
+        "summary": "Autocomplete Search",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "text",
+            "in": "query",
+            "description": "Text query greater flexibility with partial matches and incomplete wording",
+            "type": "string",
+            "required": "true"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "examples": {
+              "application/json": "// 20180529091006// http://localhost:4000/v1/autocomplete?text=highland%20dwel{  \"geocoding\": {    \"version\": \"0.2\",    \"attribution\": \"http://pelias.mapzen.com/v1/attribution\",    \"query\": {      \"text\": \"highland dwel\",      \"parser\": \"addressit\",      \"tokens\": [        \"highland\",        \"dwel\"      ],      \"size\": 10,      \"private\": false,      \"lang\": {        \"name\": \"English\",        \"iso6391\": \"en\",        \"iso6393\": \"eng\",        \"defaulted\": false      }    },    \"engine\": {      \"name\": \"Pelias\",      \"author\": \"Mapzen\",      \"version\": \"1.0\"    },    \"timestamp\": 1527599406179  },  \"type\": \"FeatureCollection\",  \"features\": [    {      \"type\": \"Feature\",      \"geometry\": {        \"type\": \"Point\",        \"coordinates\": [          -76.996265,          38.831031        ]      },      \"properties\": {        \"id\": \"387155235\",        \"gid\": \"whosonfirst:venue:387155235\",        \"layer\": \"venue\",        \"source\": \"whosonfirst\",        \"source_id\": \"387155235\",        \"name\": \"Highland Dwellings Residents\",        \"accuracy\": \"point\",        \"country\": \"United States\",        \"country_gid\": \"whosonfirst:country:85633793\",        \"country_a\": \"USA\",        \"region\": \"District of Columbia\",        \"region_gid\": \"whosonfirst:region:85688741\",        \"region_a\": \"DC\",        \"county\": \"District of Columbia\",        \"county_gid\": \"whosonfirst:county:102084889\",        \"locality\": \"Washington\",        \"locality_gid\": \"whosonfirst:locality:85931779\",        \"neighbourhood\": \"Washington Highlands\",        \"neighbourhood_gid\": \"whosonfirst:neighbourhood:1108724029\",        \"continent\": \"North America\",        \"continent_gid\": \"whosonfirst:continent:102191575\",        \"label\": \"Highland Dwellings Residents, Washington, DC, USA\"      },      \"bbox\": [        -76.996265,        38.831031,        -76.996265,        38.831031      ]    }  ],  \"bbox\": [    -76.996265,    38.831031,    -76.996265,    38.831031  ]}"
+            }
+          },
+          "400": {
+            "description": "400 bad request",
+            "exampes": {
+              "application/json": "// 20180529135523// https://pelias.dev.dev.east.paas.geointservices.io/v1/autocomplete?{  \"geocoding\": {    \"version\": \"0.2\",    \"attribution\": \"http://pelias.mapzen.com/v1/attribution\",    \"query\": {      \"tokens\": [              ],      \"size\": 10,      \"private\": false,      \"lang\": {        \"name\": \"English\",        \"iso6391\": \"en\",        \"iso6393\": \"eng\",        \"defaulted\": false      }    },    \"errors\": [      \"invalid param 'text': text length, must be >0\"    ],    \"engine\": {      \"name\": \"Pelias\",      \"author\": \"Mapzen\",      \"version\": \"1.0\"    },    \"timestamp\": 1527616522797  },  \"type\": \"FeatureCollection\",  \"features\": [      ]}"
+            }
+          }
+        }
+      }
+    },
+    "/v1/search": {
+      "get": {
+        "operationId": "search",
+        "summary": "Search",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "text",
+            "in": "query",
+            "description": "Standard text query.",
+            "type": "string",
+            "required": "true"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "examples": {
+              "application/json": "// 20180529094043// http://localhost:4000/v1/search?text=Psychotherapy{  \"geocoding\": {    \"version\": \"0.2\",    \"attribution\": \"http://pelias.mapzen.com/v1/attribution\",    \"query\": {      \"text\": \"Psychotherapy\",      \"size\": 10,      \"private\": false,      \"lang\": {        \"name\": \"English\",        \"iso6391\": \"en\",        \"iso6393\": \"eng\",        \"defaulted\": false      },      \"querySize\": 20,      \"parser\": \"addressit\"    },    \"engine\": {      \"name\": \"Pelias\",      \"author\": \"Mapzen\",      \"version\": \"1.0\"    },    \"timestamp\": 1527601243661  },  \"type\": \"FeatureCollection\",  \"features\": [    {      \"type\": \"Feature\",      \"geometry\": {        \"type\": \"Point\",        \"coordinates\": [          -77.085681,          38.96209        ]      },      \"properties\": {        \"id\": \"353776577\",        \"gid\": \"whosonfirst:venue:353776577\",        \"layer\": \"venue\",        \"source\": \"whosonfirst\",        \"source_id\": \"353776577\",        \"name\": \"Washington Psychotherapy\",        \"confidence\": 0.54,        \"accuracy\": \"point\",        \"country\": \"United States\",        \"country_gid\": \"whosonfirst:country:85633793\",        \"country_a\": \"USA\",        \"region\": \"District of Columbia\",        \"region_gid\": \"whosonfirst:region:85688741\",        \"region_a\": \"DC\",        \"county\": \"District of Columbia\",        \"county_gid\": \"whosonfirst:county:102084889\",        \"locality\": \"Washington\",        \"locality_gid\": \"whosonfirst:locality:85931779\",        \"neighbourhood\": \"Friendship Heights\",        \"neighbourhood_gid\": \"whosonfirst:neighbourhood:85820743\",        \"continent\": \"North America\",        \"continent_gid\": \"whosonfirst:continent:102191575\",        \"label\": \"Washington Psychotherapy, Washington, DC, USA\"      },      \"bbox\": [        -77.085681,        38.96209,        -77.085681,        38.96209      ]    }  ],  \"bbox\": [    -77.085681,    38.96209,    -77.085681,    38.96209  ]}"
+            }
+          },
+          "400": {
+            "description": "400 bad request",
+            "examples": {
+              "application/json": "// 20180529135701// http://localhost:4000/v1/search?point.lat=38&point.lon=-77{  \"geocoding\": {    \"version\": \"0.2\",    \"attribution\": \"http://pelias.mapzen.com/v1/attribution\",    \"query\": {      \"size\": 10,      \"private\": false,      \"lang\": {        \"name\": \"English\",        \"iso6391\": \"en\",        \"iso6393\": \"eng\",        \"defaulted\": false      },      \"querySize\": 20    },    \"errors\": [      \"invalid param 'text': text length, must be >0\"    ],    \"engine\": {      \"name\": \"Pelias\",      \"author\": \"Mapzen\",      \"version\": \"1.0\"    },    \"timestamp\": 1527616621007  },  \"type\": \"FeatureCollection\",  \"features\": [      ]}"
+            }
+          }
+        }
+      }
+    },
+    "/v1/search/structured": {
+      "get": {
+        "operationId": "structured",
+        "summary": "Structured Search",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "text",
+            "in": "query",
+            "description": "Standard text query with filtering by standard WOF properties",
+            "type": "string",
+            "required": "true"
+          },
+          {
+            "name": "venue",
+            "in": "query",
+            "description": "Venue",
+            "type": "string"
+          },
+          {
+            "name": "address",
+            "in": "query",
+            "description": "Address",
+            "type": "string"
+          },
+          {
+            "name": "neighbourhood",
+            "in": "query",
+            "description": "Neighbourhood",
+            "type": "string"
+          },
+          {
+            "name": "borough",
+            "in": "query",
+            "description": "Borough",
+            "type": "string"
+          },
+          {
+            "name": "locality",
+            "in": "query",
+            "description": "Locality",
+            "type": "string"
+          },
+          {
+            "name": "county",
+            "in": "query",
+            "description": "County",
+            "type": "string"
+          },
+          {
+            "name": "region",
+            "in": "query",
+            "description": "Region",
+            "type": "string"
+          },
+          {
+            "name": "postalcode",
+            "in": "query",
+            "description": "Postal Code",
+            "type": "string"
+          },
+          {
+            "name": "country",
+            "in": "query",
+            "description": "Country",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "examples": {
+              "application/json": "// 20180529092016// http://localhost:4000/v1/search/structured?text=Psychotherapy&neighbourhood=Friendship%20Heights{  \"geocoding\": {    \"version\": \"0.2\",    \"attribution\": \"http://pelias.mapzen.com/v1/attribution\",    \"query\": {      \"parsed_text\": {        \"neighbourhood\": \"Friendship Heights\"      },      \"size\": 10,      \"private\": false,      \"lang\": {        \"name\": \"English\",        \"iso6391\": \"en\",        \"iso6393\": \"eng\",        \"defaulted\": false      },      \"querySize\": 20    },    \"engine\": {      \"name\": \"Pelias\",      \"author\": \"Mapzen\",      \"version\": \"1.0\"    },    \"timestamp\": 1527600016564  },  \"type\": \"FeatureCollection\",  \"features\": [    {      \"type\": \"Feature\",      \"geometry\": {        \"type\": \"Point\",        \"coordinates\": [          -77.08398,          38.956881        ]      },      \"properties\": {        \"id\": \"85820743\",        \"gid\": \"whosonfirst:neighbourhood:85820743\",        \"layer\": \"neighbourhood\",        \"source\": \"whosonfirst\",        \"source_id\": \"85820743\",        \"name\": \"Friendship Heights\",        \"confidence\": 1,        \"match_type\": \"exact\",        \"accuracy\": \"centroid\",        \"country\": \"United States\",        \"country_gid\": \"whosonfirst:country:85633793\",        \"country_a\": \"USA\",        \"region\": \"District of Columbia\",        \"region_gid\": \"whosonfirst:region:85688741\",        \"region_a\": \"DC\",        \"county\": \"District of Columbia\",        \"county_gid\": \"whosonfirst:county:102084889\",        \"locality\": \"Washington\",        \"locality_gid\": \"whosonfirst:locality:85931779\",        \"neighbourhood\": \"Friendship Heights\",        \"neighbourhood_gid\": \"whosonfirst:neighbourhood:85820743\",        \"continent\": \"North America\",        \"continent_gid\": \"whosonfirst:continent:102191575\",        \"label\": \"Friendship Heights, Washington, DC, USA\"      },      \"bbox\": [        -77.087203,        38.960777,        -77.083759,        38.96426      ]    }  ],  \"bbox\": [    -77.087203,    38.960777,    -77.083759,    38.96426  ]}"
+            }
+          },
+          "400": {
+            "description": "400 bad request",
+            "examples": {
+              "application/json": "// 20180529135804// http://localhost:4000/v1/search/structured?text=Washington%20Channel{  \"geocoding\": {    \"version\": \"0.2\",    \"attribution\": \"http://pelias.mapzen.com/v1/attribution\",    \"query\": {      \"parsed_text\": {              },      \"size\": 10,      \"private\": false,      \"lang\": {        \"name\": \"English\",        \"iso6391\": \"en\",        \"iso6393\": \"eng\",        \"defaulted\": false      },      \"querySize\": 20    },    \"errors\": [      \"at least one of the following fields is required: venue, address, neighbourhood, borough, locality, county, region, postalcode, country\"    ],    \"engine\": {      \"name\": \"Pelias\",      \"author\": \"Mapzen\",      \"version\": \"1.0\"    },    \"timestamp\": 1527616683813  },  \"type\": \"FeatureCollection\",  \"features\": [      ]}"
+            }
+          }
+        }
+      }
+    },
+    "/v1/reverse": {
+      "get": {
+        "operationId": "reverse",
+        "summary": "Reverse Search",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "point.lat",
+            "in": "query",
+            "description": "Latitude (decimal degrees)",
+            "type": "string",
+            "required": "true"
+          },
+          {
+            "name": "point.lon",
+            "in": "query",
+            "description": "Longitude (decimal degrees)",
+            "type": "string",
+            "required": "true"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "examples": {
+              "application/json": "// 20180529094247// http://localhost:4000/v1/reverse?point.lat=38&point.lon=-77{  \"geocoding\": {    \"version\": \"0.2\",    \"attribution\": \"http://pelias.mapzen.com/v1/attribution\",    \"query\": {      \"size\": 10,      \"private\": false,      \"point.lat\": 38,      \"point.lon\": -77,      \"boundary.circle.lat\": 38,      \"boundary.circle.lon\": -77,      \"lang\": {        \"name\": \"English\",        \"iso6391\": \"en\",        \"iso6393\": \"eng\",        \"defaulted\": false      },      \"querySize\": 20    },    \"engine\": {      \"name\": \"Pelias\",      \"author\": \"Mapzen\",      \"version\": \"1.0\"    },    \"timestamp\": 1527601367391  },  \"type\": \"FeatureCollection\",  \"features\": [    {      \"type\": \"Feature\",      \"geometry\": {        \"type\": \"Point\",        \"coordinates\": [          -78.666361,          37.510867        ]      },      \"properties\": {        \"id\": \"85688747\",        \"gid\": \"whosonfirst:region:85688747\",        \"layer\": \"region\",        \"source\": \"whosonfirst\",        \"source_id\": \"85688747\",        \"name\": \"Virginia\",        \"confidence\": 0.5,        \"distance\": 156.557,        \"accuracy\": \"centroid\",        \"country\": \"United States\",        \"country_gid\": \"whosonfirst:country:85633793\",        \"country_a\": \"USA\",        \"region\": \"Virginia\",        \"region_gid\": \"whosonfirst:region:85688747\",        \"region_a\": \"VA\",        \"continent\": \"North America\",        \"continent_gid\": \"whosonfirst:continent:102191575\",        \"label\": \"Virginia, USA\"      },      \"bbox\": [        -83.675395,        36.540759,        -75.166435,        39.466012      ]    }  ],  \"bbox\": [    -83.675395,    36.540759,    -75.166435,    39.466012  ]}"
+            }
+          },
+          "400": {
+            "description": "400 bad request",
+            "examples": {
+              "application/json": "// 20180529135827// http://localhost:4000/v1/reverse?text=Washington%20Channel{  \"geocoding\": {    \"version\": \"0.2\",    \"attribution\": \"http://pelias.mapzen.com/v1/attribution\",    \"query\": {      \"size\": 10,      \"private\": false,      \"lang\": {        \"name\": \"English\",        \"iso6391\": \"en\",        \"iso6393\": \"eng\",        \"defaulted\": false      },      \"querySize\": 20    },    \"errors\": [      \"parameters point.lat and point.lon must both be specified\"    ],    \"engine\": {      \"name\": \"Pelias\",      \"author\": \"Mapzen\",      \"version\": \"1.0\"    },    \"timestamp\": 1527616706978  },  \"type\": \"FeatureCollection\",  \"features\": [      ]}"
+            }
+          }
+        }
+      }
+    },
+    "/v1/nearby": {
+      "get": {
+        "operationId": "nearby",
+        "summary": "Nearby search.",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "point.lat",
+            "in": "query",
+            "description": "Latitude (decimal degrees)",
+            "type": "string",
+            "required": "true"
+          },
+          {
+            "name": "point.lon",
+            "in": "query",
+            "description": "Longitude (decimal degrees)",
+            "type": "string",
+            "required": "true"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "examples": {
+              "application/json": "// 20180529102902// http://localhost:4000/v1/nearby?point.lat=38.96209&point.lon=-77.085681{  \"geocoding\": {    \"version\": \"0.2\",    \"attribution\": \"http://pelias.mapzen.com/v1/attribution\",    \"query\": {      \"size\": 10,      \"private\": false,      \"point.lat\": 38.96209,      \"point.lon\": -77.085681,      \"boundary.circle.lat\": 38.96209,      \"boundary.circle.lon\": -77.085681,      \"lang\": {        \"name\": \"English\",        \"iso6391\": \"en\",        \"iso6393\": \"eng\",        \"defaulted\": false      },      \"querySize\": 20    },    \"engine\": {      \"name\": \"Pelias\",      \"author\": \"Mapzen\",      \"version\": \"1.0\"    },    \"timestamp\": 1527604142012  },  \"type\": \"FeatureCollection\",  \"features\": [    {      \"type\": \"Feature\",      \"geometry\": {        \"type\": \"Point\",        \"coordinates\": [          -77.085681,          38.96209        ]      },      \"properties\": {        \"id\": \"370782105\",        \"gid\": \"whosonfirst:venue:370782105\",        \"layer\": \"venue\",        \"source\": \"whosonfirst\",        \"source_id\": \"370782105\",        \"name\": \"Chevy Chase Ctr Office Bldg\",        \"confidence\": 1,        \"distance\": 0,        \"accuracy\": \"point\",        \"country\": \"United States\",        \"country_gid\": \"whosonfirst:country:85633793\",        \"country_a\": \"USA\",        \"region\": \"District of Columbia\",        \"region_gid\": \"whosonfirst:region:85688741\",        \"region_a\": \"DC\",        \"county\": \"District of Columbia\",        \"county_gid\": \"whosonfirst:county:102084889\",        \"locality\": \"Washington\",        \"locality_gid\": \"whosonfirst:locality:85931779\",        \"neighbourhood\": \"Friendship Heights\",        \"neighbourhood_gid\": \"whosonfirst:neighbourhood:85820743\",        \"continent\": \"North America\",        \"continent_gid\": \"whosonfirst:continent:102191575\",        \"label\": \"Chevy Chase Ctr Office Bldg, Washington, DC, USA\"      },      \"bbox\": [        -77.085681,        38.96209,        -77.085681,        38.96209      ]    }  ],  \"bbox\": [    -77.085681,    38.960091,    -77.085381,    38.96209  ]}"
+            }
+          },
+          "400": {
+            "description": "400 bad request",
+            "examples": {
+              "application/json": "// 20180529135859// http://localhost:4000/v1/nearby?text=Washington%20Channel{  \"geocoding\": {    \"version\": \"0.2\",    \"attribution\": \"http://pelias.mapzen.com/v1/attribution\",    \"query\": {      \"size\": 10,      \"private\": false,      \"lang\": {        \"name\": \"English\",        \"iso6391\": \"en\",        \"iso6393\": \"eng\",        \"defaulted\": false      },      \"querySize\": 20    },    \"errors\": [      \"parameters point.lat and point.lon must both be specified\"    ],    \"engine\": {      \"name\": \"Pelias\",      \"author\": \"Mapzen\",      \"version\": \"1.0\"    },    \"timestamp\": 1527616738608  },  \"type\": \"FeatureCollection\",  \"features\": [      ]}"
+            }
+          }
+        }
+      }
+    },
+    "/v1/convert": {
+      "get": {
+        "operationId": "convert",
+        "summary": "Proxy to the MGRS GEOTRANS Conversion service",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "description": "Origin coordinate type",
+            "type": "string",
+            "required": "true",
+            "enum": ["decdeg", "mgrs"]
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "description": "Destination coordinate type",
+            "type": "string",
+            "required": "true",
+            "enum": ["decdeg", "mgrs"]
+          },
+          {
+            "name": "lat",
+            "in": "query",
+            "description": "Latitude (decimal degrees)",
+            "type": "string"
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "description": "Longitude (decimal degeres)",
+            "type": "string"
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "examples": {
+              "application/json": "// 20180529103844// http://localhost:4000/v1/convert?from=mgrs&to=decdeg&q=38S%20MB%2043166%2086546{  \"type\": \"Feature\",  \"geometry\": {    \"type\": \"Point\",    \"coordinates\": [      44.38939,      33.31652    ]  },  \"properties\": {    \"name\": \"38SMB4316686546\",    \"from\": \"mgrs\",    \"to\": \"decdeg\"  }}"
+            }
+          },
+          "400": {
+            "description": "200 response",
+            "examples": {
+              "application/json": "// 20180529140005// http://localhost:4000/v1/convert?from=decdeg&to=mgrs&q=38S%20MB%2043166%2086546{  \"errors\": \"invalid or missing parameter: lat, lon\"}"
+            }
+          }
+        }
+      }
+    }
+  },
+  "consumes": [
+    "application/json"
+  ]
+}

@@ -3,10 +3,16 @@ const jwt = require('jsonwebtoken');
 
 const peliasConfig = require( 'pelias-config' ).generate(require('./schema'));
 
+const swaggerUi = require('express-swaggerize-ui');    
+
 if( peliasConfig.api.accessLog ){
   app.use( require( './middleware/access_log' ).createAccessLogger( peliasConfig.api.accessLog ) );
 }
 
+app.use('/api-docs.json', function (req, res) {
+  res.json(require('./docs.json'));
+});
+app.use('/api-docs', swaggerUi());
 /** ----------------------- pre-processing-middleware ----------------------- **/
 
 app.use( require('./middleware/headers') );
