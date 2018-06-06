@@ -413,21 +413,167 @@ function addRoutes(app, peliasConfig) {
   //Set authorization method based on pelias config
   let authMethod = authService.determineAuth();
 
+
+
+//Models
+/**
+   * @swagger
+   * definitions:
+   *   standardPeliasReturn:
+   *     properties:
+   *       geocoding:
+   *         type: object
+   *         $ref: '#/definitions/geocodingObject'
+   *       type:
+   *         type: string
+   *       features:
+   *         type: array
+   *         items:
+   *           $ref: '#/definitions/featureObject'
+   *       bbox:
+   *         type: array
+   *         items: number
+   *   standardPeliasErrorReturn:
+   *     properties:
+   *       geocoding:
+   *         type: object
+   *         $ref: '#/definitions/geocodingErrorObject'
+   *       type:
+   *         type: string
+   *       features:
+   *         type: array
+   *         items:
+   *           $ref: '#/definitions/featureObject'
+   *       bbox:
+   *         type: array
+   *         items: number
+   *   geocodingObject:
+   *     properties:
+   *       version:
+   *         type: string
+   *       attribution:
+   *         type: string
+   *       query:
+   *         type: object
+   *       engine:
+   *         type: object
+   *       timestamp:
+   *         type: string
+   *   geocodingErrorObject:
+   *     properties:
+   *       version:
+   *         type: string
+   *       attribution:
+   *         type: string
+   *       query:
+   *         type: object
+   *       errors:
+   *         type: array
+   *         items: string
+   *       timestamp:
+   *         type: string
+   *   featureObject:
+   *     properties:
+   *       type:
+   *         type: string
+   *       geometry:
+   *         type: object
+   *       properties:
+   *         type: object
+   *       bbox:
+   *         type: array
+   *         items: number
+   *   convertReturn:
+   *     properties:
+   *       type:
+   *         type: string
+   *       geometry:
+   *         type: object
+   *       properties:
+   *         type: object
+   *         $ref: '#/definitions/convertPropertiesObject'
+   *       bbox:
+   *         type: array
+   *         items: number
+   *   convertPropertiesObject:
+   *     properties:
+   *       from:
+   *         type: string
+   *       to:
+   *         type: string
+   *       name:
+   *         type: string
+   *   convertErrorReturn: 
+   *     properties:
+   *       errors:
+   *         type: string
+*/
   // static data endpoints
+  /**
+   * @swagger
+   * /v1:
+   *   get:
+   *     tags: 
+   *       - v1
+   *     operationId: v1
+   *     produces:
+   *       - application/json
+   *     summary: Landing page
+   *     responses:
+   *       200:
+   *         description: 200 ok
+   *         examples: 
+   *           application/json: { "markdown": "# Pelias API\n### Version: [1.0](https://github.com/venicegeo/pelias-api/releases)\n### [View our documentation on GitHub](https://github.com/venicegeo/pelias-documentation/blob/master/README.md)\n", "html": "<style>html{font-family:monospace}</style><h1>Pelias API</h1>\n\n<h3>Version: <a href=\"https://github.com/venicegeo/pelias-api/releases\">1.0</a></h3>\n\n<h3><a href=\"https://github.com/venicegeo/pelias-documentation/blob/master/README.md\">View our documentation on GitHub</a></h3>" }
+   */
   app.get ( base, routers.index );
+  /**
+   * @swagger
+   * /v1/attribution:
+   *   get:
+   *     tags: 
+   *       - v1
+   *     operationId: attribution
+   *     produces:
+   *       - application/json
+   *     summary: Landing page w/attribution
+   *     responses:
+   *       200:
+   *         description: 200 ok
+   *         examples: 
+   *           application/json: {  "markdown": "# Pelias API\n### Version: [1.0](https://github.com/venicegeo/pelias-api/releases)\n### [View our documentation on GitHub](https://github.com/venicegeo/pelias-documentation/blob/master/README.md)\n## Attribution\n* Geocoding by [Pelias](https://mapzen.com/pelias) from [Mapzen](https://mapzen.com)\n* Data from\n   * [OpenStreetMap](http://www.openstreetmap.org/copyright) © OpenStreetMap contributors under [ODbL](http://opendatacommons.org/licenses/odbl/)\n   * [OpenAddresses](http://openaddresses.io) under a [Creative Commons Zero](https://github.com/openaddresses/openaddresses/blob/master/sources/LICENSE) public domain designation\n   * [GeoNames](http://www.geonames.org/) under [CC-BY-3.0](https://creativecommons.org/licenses/by/2.0/)\n   * [WhosOnFirst](http://whosonfirst.mapzen.com) under [various licenses](https://github.com/whosonfirst/whosonfirst-data/blob/master/LICENSE.md)\n   * [Geographic Names Database](http://geonames.nga.mil/gns/html/index.html)\n",  "html": "<style>html{font-family:monospace}</style><h1>Pelias API</h1>\n\n<h3>Version: <a href=\"https://github.com/venicegeo/pelias-api/releases\">1.0</a></h3>\n\n<h3><a href=\"https://github.com/venicegeo/pelias-documentation/blob/master/README.md\">View our documentation on GitHub</a></h3>\n\n<h2>Attribution</h2>\n\n<ul><li>Geocoding by <a href=\"https://mapzen.com/pelias\">Pelias</a> from <a href=\"https://mapzen.com\">Mapzen</a></li><li>Data from<ul><li><a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a> © OpenStreetMap contributors under <a href=\"http://opendatacommons.org/licenses/odbl/\">ODbL</a></li><li><a href=\"http://openaddresses.io\">OpenAddresses</a> under a <a href=\"https://github.com/openaddresses/openaddresses/blob/master/sources/LICENSE\">Creative Commons Zero</a> public domain designation</li><li><a href=\"http://www.geonames.org/\">GeoNames</a> under <a href=\"https://creativecommons.org/licenses/by/2.0/\">CC-BY-3.0</a></li><li><a href=\"http://whosonfirst.mapzen.com\">WhosOnFirst</a> under <a href=\"https://github.com/whosonfirst/whosonfirst-data/blob/master/LICENSE.md\">various licenses</a></li><li><a href=\"http://geonames.nga.mil/gns/html/index.html\">Geographic Names Database</a></li></ul></li></ul>"}
+   */
   app.get ( base + 'attribution', routers.attribution );
   app.get ( '/attribution', routers.attribution );
+  /**
+   * @swagger
+   * /status:
+   *   get:
+   *     tags: 
+   *       - base
+   *     operationId: attribution
+   *     produces:
+   *       - text/plain
+   *     summary: Landing page w/attribution
+   *     responses:
+   *       200:
+   *         description: 200 ok
+   *         examples: 
+   *           text/plain: "status: ok"
+   */
   app.get ( '/status', routers.status );
 
   // backend dependent endpoints
 
   /**
    * @swagger
-   * /place:
+   * /v1/place:
    *   get:
+   *     tags: 
+   *       - v1
    *     operationId: place
    *     produces:
    *       - application/json
+   *     summary: For querying specific place ID(s)
    *     parameters:
    *       - name: ids
    *         description: Specific place ID(s) to query.
@@ -438,17 +584,259 @@ function addRoutes(app, peliasConfig) {
    * 
    *     responses:
    *       200:
-   *         description: 200 response
+   *         description: 200 ok
    *         schema:
    *           type: object
+   *           $ref: '#/definitions/standardPeliasReturn'
+   *       400:
+   *         description: 400 bad request
+   *         schema:
+   *           type: object
+   *           $ref: '#/definitions/standardPeliasErrorReturn'
    */
   app.get ( base + 'place', routers.place );
+  /**
+   * @swagger
+   * /v1/autocomplete:
+   *   get:
+   *     tags: 
+   *       - v1
+   *     operationId: autocomplete
+   *     summary: Standard text query w/greater flexibility with partial matches and incomplete wording.
+   *     produces:
+   *       - application/json
+   *     parameters:
+   *       - name: text
+   *         description: Text query
+   *         in: query
+   *         required: true
+   *         type: string
+   * 
+   *     responses:
+   *       200:
+   *         description: 200 ok
+   *         schema:
+   *           type: object
+   *           $ref: '#/definitions/standardPeliasReturn'
+   *       400:
+   *         description: 400 bad request
+   *         schema:
+   *           type: object
+   *           $ref: '#/definitions/standardPeliasErrorReturn'
+   */
   app.get ( base + 'autocomplete', routers.autocomplete );
+  /**
+   * @swagger
+   * /v1/search:
+   *   get:
+   *     tags: 
+   *       - v1
+   *     operationId: search
+   *     summary: Standard text query search.
+   *     produces:
+   *       - application/json
+   *     parameters:
+   *       - name: text
+   *         description: Text query
+   *         in: query
+   *         required: true
+   *         type: string
+   * 
+   *     responses:
+   *       200:
+   *         description: 200 ok
+   *         schema:
+   *           type: object
+   *           $ref: '#/definitions/standardPeliasReturn'
+   *       400:
+   *         description: 400 bad request
+   *         schema:
+   *           type: object
+   *           $ref: '#/definitions/standardPeliasErrorReturn'
+   */
   app.get ( base + 'search', authMethod, routers.search );
   app.post( base + 'search', authMethod, routers.search );
+  /**
+   * @swagger
+   * /v1/search/structured:
+   *   get:
+   *     tags: 
+   *       - v1
+   *     operationId: structured
+   *     summary: Standard text query with filtering by standard WOF properties.
+   *     produces:
+   *       - application/json
+   *     parameters:
+   *       - name: text
+   *         description: Text query
+   *         in: query
+   *         required: true
+   *         type: string
+   *       - name: venue
+   *         description: WOF Venue
+   *         in: query
+   *         type: string
+   *       - name: address
+   *         description: Address
+   *         in: query
+   *         type: string
+   *       - name: neighbourhood
+   *         description: Neighbourhood
+   *         in: query
+   *         type: string
+   *       - name: borough
+   *         description: Borough
+   *         in: query
+   *         type: string
+   *       - name: locality
+   *         description: Locality
+   *         in: query
+   *         type: string
+   *       - name: county
+   *         description: County
+   *         in: query
+   *         type: string
+   *       - name: region
+   *         description: Region
+   *         in: query
+   *         type: string
+   *       - name: postalcode
+   *         description: Postal Code
+   *         in: query
+   *         type: string
+   *       - name: country
+   *         description: Country
+   *         in: query
+   *         type: string
+   *     responses:
+   *       200:
+   *         description: 200 ok
+   *         schema:
+   *           type: object
+   *           $ref: '#/definitions/standardPeliasReturn'
+   *       400:
+   *         description: 400 bad request
+   *         schema:
+   *           type: object
+   *           $ref: '#/definitions/standardPeliasErrorReturn'
+   */
   app.get ( base + 'search/structured', authMethod, routers.structured );
+  /**
+   * @swagger
+   * /v1/reverse:
+   *   get:
+   *     tags: 
+   *       - v1
+   *     operationId: reverse
+   *     summary: Reverse geocode search.
+   *     produces:
+   *       - application/json
+   *     parameters:
+   *       - name: point.lat
+   *         description: Latitude (decimal degrees)
+   *         in: query
+   *         required: true
+   *         type: string
+   *       - name: point.lon
+   *         description: Longitude (decimal degrees)
+   *         in: query
+   *         required: true
+   *         type: string
+   *     responses:
+   *       200:
+   *         description: 200 ok
+   *         schema:
+   *           type: object
+   *           $ref: '#/definitions/standardPeliasReturn'
+   *       400:
+   *         description: 400 bad request
+   *         schema:
+   *           type: object
+   *           $ref: '#/definitions/standardPeliasErrorReturn'
+   */
   app.get ( base + 'reverse', authMethod, routers.reverse );
+  /**
+   * @swagger
+   * /v1/nearby:
+   *   get:
+   *     tags: 
+   *       - v1 
+   *     operationId: nearby
+   *     summary: Reverse geocode search including surrounding areas.
+   *     produces:
+   *       - application/json
+   *     parameters:
+   *       - name: point.lat
+   *         description: Latitude (decimal degrees)
+   *         in: query
+   *         required: true
+   *         type: string
+   *       - name: point.lon
+   *         description: Longitude (decimal degrees)
+   *         in: query
+   *         required: true
+   *         type: string
+   *     responses:
+   *       200:
+   *         description: 200 ok
+   *         schema:
+   *           type: object
+   *           $ref: '#/definitions/standardPeliasReturn'
+   *       400:
+   *         description: 400 bad request
+   *         schema:
+   *           type: object
+   *           $ref: '#/definitions/standardPeliasErrorReturn'
+   * 
+   */
   app.get ( base + 'nearby', routers.nearby );
+  /**
+   * @swagger
+   * /v1/convert:
+   *   get:
+   *     tags:
+   *       - v1
+   *     operationId: convert
+   *     summary: Proxy to the MGRS GEOTRANS Conversion service.
+   *     produces:
+   *       - application/json
+   *     parameters:
+   *       - name: from
+   *         description: Origin coordinate type
+   *         in: query
+   *         required: true
+   *         type: string
+   *         enum: ["decdeg", "mgrs"]
+   *       - name: to
+   *         description: Destination coordinate type
+   *         in: query
+   *         required: true
+   *         type: string
+   *         enum: ["decdeg", "mgrs"]
+   *       - name: lat
+   *         description: Latitude (decimal degrees) - Required on Decdeg -> MGRS conversion
+   *         in: query
+   *         type: string
+   *       - name: lon
+   *         description: Longitude (decimal degrees) - Required on Decdeg -> MGRS conversion
+   *         in: query
+   *         type: string
+   *       - name: q
+   *         description: MGRS coordinate - Required on MGRS -> Decdeg conversion
+   *         in: query
+   *         type: string
+   *     responses:
+   *       200:
+   *         description: 200 ok
+   *         schema:
+   *           type: object
+   *           $ref: '#/definitions/convertReturn'
+   *       400:
+   *         description: 400 bad request
+   *         schema:
+   *           type: object
+   *           $ref: '#/definitions/convertErrorReturn'
+   */
   app.get ( base + 'convert', authMethod, routers.convert );
 }
 /**

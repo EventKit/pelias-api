@@ -8,21 +8,7 @@ if( peliasConfig.api.accessLog ){
   app.use( require( './middleware/access_log' ).createAccessLogger( peliasConfig.api.accessLog ) );
 }
 
-var swaggerDefinition = {
-  info: { // API informations (required)
-    title: 'Hello World', // Title (required)
-    version: '1.0.0', // Version (required)
-    description: 'A sample API', // Description (optional)
-  },
-  basePath: __dirname, // Base path (optional)
-};
-var options = {
-  // Import swaggerDefinitions
-  swaggerDefinition: swaggerDefinition,
-  // Path to the API docs
-  apis: ['routes/*.js']
-};
-var swaggerSpec = swaggerJSDoc(options);
+var swaggerSpec = swaggerJSDoc(require( './config/swagger'));
 
 
 
