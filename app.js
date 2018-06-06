@@ -1,12 +1,37 @@
 const app = require('express')();
 const jwt = require('jsonwebtoken');
-
+const swaggerJSDoc = require('swagger-jsdoc');
+const swaggerUi = require('express-swaggerize-ui');    
 const peliasConfig = require( 'pelias-config' ).generate(require('./schema'));
 
 if( peliasConfig.api.accessLog ){
   app.use( require( './middleware/access_log' ).createAccessLogger( peliasConfig.api.accessLog ) );
 }
 
+var swaggerDefinition = {
+  info: { // API informations (required)
+    title: 'Hello World', // Title (required)
+    version: '1.0.0', // Version (required)
+    description: 'A sample API', // Description (optional)
+  },
+  basePath: __dirname, // Base path (optional)
+};
+var options = {
+  // Import swaggerDefinitions
+  swaggerDefinition: swaggerDefinition,
+  // Path to the API docs
+  apis: ['routes/*.js']
+};
+var swaggerSpec = swaggerJSDoc(options);
+
+
+
+app.get('/api-docs.json', function(req, res) {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
+
+app.use('/api-docs', swaggerUi());
 /** ----------------------- pre-processing-middleware ----------------------- **/
 
 app.use( require('./middleware/headers') );

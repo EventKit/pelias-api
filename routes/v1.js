@@ -420,6 +420,28 @@ function addRoutes(app, peliasConfig) {
   app.get ( '/status', routers.status );
 
   // backend dependent endpoints
+
+  /**
+   * @swagger
+   * /place:
+   *   get:
+   *     operationId: place
+   *     produces:
+   *       - application/json
+   *     parameters:
+   *       - name: ids
+   *         description: Specific place ID(s) to query.
+   *         in: query
+   *         required: true
+   *         type: array
+   *         items: {"type":"string", "pattern":"^[A-z]*.:[A-z]*.:[0-9]*$"}
+   * 
+   *     responses:
+   *       200:
+   *         description: 200 response
+   *         schema:
+   *           type: object
+   */
   app.get ( base + 'place', routers.place );
   app.get ( base + 'autocomplete', routers.autocomplete );
   app.get ( base + 'search', authMethod, routers.search );
