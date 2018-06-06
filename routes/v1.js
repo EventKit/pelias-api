@@ -523,7 +523,11 @@ function addRoutes(app, peliasConfig) {
    *       200:
    *         description: 200 ok
    *         examples: 
-   *           application/json: { "markdown": "# Pelias API\n### Version: [1.0](https://github.com/venicegeo/pelias-api/releases)\n### [View our documentation on GitHub](https://github.com/venicegeo/pelias-documentation/blob/master/README.md)\n", "html": "<style>html{font-family:monospace}</style><h1>Pelias API</h1>\n\n<h3>Version: <a href=\"https://github.com/venicegeo/pelias-api/releases\">1.0</a></h3>\n\n<h3><a href=\"https://github.com/venicegeo/pelias-documentation/blob/master/README.md\">View our documentation on GitHub</a></h3>" }
+   *           application/json: { "markdown": "# Pelias API\n### Version: [1.0](https://github.com/venicegeo/pelias-api/releases)\n### 
+   * [View our documentation on GitHub](https://github.com/venicegeo/pelias-documentation/blob/master/README.md)\n", "html": "<style>ht
+   * ml{font-family:monospace}</style><h1>Pelias API</h1>\n\n<h3>Version: <a href=\"https://github.com/venicegeo/pelias-api/releases\">
+   * 1.0</a></h3>\n\n<h3><a href=\"https://github.com/venicegeo/pelias-documentation/blob/master/README.md\">View our documentation 
+   * on GitHub</a></h3>" }
    */
   app.get ( base, routers.index );
   /**
@@ -540,7 +544,31 @@ function addRoutes(app, peliasConfig) {
    *       200:
    *         description: 200 ok
    *         examples: 
-   *           application/json: {  "markdown": "# Pelias API\n### Version: [1.0](https://github.com/venicegeo/pelias-api/releases)\n### [View our documentation on GitHub](https://github.com/venicegeo/pelias-documentation/blob/master/README.md)\n## Attribution\n* Geocoding by [Pelias](https://mapzen.com/pelias) from [Mapzen](https://mapzen.com)\n* Data from\n   * [OpenStreetMap](http://www.openstreetmap.org/copyright) © OpenStreetMap contributors under [ODbL](http://opendatacommons.org/licenses/odbl/)\n   * [OpenAddresses](http://openaddresses.io) under a [Creative Commons Zero](https://github.com/openaddresses/openaddresses/blob/master/sources/LICENSE) public domain designation\n   * [GeoNames](http://www.geonames.org/) under [CC-BY-3.0](https://creativecommons.org/licenses/by/2.0/)\n   * [WhosOnFirst](http://whosonfirst.mapzen.com) under [various licenses](https://github.com/whosonfirst/whosonfirst-data/blob/master/LICENSE.md)\n   * [Geographic Names Database](http://geonames.nga.mil/gns/html/index.html)\n",  "html": "<style>html{font-family:monospace}</style><h1>Pelias API</h1>\n\n<h3>Version: <a href=\"https://github.com/venicegeo/pelias-api/releases\">1.0</a></h3>\n\n<h3><a href=\"https://github.com/venicegeo/pelias-documentation/blob/master/README.md\">View our documentation on GitHub</a></h3>\n\n<h2>Attribution</h2>\n\n<ul><li>Geocoding by <a href=\"https://mapzen.com/pelias\">Pelias</a> from <a href=\"https://mapzen.com\">Mapzen</a></li><li>Data from<ul><li><a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a> © OpenStreetMap contributors under <a href=\"http://opendatacommons.org/licenses/odbl/\">ODbL</a></li><li><a href=\"http://openaddresses.io\">OpenAddresses</a> under a <a href=\"https://github.com/openaddresses/openaddresses/blob/master/sources/LICENSE\">Creative Commons Zero</a> public domain designation</li><li><a href=\"http://www.geonames.org/\">GeoNames</a> under <a href=\"https://creativecommons.org/licenses/by/2.0/\">CC-BY-3.0</a></li><li><a href=\"http://whosonfirst.mapzen.com\">WhosOnFirst</a> under <a href=\"https://github.com/whosonfirst/whosonfirst-data/blob/master/LICENSE.md\">various licenses</a></li><li><a href=\"http://geonames.nga.mil/gns/html/index.html\">Geographic Names Database</a></li></ul></li></ul>"}
+   *           application/json: {  "markdown": "# Pelias API\n### Version: [1.0]
+   * (https://github.com/venicegeo/pelias-api/releases)\n### [View our documentation 
+   * on GitHub](https://github.com/venicegeo/pelias-documentation/blob/master/README.md)
+   * \n## Attribution\n* Geocoding by [Pelias](https://mapzen.com/pelias) from [Mapzen]
+   * (https://mapzen.com)\n* Data from\n   * [OpenStreetMap](http://www.openstreetmap.org/copyright)
+   *  © OpenStreetMap contributors under [ODbL](http://opendatacommons.org/licenses/odbl/)\n 
+   *   * [OpenAddresses](http://openaddresses.io) under a 
+   * [Creative Commons Zero](https://github.com/openaddresses/openaddresses/blob/master/sources/LICENSE) 
+   * public domain designation\n   * [GeoNames](http://www.geonames.org/) under 
+   * [CC-BY-3.0](https://creativecommons.org/licenses/by/2.0/)\n   * [WhosOnFirst](http://whosonfirst.mapzen.com) 
+   * under [various licenses](https://github.com/whosonfirst/whosonfirst-data/blob/master/LICENSE.md)\n   
+   * * [Geographic Names Database](http://geonames.nga.mil/gns/html/index.html)\n",  
+   * "html": "<style>html{font-family:monospace}</style><h1>Pelias API</h1>\n\n
+   * <h3>Version: <a href=\"https://github.com/venicegeo/pelias-api/releases\">1.0</a></h3>\n\n
+   * <h3><a href=\"https://github.com/venicegeo/pelias-documentation/blob/master/README.md\">View our documentation on GitHub</a></h3>
+   * \n\n<h2>Attribution</h2>\n\n<ul><li>Geocoding by <a href=\"https://mapzen.com/pelias\">Pelias</a> from 
+   * <a href=\"https://mapzen.com\">Mapzen</a></li><li>Data from<ul><li><a href=\"http://www.openstreetmap.org/copyright\">
+   * OpenStreetMap</a> © OpenStreetMap contributors under <a href=\"http://opendatacommons.org/licenses/odbl/\">
+   * ODbL</a></li><li><a href=\"http://openaddresses.io\">OpenAddresses</a> under a 
+   * <a href=\"https://github.com/openaddresses/openaddresses/blob/master/sources/LICENSE\">Creative Commons Zero</a> 
+   * public domain designation</li><li><a href=\"http://www.geonames.org/\">GeoNames</a> under 
+   * <a href=\"https://creativecommons.org/licenses/by/2.0/\">CC-BY-3.0</a></li><li><a href=\"http://whosonfirst.mapzen.com\">
+   * WhosOnFirst</a>*  under <a href=\"https://github.com/whosonfirst/whosonfirst-data/blob/master/LICENSE.md\">various
+   *  licenses</a></li>* <li><a href=\"http://geonames.nga.mil/gns/html/index.html\">Geographic Names Database</a></li></ul>
+   * </li></ul>"}
    */
   app.get ( base + 'attribution', routers.attribution );
   app.get ( '/attribution', routers.attribution );
