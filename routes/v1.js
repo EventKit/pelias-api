@@ -27,7 +27,7 @@ const middleware = {
 };
 
 /** ----------------------- controllers ----------------------- **/
-const controllers = {
+const controllers = { 
   coarse_reverse: require('../controller/coarse_reverse'),
   mdToHTML: require('../controller/markdownToHtml'),
   libpostal: require('../controller/libpostal'),
@@ -543,31 +543,28 @@ function addRoutes(app, peliasConfig) {
    *       200:
    *         description: 200 ok
    *         examples: 
-   *           application/json: {  "markdown": "# Pelias API\n### Version: [1.0]
-   * (https://github.com/venicegeo/pelias-api/releases)\n### [View our documentation 
-   * on GitHub](https://github.com/venicegeo/pelias-documentation/blob/master/README.md)
-   * \n## Attribution\n* Geocoding by [Pelias](https://mapzen.com/pelias) from [Mapzen]
-   * (https://mapzen.com)\n* Data from\n   * [OpenStreetMap](http://www.openstreetmap.org/copyright)
-   *  © OpenStreetMap contributors under [ODbL](http://opendatacommons.org/licenses/odbl/)\n 
-   *   * [OpenAddresses](http://openaddresses.io) under a 
-   * [Creative Commons Zero](https://github.com/openaddresses/openaddresses/blob/master/sources/LICENSE) 
-   * public domain designation\n   * [GeoNames](http://www.geonames.org/) under 
-   * [CC-BY-3.0](https://creativecommons.org/licenses/by/2.0/)\n   * [WhosOnFirst](http://whosonfirst.mapzen.com) 
-   * under [various licenses](https://github.com/whosonfirst/whosonfirst-data/blob/master/LICENSE.md)\n   
-   * * [Geographic Names Database](http://geonames.nga.mil/gns/html/index.html)\n",  
-   * "html": "<style>html{font-family:monospace}</style><h1>Pelias API</h1>\n\n
-   * <h3>Version: <a href=\"https://github.com/venicegeo/pelias-api/releases\">1.0</a></h3>\n\n
-   * <h3><a href=\"https://github.com/venicegeo/pelias-documentation/blob/master/README.md\">View our documentation on GitHub</a></h3>
-   * \n\n<h2>Attribution</h2>\n\n<ul><li>Geocoding by <a href=\"https://mapzen.com/pelias\">Pelias</a> from 
-   * <a href=\"https://mapzen.com\">Mapzen</a></li><li>Data from<ul><li><a href=\"http://www.openstreetmap.org/copyright\">
-   * OpenStreetMap</a> © OpenStreetMap contributors under <a href=\"http://opendatacommons.org/licenses/odbl/\">
-   * ODbL</a></li><li><a href=\"http://openaddresses.io\">OpenAddresses</a> under a 
-   * <a href=\"https://github.com/openaddresses/openaddresses/blob/master/sources/LICENSE\">Creative Commons Zero</a> 
-   * public domain designation</li><li><a href=\"http://www.geonames.org/\">GeoNames</a> under 
-   * <a href=\"https://creativecommons.org/licenses/by/2.0/\">CC-BY-3.0</a></li><li><a href=\"http://whosonfirst.mapzen.com\">
-   * WhosOnFirst</a>*  under <a href=\"https://github.com/whosonfirst/whosonfirst-data/blob/master/LICENSE.md\">various
-   *  licenses</a></li>* <li><a href=\"http://geonames.nga.mil/gns/html/index.html\">Geographic Names Database</a></li></ul>
-   * </li></ul>"}
+   *           application/json: {
+   * "markdown": "# Pelias API\n### Version: [1.0](https://github.com/venicegeo/pelias-api/releases)\n
+   * ### [View our documentation on GitHub](https://github.com/venicegeo/pelias-documentation/blob/master/README.md)\n
+   * ## Attribution\n* Geocoding by [Pelias](https://pelias.io).\n* Data from\n   * [OpenStreetMap](http://www.openstreetmap.org/copyright)
+   * © OpenStreetMap contributors under [ODbL](http://opendatacommons.org/licenses/odbl/). Also see the [OSM Geocoding Guidelines]
+   * (https://wiki.osmfoundation.org/wiki/Licence/Community_Guidelines/Geocoding_-_Guideline) for acceptable use.\n   
+   * * [OpenAddresses](http://openaddresses.io) under [various public-domain and share-alike licenses](http://results.openaddresses.io/)\n  
+   * * [GeoNames](http://www.geonames.org/) under [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/)\n   * [WhosOnFirst]
+   * (https://www.whosonfirst.org/) under [various CC-BY or CC-0 equivalent licenses](https://whosonfirst.org/docs/licenses/)",
+   * "html": "<style>html{font-family:monospace}</style><h1>Pelias API</h1>\n\n<h3>Version: 
+   * <a href=\"https://github.com/venicegeo/pelias-api/releases\">1.0</a></h3>\n\n<h3>
+   * <a href=\"https://github.com/venicegeo/pelias-documentation/blob/master/README.md\">View our documentation on GitHub</a></h3>\n\n
+   * <h2>Attribution</h2>\n\n<ul><li>Geocoding by <a href=\"https://pelias.io\">Pelias</a>.</li><li>Data from<ul><li>
+   * <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a> © OpenStreetMap contributors under 
+   * <a href=\"http://opendatacommons.org/licenses/odbl/\">ODbL</a>. Also see the <a href=\"https://wiki.osmfoundation.org/wiki/
+   * Licence/Community_Guidelines/Geocoding_-_Guideline\">OSM Geocoding Guidelines</a> for acceptable use.</li><li>
+   * <a href=\"http://openaddresses.io\">OpenAddresses</a> under <a href=\"http://results.openaddresses.io/\">various 
+   * public-domain and share-alike licenses</a></li><li><a href=\"http://www.geonames.org/\">GeoNames</a> under 
+   * <a href=\"https://creativecommons.org/licenses/by/4.0/\">CC-BY-4.0</a></li><li><a href=\"https://www.whosonfirst.org/\">
+   * WhosOnFirst</a> under <a href=\"https://whosonfirst.org/docs/licenses/\">various CC-BY or CC-0 equivalent licenses</a>
+   * </li></ul></li></ul>"
+}
    */
   app.get ( base + 'attribution', routers.attribution );
   app.get ( '/attribution', routers.attribution );
@@ -603,7 +600,7 @@ function addRoutes(app, peliasConfig) {
    *     summary: For querying specific place ID(s)
    *     parameters:
    *       - name: ids
-   *         description: Specific place ID(s) to query.
+   *         description: for details on a place returned from a previous query
    *         in: query
    *         required: true
    *         type: array
@@ -629,7 +626,7 @@ function addRoutes(app, peliasConfig) {
    *     tags: 
    *       - v1
    *     operationId: autocomplete
-   *     summary: Standard text query w/greater flexibility with partial matches and incomplete wording.
+   *     summary: to give real-time result suggestions without having to type the whole location
    *     produces:
    *       - application/json
    *     parameters:
@@ -659,7 +656,32 @@ function addRoutes(app, peliasConfig) {
    *     tags: 
    *       - v1
    *     operationId: search
-   *     summary: Standard text query search.
+   *     summary: to find a place by searching for an address or name
+   *     produces:
+   *       - application/json
+   *     parameters:
+   *       - name: text
+   *         description: Text query
+   *         in: query
+   *         required: true
+   *         type: string
+   * 
+   *     responses:
+   *       200:
+   *         description: 200 ok
+   *         schema:
+   *           type: object
+   *           $ref: '#/definitions/standardPeliasReturn'
+   *       400:
+   *         description: 400 bad request
+   *         schema:
+   *           type: object
+   *           $ref: '#/definitions/standardPeliasErrorReturn'
+   *   post:
+   *     tags: 
+   *       - v1
+   *     operationId: search
+   *     summary: to find a place by searching for an address or name
    *     produces:
    *       - application/json
    *     parameters:
@@ -690,67 +712,7 @@ function addRoutes(app, peliasConfig) {
    *     tags: 
    *       - v1
    *     operationId: structured
-   *     summary: Standard text query with filtering by standard WOF properties.
-   *     produces:
-   *       - application/json
-   *     parameters:
-   *       - name: text
-   *         description: Text query
-   *         in: query
-   *         required: true
-   *         type: string
-   *       - name: venue
-   *         description: WOF Venue
-   *         in: query
-   *         type: string
-   *       - name: address
-   *         description: Address
-   *         in: query
-   *         type: string
-   *       - name: neighbourhood
-   *         description: Neighbourhood
-   *         in: query
-   *         type: string
-   *       - name: borough
-   *         description: Borough
-   *         in: query
-   *         type: string
-   *       - name: locality
-   *         description: Locality
-   *         in: query
-   *         type: string
-   *       - name: county
-   *         description: County
-   *         in: query
-   *         type: string
-   *       - name: region
-   *         description: Region
-   *         in: query
-   *         type: string
-   *       - name: postalcode
-   *         description: Postal Code
-   *         in: query
-   *         type: string
-   *       - name: country
-   *         description: Country
-   *         in: query
-   *         type: string
-   *     responses:
-   *       200:
-   *         description: 200 ok
-   *         schema:
-   *           type: object
-   *           $ref: '#/definitions/standardPeliasReturn'
-   *       400:
-   *         description: 400 bad request
-   *         schema:
-   *           type: object
-   *           $ref: '#/definitions/standardPeliasErrorReturn'
-   *   post:
-   *     tags: 
-   *       - v1
-   *     operationId: structured
-   *     summary: Standard text query with filtering by standard WOF properties.
+   *     summary: to find a place with data already separated into housenumber, street, city, etc.
    *     produces:
    *       - application/json
    *     parameters:
@@ -815,7 +777,7 @@ function addRoutes(app, peliasConfig) {
    *     tags: 
    *       - v1
    *     operationId: reverse
-   *     summary: Reverse geocode search.
+   *     summary: to find what is located at a certain coordinate location
    *     produces:
    *       - application/json
    *     parameters:
@@ -849,7 +811,7 @@ function addRoutes(app, peliasConfig) {
    *     tags: 
    *       - v1 
    *     operationId: nearby
-   *     summary: Reverse geocode search including surrounding areas.
+   *     summary: reverse geocode search including surrounding areas
    *     produces:
    *       - application/json
    *     parameters:
@@ -884,7 +846,7 @@ function addRoutes(app, peliasConfig) {
    *     tags:
    *       - v1
    *     operationId: convert
-   *     summary: Proxy to the MGRS GEOTRANS Conversion service.
+   *     summary: proxy to the MGRS GEOTRANS conversion service
    *     produces:
    *       - application/json
    *     parameters:
