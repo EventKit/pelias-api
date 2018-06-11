@@ -9,7 +9,6 @@ const Router = require('express').Router,
       peliasConfig = require( 'pelias-config' ).generate(require('../schema')),
       authService = require('../service/auth');
 
-
 /** ----------------------- sanitizers ----------------------- **/
 const sanitizers = {
   autocomplete: require('../sanitizer/autocomplete'),
@@ -28,7 +27,6 @@ const middleware = {
 };
 
 /** ----------------------- controllers ----------------------- **/
-
 const controllers = {
   coarse_reverse: require('../controller/coarse_reverse'),
   mdToHTML: require('../controller/markdownToHtml'),
@@ -42,6 +40,7 @@ const controllers = {
   convert: require('../controller/convert')
 };
 
+/** ----------------------- queries ----------------------- **/
 const queries = {
   cascading_fallback: require('../query/search'),
   very_old_prod: require('../query/search_original'),
@@ -51,8 +50,8 @@ const queries = {
   address_using_ids: require('../query/address_search_using_ids')
 };
 
-/** ----------------------- controllers ----------------------- **/
 
+/** ----------------------- post-processors ----------------------- **/
 const postProc = {
   trimByGranularity: require('../middleware/trimByGranularity'),
   trimByGranularityStructured: require('../middleware/trimByGranularityStructured'),
@@ -508,7 +507,7 @@ function addRoutes(app, peliasConfig) {
    *       errors:
    *         type: string
 */
-  // static data endpoints
+
   /**
    * @swagger
    * /v1:
@@ -688,6 +687,66 @@ function addRoutes(app, peliasConfig) {
    * @swagger
    * /v1/search/structured:
    *   get:
+   *     tags: 
+   *       - v1
+   *     operationId: structured
+   *     summary: Standard text query with filtering by standard WOF properties.
+   *     produces:
+   *       - application/json
+   *     parameters:
+   *       - name: text
+   *         description: Text query
+   *         in: query
+   *         required: true
+   *         type: string
+   *       - name: venue
+   *         description: WOF Venue
+   *         in: query
+   *         type: string
+   *       - name: address
+   *         description: Address
+   *         in: query
+   *         type: string
+   *       - name: neighbourhood
+   *         description: Neighbourhood
+   *         in: query
+   *         type: string
+   *       - name: borough
+   *         description: Borough
+   *         in: query
+   *         type: string
+   *       - name: locality
+   *         description: Locality
+   *         in: query
+   *         type: string
+   *       - name: county
+   *         description: County
+   *         in: query
+   *         type: string
+   *       - name: region
+   *         description: Region
+   *         in: query
+   *         type: string
+   *       - name: postalcode
+   *         description: Postal Code
+   *         in: query
+   *         type: string
+   *       - name: country
+   *         description: Country
+   *         in: query
+   *         type: string
+   *     responses:
+   *       200:
+   *         description: 200 ok
+   *         schema:
+   *           type: object
+   *           $ref: '#/definitions/standardPeliasReturn'
+   *       400:
+   *         description: 400 bad request
+   *         schema:
+   *           type: object
+   *           $ref: '#/definitions/standardPeliasErrorReturn'
+   *   post:
    *     tags: 
    *       - v1
    *     operationId: structured
