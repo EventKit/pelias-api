@@ -538,7 +538,7 @@ function addRoutes(app, peliasConfig) {
    *     operationId: attribution
    *     produces:
    *       - application/json
-   *     summary: Landing page w/attribution
+   *     summary: landing page w/attribution
    *     responses:
    *       200:
    *         description: 200 ok
@@ -635,7 +635,44 @@ function addRoutes(app, peliasConfig) {
    *         in: query
    *         required: true
    *         type: string
-   * 
+   *       - name: focus.point.lat
+   *         description: Focus point latitude
+   *         in: query
+   *         type: number
+   *       - name: focus.point.lon
+   *         description: Focus point longitude
+   *         in: query
+   *         type: number
+   *       - name: boundary.rect.min_lon
+   *         description: Bounding box minimum longitude
+   *         in: query
+   *         type: number
+   *       - name: boundary.rect.max_lon
+   *         description: Bounding box maximum longitude
+   *         in: query
+   *         type: number
+   *       - name: boundary.rect.min_lat
+   *         description: Bounding box minimum latitude
+   *         in: query
+   *         type: number
+   *       - name: boundary.rect.max_lat
+   *         description: Bounding box maximum latitude
+   *         in: query
+   *         type: number
+   *       - name: sources
+   *         description: Sources
+   *         in: query
+   *         type: string
+   *         enum: [openstreetmap, openaddresses, whosonfirst, geonames]
+   *       - name: layers
+   *         description: Layers
+   *         in: query
+   *         type: string
+   *         enum: [venue, address, street, country, macroregion, region, macrocounty, county, locality, localadmin, borough, neighbourhood, coarse]
+   *       - name: boundary.county
+   *         description: Country boundary
+   *         in: query
+   *         type: string
    *     responses:
    *       200:
    *         description: 200 ok
@@ -665,7 +702,10 @@ function addRoutes(app, peliasConfig) {
    *         in: query
    *         required: true
    *         type: string
-   * 
+   *       - name: size
+   *         description: used to limit the number of results returned.
+   *         in: query
+   *         type: number
    *     responses:
    *       200:
    *         description: 200 ok
@@ -690,7 +730,10 @@ function addRoutes(app, peliasConfig) {
    *         in: query
    *         required: true
    *         type: string
-   * 
+   *       - name: size
+   *         description: used to limit the number of results returned.
+   *         in: query
+   *         type: number
    *     responses:
    *       200:
    *         description: 200 ok
@@ -726,35 +769,35 @@ function addRoutes(app, peliasConfig) {
    *         in: query
    *         type: string
    *       - name: address
-   *         description: Address
+   *         description: can contain a full address with house number or only a street name.
    *         in: query
    *         type: string
    *       - name: neighbourhood
-   *         description: Neighbourhood
+   *         description: vernacular geographic entities that may not necessarily be official administrative divisions but are important nonetheless.
    *         in: query
    *         type: string
    *       - name: borough
-   *         description: Borough
+   *         description: mostly known in the context of New York City, even though they may exist in other cities, such as Mexico City.
    *         in: query
    *         type: string
    *       - name: locality
-   *         description: Locality
+   *         description: equivalent to what are commonly referred to as cities.
    *         in: query
    *         type: string
    *       - name: county
-   *         description: County
+   *         description: administrative divisions between localities and regions.
    *         in: query
    *         type: string
    *       - name: region
-   *         description: Region
+   *         description: the first-level administrative divisions within countries, analogous to states and provinces in the United States and Canada, respectively, though most other countries contain regions as well
    *         in: query
    *         type: string
    *       - name: postalcode
-   *         description: Postal Code
+   *         description: used to aid in sorting mail with the format dictated by an administrative division
    *         in: query
    *         type: string
    *       - name: country
-   *         description: Country
+   *         description: highest-level administrative divisions supported in a search. In addition to full names, countries have common two- and three-letter abbreviations that are also supported values for the country parameter.
    *         in: query
    *         type: string
    *     responses:
@@ -790,6 +833,28 @@ function addRoutes(app, peliasConfig) {
    *         description: Longitude (decimal degrees)
    *         in: query
    *         required: true
+   *         type: string
+   *       - name: boundary.circle.radius
+   *         description: Bounding circle radius
+   *         in: query
+   *         type: number
+   *       - name: size
+   *         description: used to limit the number of results returned.
+   *         in: query
+   *         type: number
+   *       - name: sources
+   *         description: one or more valid source names
+   *         in: query
+   *         type: string
+   *         enum: [openstreetmap, openaddresses, whosonfirst, geonames]
+   *       - name: layers
+   *         description: Layers
+   *         in: query
+   *         type: string
+   *         enum: [venue, address, street, country, macroregion, region, macrocounty, county, locality, localadmin, borough, neighbourhood, coarse]
+   *       - name: boundary.county
+   *         description: Country boundary
+   *         in: query
    *         type: string
    *     responses:
    *       200:
