@@ -7,14 +7,14 @@ const options = {
     },
     'schemes': ['http','https'],
     'securityDefinitions': { 
-        'Bearer': {
+        'JWT': {
             'type': 'apiKey',
             'name': 'Authorization',
             'in': 'header'
         }
     },
     'security': [
-       { 'Bearer': []} 
+       { 'JWT': []} 
     ]
     },
     'basePath': __dirname,
