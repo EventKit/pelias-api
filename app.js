@@ -10,8 +10,6 @@ if( peliasConfig.api.accessLog ){
 
 var swaggerSpec = swaggerJSDoc(require( './config/swagger'));
 
-
-
 app.get('/api-docs.json', function(req, res) {
   res.setHeader('Content-Type', 'application/json');
   res.send(swaggerSpec);

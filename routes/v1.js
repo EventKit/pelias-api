@@ -14,7 +14,7 @@ const sanitizers = {
   autocomplete: require('../sanitizer/autocomplete'),
   place: require('../sanitizer/place'),
   search: require('../sanitizer/search'),
-  defer_to_addressit: require('../sanitizer/defer_to_addressit'),
+  defer_to_pelias_parser: require('../sanitizer/defer_to_pelias_parser'),
   structured_geocoding: require('../sanitizer/structured_geocoding'),
   reverse: require('../sanitizer/reverse'),
   nearby: require('../sanitizer/nearby')
@@ -44,7 +44,7 @@ const controllers = {
 /** ----------------------- queries ----------------------- **/
 const queries = {
   cascading_fallback: require('../query/search'),
-  very_old_prod: require('../query/search_original'),
+  search_pelias_parser: require('../query/search_pelias_parser'),
   structured_geocoding: require('../query/structured_geocoding'),
   reverse: require('../query/reverse'),
   autocomplete: require('../query/autocomplete'),
@@ -80,13 +80,15 @@ const hasRequestErrors = require('../controller/predicates/has_request_errors');
 const isCoarseReverse = require('../controller/predicates/is_coarse_reverse');
 const isAdminOnlyAnalysis = require('../controller/predicates/is_admin_only_analysis');
 const hasResultsAtLayers = require('../controller/predicates/has_results_at_layers');
-const isAddressItParse = require('../controller/predicates/is_addressit_parse');
+const isPeliasParse = require('../controller/predicates/is_pelias_parse');
 const hasRequestCategories = require('../controller/predicates/has_request_parameter')('categories');
 const isOnlyNonAdminLayers = require('../controller/predicates/is_only_non_admin_layers');
+const isRequestLayersAnyAddressRelated = require('../controller/predicates/is_request_layers_any_address_related');
 // this can probably be more generalized
 const isRequestSourcesOnlyWhosOnFirst = require('../controller/predicates/is_request_sources_only_whosonfirst');
 const isRequestSourcesIncludesWhosOnFirst = require('../controller/predicates/is_request_sources_includes_whosonfirst');
 const isRequestSourcesUndefined = require('../controller/predicates/is_request_sources_undefined');
+
 const hasRequestParameter = require('../controller/predicates/has_request_parameter');
 const hasParsedTextProperties = require('../controller/predicates/has_parsed_text_properties');
 
@@ -117,7 +119,7 @@ const Interpolation = require('../service/configurations/Interpolation');
  */
 
 function addRoutes(app, peliasConfig) {
-  const esclient = elasticsearch.Client(peliasConfig.esclient);
+  const esclient = elasticsearch.Client(_.extend({}, peliasConfig.esclient));
 
   const pipConfiguration = new PointInPolygon(_.defaultTo(peliasConfig.api.services.pip, {}));
   const pipService = serviceWrapper(pipConfiguration);
@@ -149,7 +151,7 @@ function addRoutes(app, peliasConfig) {
 
   // fallback to coarse reverse when regular reverse didn't return anything
   const coarseReverseShouldExecute = all(
-    isPipServiceEnabled, not(hasRequestErrors), not(hasResponseData)
+    isPipServiceEnabled, not(hasRequestErrors), not(hasResponseData), not(isOnlyNonAdminLayers)
   );
 
    const libpostalShouldExecute = all(
@@ -165,54 +167,118 @@ function addRoutes(app, peliasConfig) {
 
   // execute placeholder if libpostal only parsed as admin-only and needs to
   //  be geodisambiguated
-    const placeholderGeodisambiguationShouldExecute = all(
-        not(hasResponseDataOrRequestErrors),
-        isPlaceholderServiceEnabled,
-        // check request.clean for several conditions first
-        not(
-            any(
-                // layers only contains venue, address, or street
-                isOnlyNonAdminLayers,
-                // don't geodisambiguate if categories were requested
-                hasRequestCategories
-            )
-        ),
+
+  //   const placeholderGeodisambiguationShouldExecute = all(
+  //       not(hasResponseDataOrRequestErrors),
+  //       isPlaceholderServiceEnabled,
+  //       // check request.clean for several conditions first
+  //       not(
+  //           any(
+  //               // layers only contains venue, address, or street
+  //               isOnlyNonAdminLayers,
+  //               // don't geodisambiguate if categories were requested
+  //               hasRequestCategories
+  //           )
+  //       ),
+  //       any(
+  //           isRequestSourcesOnlyWhosOnFirst,
+  //           all(
+  //               isAdminOnlyAnalysis,
+  //               any(
+  //                   isRequestSourcesUndefined,
+  //                   isRequestSourcesIncludesWhosOnFirst
+  //               )
+  //           )
+  //       )
+  //   );
+  //
+  // // execute placeholder if libpostal identified address parts but ids need to
+  // //  be looked up for admin parts
+  //  const placeholderIdsLookupShouldExecute = all(
+  //    not(hasResponseDataOrRequestErrors),
+  //    isPlaceholderServiceEnabled,
+  //    // check clean.parsed_text for several conditions that must all be true
+  //    all(
+  //      // run placeholder if clean.parsed_text has 'street'
+  //      hasParsedTextProperties.any('street'),
+  //      // don't run placeholder if there's a query or category
+  //      not(hasParsedTextProperties.any('query', 'category')),
+  //      // run placeholder if there are any adminareas identified
+  //      hasParsedTextProperties.any('neighbourhood', 'borough', 'city', 'county', 'state', 'country')
+  //    )
+  //  );
+  //
+  //
+  //  const searchWithIdsShouldExecute = all(
+  //    not(hasRequestErrors),
+  //    // don't search-with-ids if there's a query or category
+  //    not(hasParsedTextProperties.any('query', 'category')),
+  //    // there must be a street
+  //    hasParsedTextProperties.any('street')
+  //  );
+
+  // defer to pelias parser for analysis IF there's no response AND placeholder should not have executed
+  const shouldDeferToPeliasParser = all(
+      not(hasRequestErrors),
+      not(hasResponseData)
+  );
+
+  // call search_pelias_parser query if pelias_parser was the parser
+  const searchPeliasParserShouldExecute = all(
+      not(hasRequestErrors),
+      isPeliasParse
+  );
+
+  const placeholderGeodisambiguationShouldExecute = all(
+    not(hasResponseDataOrRequestErrors),
+    isPlaceholderServiceEnabled,
+    // check request.clean for several conditions first
+    not(
+      any(
+        // layers only contains venue, address, or street
+        isOnlyNonAdminLayers,
+        // don't geodisambiguate if categories were requested
+        hasRequestCategories
+      )
+    ),
+    any(
+      isRequestSourcesOnlyWhosOnFirst,
+      all(
+        isAdminOnlyAnalysis,
         any(
-            isRequestSourcesOnlyWhosOnFirst,
-            all(
-                isAdminOnlyAnalysis,
-                any(
-                    isRequestSourcesUndefined,
-                    isRequestSourcesIncludesWhosOnFirst
-                )
-            )
+          isRequestSourcesUndefined,
+          isRequestSourcesIncludesWhosOnFirst
         )
-    );
+      )
+    )
+  );
 
   // execute placeholder if libpostal identified address parts but ids need to
   //  be looked up for admin parts
-   const placeholderIdsLookupShouldExecute = all(
-     not(hasResponseDataOrRequestErrors),
-     isPlaceholderServiceEnabled,
-     // check clean.parsed_text for several conditions that must all be true
-     all(
-       // run placeholder if clean.parsed_text has 'street'
-       hasParsedTextProperties.any('street'),
-       // don't run placeholder if there's a query or category
-       not(hasParsedTextProperties.any('query', 'category')),
-       // run placeholder if there are any adminareas identified
-       hasParsedTextProperties.any('neighbourhood', 'borough', 'city', 'county', 'state', 'country')
-     )
-   );
+  const placeholderIdsLookupShouldExecute = all(
+    not(hasResponseDataOrRequestErrors),
+    isPlaceholderServiceEnabled,
+    isRequestLayersAnyAddressRelated,
+    // check clean.parsed_text for several conditions that must all be true
+    all(
+      // run placeholder if clean.parsed_text has 'street'
+      hasParsedTextProperties.any('street'),
+      // don't run placeholder if there's a query or category
+      not(hasParsedTextProperties.any('query', 'category')),
+      // run placeholder if there are any adminareas identified
+      hasParsedTextProperties.any('neighbourhood', 'borough', 'city', 'county', 'state', 'country')
+    )
+  );
 
-
-   const searchWithIdsShouldExecute = all(
-     not(hasRequestErrors),
-     // don't search-with-ids if there's a query or category
-     not(hasParsedTextProperties.any('query', 'category')),
-     // there must be a street
-     hasParsedTextProperties.any('street')
-   );
+  const searchWithIdsShouldExecute = all(
+    not(hasRequestErrors),
+    // don't search-with-ids if there's a query or category
+    not(hasParsedTextProperties.any('query', 'category')),
+    // at least one layer allowed by the query params must be related to addresses
+    isRequestLayersAnyAddressRelated,
+    // there must be a street
+    hasParsedTextProperties.any('street')
+  );
 
   // placeholder should have executed, useful for determining whether to actually
   //  fallback or not (don't fallback to old search if the placeholder response
@@ -236,17 +302,17 @@ function addRoutes(app, peliasConfig) {
    );
 
   // defer to addressit for analysis IF there's no response AND placeholder should not have executed
-   const shouldDeferToAddressIt = all(
-     not(hasRequestErrors),
-     not(hasResponseData),
-     not(placeholderShouldHaveExecuted)
-   );
-
-  // call very old prod query if addressit was the parser
-   const oldProdQueryShouldExecute = all(
-     not(hasRequestErrors),
-     isAddressItParse
-   );
+  //  const shouldDeferToAddressIt = all(
+  //    not(hasRequestErrors),
+  //    not(hasResponseData),
+  //    not(placeholderShouldHaveExecuted)
+  //  );
+  //
+  // // call very old prod query if addressit was the parser
+  //  const oldProdQueryShouldExecute = all(
+  //    not(hasRequestErrors),
+  //    isAddressItParse
+  //  );
 
   // get language adjustments if:
   // - there's a response
@@ -281,7 +347,6 @@ function addRoutes(app, peliasConfig) {
 
   // helpers to replace vague booleans
   const geometricFiltersApply = true;
-  const geometricFiltersDontApply = false;
 
   const base = '/v1/';
 
@@ -298,17 +363,24 @@ function addRoutes(app, peliasConfig) {
       sanitizers.search.middleware(peliasConfig.api),
       middleware.requestLanguage,
       middleware.calcSize(),
-      //disable libpostal until a method for returning polygons and other datasets can be implemented
-       controllers.libpostal(libpostalService, libpostalShouldExecute),
-       controllers.placeholder(placeholderService, geometricFiltersApply, placeholderGeodisambiguationShouldExecute),
-       controllers.placeholder(placeholderService, geometricFiltersDontApply, placeholderIdsLookupShouldExecute),
-       controllers.placeholder_geometries(peliasConfig.api, esclient, placeholderGeometriesShouldExecute),
-       controllers.search_with_ids(peliasConfig.api, esclient, queries.address_using_ids, searchWithIdsShouldExecute),
-      // // 3rd parameter is which query module to use, use fallback first, then
-      // //  use original search strategy if first query didn't return anything
-       controllers.search(peliasConfig.api, esclient, queries.cascading_fallback, fallbackQueryShouldExecute),
-       sanitizers.defer_to_addressit(shouldDeferToAddressIt),
-        controllers.search(peliasConfig.api, esclient, queries.very_old_prod, oldProdQueryShouldExecute),
+      //  controllers.libpostal(libpostalService, libpostalShouldExecute),
+      //  controllers.placeholder(placeholderService, geometricFiltersApply, placeholderGeodisambiguationShouldExecute),
+      //  controllers.placeholder(placeholderService, geometricFiltersDontApply, placeholderIdsLookupShouldExecute),
+      //  controllers.placeholder_geometries(peliasConfig.api, esclient, placeholderGeometriesShouldExecute),
+      //  controllers.search_with_ids(peliasConfig.api, esclient, queries.address_using_ids, searchWithIdsShouldExecute),
+      // // // 3rd parameter is which query module to use, use fallback first, then
+      // // //  use original search strategy if first query didn't return anything
+      //  controllers.search(peliasConfig.api, esclient, queries.cascading_fallback, fallbackQueryShouldExecute),
+      //  sanitizers.defer_to_addressit(shouldDeferToAddressIt),
+      //   controllers.search(peliasConfig.api, esclient, queries.very_old_prod, oldProdQueryShouldExecute),
+      controllers.libpostal(libpostalService, libpostalShouldExecute),
+      controllers.placeholder(placeholderService, geometricFiltersApply, placeholderGeodisambiguationShouldExecute),
+      controllers.placeholder(placeholderService, geometricFiltersApply, placeholderIdsLookupShouldExecute),
+      // try 3 different query types: address search using ids, cascading fallback, pelias parser
+      controllers.search(peliasConfig.api, esclient, queries.address_using_ids, searchWithIdsShouldExecute),
+      controllers.search(peliasConfig.api, esclient, queries.cascading_fallback, fallbackQueryShouldExecute),
+      sanitizers.defer_to_pelias_parser(shouldDeferToPeliasParser), //run additional sanitizers needed for pelias parser
+      controllers.search(peliasConfig.api, esclient, queries.search_pelias_parser, searchPeliasParserShouldExecute),
       postProc.trimByGranularity(),
       postProc.distances('focus.point.'),
       postProc.confidenceScores(peliasConfig.api),
@@ -368,7 +440,7 @@ function addRoutes(app, peliasConfig) {
     reverse: createRouter([
       sanitizers.reverse.middleware,
       middleware.requestLanguage,
-      middleware.calcSize(),
+      middleware.calcSize(2),
       controllers.search(peliasConfig.api, esclient, queries.reverse, nonCoarseReverseShouldExecute),
       controllers.coarse_reverse(pipService, coarseReverseShouldExecute),
       postProc.distances('point.'),

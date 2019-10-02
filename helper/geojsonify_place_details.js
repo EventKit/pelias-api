@@ -1,6 +1,5 @@
-'use strict';
-
 const _ = require('lodash');
+const field = require('./fieldValue');
 
 // Properties to be copied
 // If a property is identified as a single string, assume it should be presented as a string in response
@@ -60,6 +59,11 @@ const DETAILS_PROPS = [
   { name: 'category',          type: 'array',     condition: checkCategoryParam }
 ];
 
+const EXTENDED_PROPS = DETAILS_PROPS.concat([
+  { name: 'population', type: 'default' },
+  { name: 'popularity', type: 'default' }
+]);
+
 // returns true IFF source a country_gid property
 function hasCountry(params, source) {
   return source.hasOwnProperty('country_gid');
@@ -78,7 +82,12 @@ function checkCategoryParam(params) {
  * @param {object} dst
  */
 function collectProperties( params, source ) {
-  return DETAILS_PROPS.reduce((result, prop) => {
+  let props = DETAILS_PROPS;
+
+  // extended properties when debugging mode is enabled
+  if (params.enableDebug === true) { props = EXTENDED_PROPS; }
+
+  return props.reduce((result, prop) => {
     // if condition isn't met, don't set the property
     if (_.isFunction(prop.condition) && !prop.condition(params, source)) {
       return result;
@@ -89,10 +98,10 @@ function collectProperties( params, source ) {
 
       switch (prop.type) {
         case 'string':
-          value = getStringValue(source[prop.name]);
+          value = field.getStringValue(source[prop.name]);
           break;
         case 'array':
-          value = getArrayValue(source[prop.name]);
+          value = field.getArrayValue(source[prop.name]);
           break;
         // default behavior is to copy property exactly as is
         default:
@@ -108,37 +117,6 @@ function collectProperties( params, source ) {
 
   }, {});
 
-}
-
-function getStringValue(property) {
-  // isEmpty check works for all types of values: strings, arrays, objects
-  if (_.isEmpty(property)) {
-    return '';
-  }
-
-  if (_.isString(property)) {
-    return property;
-  }
-
-  // array value, take first item in array (at this time only used for admin values)
-  if (_.isArray(property)) {
-    return property[0];
-  }
-
-  return _.toString(property);
-}
-
-function getArrayValue(property) {
-  // isEmpty check works for all types of values: strings, arrays, objects
-  if (_.isEmpty(property)) {
-    return '';
-  }
-
-  if (_.isArray(property)) {
-    return property;
-  }
-
-  return [property];
 }
 
 module.exports = collectProperties;

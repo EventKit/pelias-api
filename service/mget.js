@@ -1,16 +1,3 @@
-
-/**
-
-  query must be an array of hashes, structured like so:
-
-  {
-    _index: 'myindex',
-    _type: 'mytype',
-    _id: 'myid'
-  }
-
-**/
-
 var logger = require( 'pelias-logger' ).get( 'api' );
 
 function service( esclient, query, cb ){
@@ -23,11 +10,10 @@ function service( esclient, query, cb ){
   };
 
   // query elasticsearch
+  const startTime = new Date();
   esclient.mget( cmd, function( err, data ){
-
-    // log total ms elasticsearch reported the query took to execute
-    if( data && data.took ){
-      logger.verbose( 'time elasticsearch reported:', data.took / 1000 );
+    if (data) {
+      data.response_time = new Date() - startTime;
     }
 
     // handle elasticsearch errors
@@ -50,14 +36,13 @@ function service( esclient, query, cb ){
         // map metadata in to _source so we
         // can serve it up to the consumer
         doc._source._id = doc._id;
-        doc._source._type = doc._type;
 
         return doc._source;
       });
     }
 
     // fire callback
-    return cb( null, docs );
+    return cb( null, docs, data );
   });
 
 }

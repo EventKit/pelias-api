@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  *
  * Basic confidence score should be computed and returned for each item in the results.
@@ -23,8 +21,11 @@ function computeScores(req, res, next) {
   // do nothing if no result data set or if the query is not of the fallback variety
   // later add disambiguation to this list
   if (check.undefined(req.clean) || check.undefined(res) ||
-      check.undefined(res.data) || check.undefined(res.meta) ||
-      res.meta.query_type !== 'fallback') {
+      check.undefined(res.data) || check.undefined(res.meta)) {
+    return next();
+  }
+
+  if (['search_fallback', 'address_search_with_ids', 'structured'].includes(res.meta.queryType)) {
     return next();
   }
 

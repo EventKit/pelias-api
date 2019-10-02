@@ -1,16 +1,37 @@
-
 module.exports = {
   'query': {
     'bool': {
       'must': [{
         'match': {
-          'name.default': {
-            'analyzer': 'peliasQueryFullToken',
+          'phrase.default': {
+            'analyzer': 'peliasQuery',
+            'cutoff_frequency': 0.01,
             'type': 'phrase',
             'boost': 1,
             'slop': 3,
             'query': 'k road'
           }
+        }
+      }, {
+        'multi_match': {
+          'fields': [
+            'parent.country.ngram^1',
+            'parent.dependency.ngram^1',
+            'parent.macroregion.ngram^1',
+            'parent.region.ngram^1',
+            'parent.county.ngram^1',
+            'parent.localadmin.ngram^1',
+            'parent.locality.ngram^1',
+            'parent.borough.ngram^1',
+            'parent.neighbourhood.ngram^1',
+            'parent.locality_a.ngram^1',
+            'parent.region_a.ngram^4',
+            'parent.country_a.ngram^4',
+            'name.default^1'
+          ],
+          'query': 'laird',
+          'analyzer': 'peliasAdmin',
+          'type': 'cross_fields'
         }
       }],
       'should':[
@@ -18,83 +39,9 @@ module.exports = {
           'match': {
             'address_parts.street': {
               'query': 'k road',
+              'cutoff_frequency': 0.01,
               'boost': 5,
               'analyzer': 'peliasStreet'
-            }
-          }
-        }, {
-          'match': {
-            'parent.country': {
-              'query': 'laird',
-              'boost': 800,
-              'analyzer': 'peliasAdmin'
-            }
-          }
-        }, {
-          'match': {
-            'parent.region': {
-              'query': 'laird',
-              'boost': 600,
-              'analyzer': 'peliasAdmin'
-            }
-          }
-        }, {
-          'match': {
-            'parent.region_a': {
-              'query': 'laird',
-              'boost': 600,
-              'analyzer': 'peliasAdmin'
-            }
-          }
-        }, {
-          'match': {
-            'parent.county': {
-              'query': 'laird',
-              'boost': 400,
-              'analyzer': 'peliasAdmin'
-            }
-          }
-        }, {
-          'match': {
-            'parent.borough': {
-              'analyzer': 'peliasAdmin',
-              'boost': 600,
-              'query': 'laird'
-            }
-          }
-        }, {
-          'match': {
-            'parent.localadmin': {
-              'query': 'laird',
-              'boost': 200,
-              'analyzer': 'peliasAdmin'
-            }
-          }
-        }, {
-          'match': {
-            'parent.locality': {
-              'query': 'laird',
-              'boost': 200,
-              'analyzer': 'peliasAdmin'
-            }
-          }
-        }, {
-          'match': {
-            'parent.neighbourhood': {
-              'query': 'laird',
-              'boost': 200,
-              'analyzer': 'peliasAdmin'
-            }
-          }
-        },
-        {
-          'match': {
-            'phrase.default': {
-              'analyzer' : 'peliasPhrase',
-              'type' : 'phrase',
-              'boost' : 1,
-              'slop' : 3,
-              'query' : 'k road'
             }
           }
         },

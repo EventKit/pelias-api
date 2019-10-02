@@ -77,7 +77,7 @@ function getLayersFilter(clean) {
 // return true if the hierarchy does not have a country.abbr
 // OR hierarchy country.abbr matches boundary.country
 function matchesBoundaryCountry(boundaryCountry, hierarchy) {
-  return !boundaryCountry || _.get(hierarchy, 'country.abbr') === boundaryCountry;
+  return !boundaryCountry || boundaryCountry.some(countryCode => _.get(hierarchy, 'country.abbr') === countryCode);
 }
 
 // return true if the result does not have a lineage
@@ -97,6 +97,31 @@ function getBoundaryCountryFilter(clean, do_geometric_filters_apply) {
 
 }
 
+// return true if the boundary.gid matches any id in the hierarchy
+function matchesBoundaryGid(boundaryGid, hierarchy) {
+  function idMatches(k, v) {
+    return k.id === parseInt(boundaryGid);
+  }
+  return !boundaryGid || _.some(_.map(hierarchy, idMatches));
+}
+
+// return true if the result does not have a lineage
+// OR at least one lineage matches the requested boundary.gid
+function atLeastOneLineageMatchesBoundaryGid(boundaryGid, result) {
+  return !result.lineage || result.lineage.some(_.partial(matchesBoundaryGid, boundaryGid));
+}
+
+// return a function that detects if a result has at least one lineage in boundary.gid
+function getBoundaryGidFilter(clean, do_geometric_filters_apply) {
+  if ( do_geometric_filters_apply && _.has(clean, 'boundary.gid') ) {
+    return _.partial(atLeastOneLineageMatchesBoundaryGid, clean['boundary.gid']);
+  }
+
+  // there's no boundary.gid filter, so return a function that always returns true
+  return () => true;
+
+}
+
 // return a function that detects if a result is inside a bbox if a bbox is available
 function getBoundaryRectangleFilter(clean, do_geometric_filters_apply) {
   // check to see if boundary.rect.min_lat/min_lon/max_lat/max_lon are all available
@@ -109,8 +134,8 @@ function getBoundaryRectangleFilter(clean, do_geometric_filters_apply) {
       { latitude: clean['boundary.rect.max_lat'], longitude: clean['boundary.rect.max_lon'] },
       { latitude: clean['boundary.rect.min_lat'], longitude: clean['boundary.rect.max_lon'] }
     ];
-    // isPointInside takes polygon last, so create a function that has it pre-populated
-    const isPointInsidePolygon = _.partialRight(geolib.isPointInside, polygon);
+    // isPointInPolygon takes polygon last, so create a function that has it pre-populated
+    const isPointInsidePolygon = _.partialRight(geolib.isPointInPolygon, polygon);
 
     return _.partial(isInsideGeometry, isPointInsidePolygon);
 
@@ -133,8 +158,8 @@ function getBoundaryCircleFilter(clean, do_geometric_filters_apply) {
     };
     const radiusInMeters = clean['boundary.circle.radius'] * 1000;
 
-    // isPointInCircle takes circle/radius last, so create a function that has them pre-populated
-    const isPointInCircle = _.partialRight(geolib.isPointInCircle, center, radiusInMeters);
+    // isPointWithinRadius takes circle/radius last, so create a function that has them pre-populated
+    const isPointInCircle = _.partialRight(geolib.isPointWithinRadius, center, radiusInMeters);
 
     return _.partial(isInsideGeometry, isPointInCircle);
 
@@ -218,7 +243,7 @@ function synthesizeDocs(boundaryCountry, result) {
 
 function buildESDoc(doc) {
   const esDoc = doc.toESDocument();
-  return _.extend(esDoc.data, { _id: esDoc._id, _type: esDoc._type });
+  return _.extend(esDoc.data, { _id: esDoc._id });
 }
 
 function setup(placeholderService, do_geometric_filters_apply, should_execute) {
@@ -228,8 +253,17 @@ function setup(placeholderService, do_geometric_filters_apply, should_execute) {
       return next();
     }
     const initialTime = debugLog.beginTimer(req);
+    const start = Date.now();
 
     placeholderService(req, (err, results) => {
+      logger.info('placeholder', {
+        response_time: Date.now() - start,
+        params: req.clean,
+        result_count: _.defaultTo(res.data, []).length,
+        text_length: _.get(req, 'clean.text.length', 0),
+        controller: 'placeholder',
+      });
+
       if (err) {
         // push err.message or err onto req.errors
         req.errors.push( _.get(err, 'message', err));
@@ -241,7 +275,7 @@ function setup(placeholderService, do_geometric_filters_apply, should_execute) {
         // boundary.country filter must happen after synthesis since multiple
         //  lineages may produce different country docs
         res.meta = {
-          query_type: 'fallback'
+          query_type: 'search_fallback'
         };
 
         res.data = results
@@ -257,6 +291,8 @@ function setup(placeholderService, do_geometric_filters_apply, should_execute) {
                     .filter(getBoundaryRectangleFilter(req.clean, do_geometric_filters_apply))
                     // filter out results that aren't in the boundary.circle
                     .filter(getBoundaryCircleFilter(req.clean, do_geometric_filters_apply))
+                    // filter out results that don't have the boundary.gid in the lineage
+                    .filter(getBoundaryGidFilter(req.clean, do_geometric_filters_apply))
                     // convert results to ES docs
                     .map(_.partial(synthesizeDocs, boundaryCountry));
 
@@ -265,7 +301,7 @@ function setup(placeholderService, do_geometric_filters_apply, should_execute) {
           `[result_count:${_.defaultTo(res.data, []).length}]`
         ];
 
-        logger.info(messageParts.join(' '));
+        logger.debug(messageParts.join(' '));
         debugLog.push(req, messageParts[1].slice(1,-1));
         debugLog.push(req, res.data);
       }

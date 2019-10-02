@@ -1,6 +1,6 @@
 const geojsonify = require('../../../helper/geojsonify');
-
 const proxyquire = require('proxyquire').noCallThru();
+const codec = require('pelias-model').codec;
 
 module.exports.tests = {};
 
@@ -16,10 +16,10 @@ module.exports.tests.interface = function(test, common) {
 module.exports.tests.earth = function(test, common) {
   test('earth', function(t) {
     var earth = [{
-      '_type': 'geoname',
       '_id': '6295630',
       'source': 'whosonfirst',
       'layer': 'continent',
+      'source_id': '6295630',
       'name': {
         'default': 'Earth'
       },
@@ -43,7 +43,7 @@ module.exports.tests.all = (test, common) => {
       {
         _id: 'id 1',
         source: 'source 1',
-        source_id: 'source_id 1',
+        source_id: 'id 1',
         layer: 'layer 1',
         name: {
           default: 'name 1',
@@ -56,7 +56,7 @@ module.exports.tests.all = (test, common) => {
       {
         _id: 'id 2',
         source: 'source 2',
-        source_id: 'source_id 2',
+        source_id: 'id 2',
         layer: 'layer 2',
         name: {
           default: 'name 2',
@@ -101,7 +101,7 @@ module.exports.tests.all = (test, common) => {
             gid: 'source 1:layer 1:id 1',
             layer: 'layer 1',
             source: 'source 1',
-            source_id: 'source_id 1',
+            source_id: 'id 1',
             name: 'name 1',
             property1: 'property 1',
             property2: 'property 2'
@@ -118,7 +118,7 @@ module.exports.tests.all = (test, common) => {
             gid: 'source 2:layer 2:id 2',
             layer: 'layer 2',
             source: 'source 2',
-            source_id: 'source_id 2',
+            source_id: 'id 2',
             name: 'name 2',
             property3: 'property 3',
             property4: 'property 4'
@@ -138,7 +138,7 @@ module.exports.tests.all = (test, common) => {
       {
         _id: 'id 1',
         source: 'source 1',
-        source_id: 'source_id 1',
+        source_id: 'id 1',
         layer: 'layer 1',
         name: {
           default: 'name 1',
@@ -157,7 +157,7 @@ module.exports.tests.all = (test, common) => {
       {
         _id: 'id 2',
         source: 'source 2',
-        source_id: 'source_id 2',
+        source_id: 'id 2',
         layer: 'layer 2',
         name: {
           default: 'name 2',
@@ -208,7 +208,7 @@ module.exports.tests.all = (test, common) => {
             gid: 'source 1:layer 1:id 1',
             layer: 'layer 1',
             source: 'source 1',
-            source_id: 'source_id 1',
+            source_id: 'id 1',
             name: 'name 1',
             property1: 'property 1',
             property2: 'property 2'
@@ -226,7 +226,7 @@ module.exports.tests.all = (test, common) => {
             gid: 'source 2:layer 2:id 2',
             layer: 'layer 2',
             source: 'source 2',
-            source_id: 'source_id 2',
+            source_id: 'id 2',
             name: 'name 2',
             property3: 'property 3',
             property4: 'property 4'
@@ -247,7 +247,7 @@ module.exports.tests.all = (test, common) => {
       {
         _id: 'id 1',
         source: 'source 1',
-        source_id: 'source_id 1',
+        source_id: 'id 1',
         layer: 'layer 1',
         name: {
           default: 'name 1',
@@ -260,7 +260,7 @@ module.exports.tests.all = (test, common) => {
       {
         _id: 'id 2',
         source: 'source 2',
-        source_id: 'source_id 2',
+        source_id: 'id 2',
         layer: 'layer 2',
         name: {
           default: 'name 2',
@@ -311,7 +311,7 @@ module.exports.tests.all = (test, common) => {
             gid: 'source 1:layer 1:id 1',
             layer: 'layer 1',
             source: 'source 1',
-            source_id: 'source_id 1',
+            source_id: 'id 1',
             name: 'name 1',
             property1: 'property 1',
             property2: 'property 2'
@@ -328,7 +328,7 @@ module.exports.tests.all = (test, common) => {
             gid: 'source 2:layer 2:id 2',
             layer: 'layer 2',
             source: 'source 2',
-            source_id: 'source_id 2',
+            source_id: 'id 2',
             name: 'name 2',
             property3: 'property 3',
             property4: 'property 4'
@@ -347,8 +347,71 @@ module.exports.tests.all = (test, common) => {
 };
 
 module.exports.tests.non_optimal_conditions = (test, common) => {
-  
 
+  test('null/undefined places should log warnings and be ignored', t => {
+    const logger = require('pelias-mock-logger')();
+
+    const input = [
+      null,
+      undefined,
+      {
+        _id: 'id 1',
+        source: 'source 1',
+        source_id: 'id 1',
+        layer: 'layer 1',
+        name: {
+          default: 'name 1',
+        },
+        center_point: {
+          lat: 12.121212,
+          lon: 21.212121
+        }
+      }
+    ];
+
+    const geojsonify = proxyquire('../../../helper/geojsonify', {
+      './geojsonify_place_details': (params, source, dst) => {
+        if (source._id === 'id 1') {
+          return {
+            property1: 'property 1',
+            property2: 'property 2'
+          };
+        }
+      },
+      'pelias-logger': logger
+    });
+
+    const actual = geojsonify({}, input);
+
+    const expected = {
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [ 21.212121, 12.121212 ]
+          },
+          properties: {
+            id: 'id 1',
+            gid: 'source 1:layer 1:id 1',
+            layer: 'layer 1',
+            source: 'source 1',
+            source_id: 'id 1',
+            name: 'name 1',
+            property1: 'property 1',
+            property2: 'property 2'
+          }
+        }
+      ],
+      bbox: [21.212121, 12.121212, 21.212121, 12.121212]
+    };
+
+    t.deepEquals(actual, expected);
+    t.ok(logger.isWarnMessage('No doc or center_point property'));
+    t.end();
+
+  });
 
   test('places w/o center_point should log warnings and be ignored', t => {
     const logger = require('pelias-mock-logger')();
@@ -357,7 +420,7 @@ module.exports.tests.non_optimal_conditions = (test, common) => {
       {
         _id: 'id 1',
         source: 'source 1',
-        source_id: 'source_id 1',
+        source_id: 'id 1',
         layer: 'layer 1',
         name: {
           default: 'name 1',
@@ -366,7 +429,7 @@ module.exports.tests.non_optimal_conditions = (test, common) => {
       {
         _id: 'id 2',
         source: 'source 2',
-        source_id: 'source_id 2',
+        source_id: 'id 2',
         layer: 'layer 2',
         name: {
           default: 'name 2',
@@ -406,7 +469,7 @@ module.exports.tests.non_optimal_conditions = (test, common) => {
             gid: 'source 2:layer 2:id 2',
             layer: 'layer 2',
             source: 'source 2',
-            source_id: 'source_id 2',
+            source_id: 'id 2',
             name: 'name 2',
             property3: 'property 3',
             property4: 'property 4'
@@ -428,7 +491,7 @@ module.exports.tests.non_optimal_conditions = (test, common) => {
       {
         _id: 'id 1',
         source: 'source 1',
-        source_id: 'source_id 1',
+        source_id: 'id 1',
         layer: 'layer 1',
         center_point: {
           lat: 12.121212,
@@ -438,7 +501,7 @@ module.exports.tests.non_optimal_conditions = (test, common) => {
       {
         _id: 'id 2',
         source: 'source 2',
-        source_id: 'source_id 2',
+        source_id: 'id 2',
         layer: 'layer 2',
         name: {},
         center_point: {
@@ -449,7 +512,7 @@ module.exports.tests.non_optimal_conditions = (test, common) => {
       {
         _id: 'id 3',
         source: 'source 3',
-        source_id: 'source_id 3',
+        source_id: 'id 3',
         layer: 'layer 3',
         name: {
           default: 'name 3',
@@ -500,7 +563,7 @@ module.exports.tests.non_optimal_conditions = (test, common) => {
             gid: 'source 1:layer 1:id 1',
             layer: 'layer 1',
             source: 'source 1',
-            source_id: 'source_id 1',
+            source_id: 'id 1',
             property1: 'property 1',
             property2: 'property 2'
           }
@@ -516,7 +579,7 @@ module.exports.tests.non_optimal_conditions = (test, common) => {
             gid: 'source 2:layer 2:id 2',
             layer: 'layer 2',
             source: 'source 2',
-            source_id: 'source_id 2',
+            source_id: 'id 2',
             property3: 'property 3',
             property4: 'property 4'
           }
@@ -532,7 +595,7 @@ module.exports.tests.non_optimal_conditions = (test, common) => {
             gid: 'source 3:layer 3:id 3',
             layer: 'layer 3',
             source: 'source 3',
-            source_id: 'source_id 3',
+            source_id: 'id 3',
             name: 'name 3',
             property5: 'property 5',
             property6: 'property 6'
@@ -586,7 +649,7 @@ module.exports.tests.non_optimal_conditions = (test, common) => {
       {
         _id: 'id 1',
         source: 'source 1',
-        source_id: 'source_id 1',
+        source_id: 'id 1',
         layer: 'layer 1',
         name: {
           default: 'name 1',
@@ -643,7 +706,7 @@ module.exports.tests.non_optimal_conditions = (test, common) => {
             gid: 'source 1:layer 1:id 1',
             layer: 'layer 1',
             source: 'source 1',
-            source_id: 'source_id 1',
+            source_id: 'id 1',
             name: 'name 1',
             property1: 'property 1',
             property2: 'property 2'
@@ -672,6 +735,149 @@ module.exports.tests.non_optimal_conditions = (test, common) => {
   });
 
 };
+
+// ensure that if elasticsearch returns an array of values for name.default
+// .. that we handle this case and select the first element for the label.
+module.exports.tests.nameAliases = function(test, common) {
+  test('name aliases', function(t) {
+    var aliases = [{
+      '_id': '1',
+      'source': 'example',
+      'layer': 'example',
+      'source_id': '1',
+      'name': {
+        'default': ['Example1', 'Example2'] // note the array
+      },
+      'center_point': {
+        'lon': 0,
+        'lat': 0
+      }
+    }];
+
+    const expected = {
+      type: 'FeatureCollection',
+      features: [{
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: [ 0, 0 ]
+        },
+        properties: {
+          id: '1',
+          gid: 'example:example:1',
+          layer: 'example',
+          source: 'example',
+          source_id: '1',
+          name: 'Example1'
+        }
+      }],
+      bbox: [ 0, 0, 0, 0 ]
+    };
+
+    var actual = geojsonify( {}, aliases );
+    t.deepEquals(actual, expected);
+    t.end();
+  });
+
+};
+
+// ensure addendums aree decoded and printed properly
+module.exports.tests.addendum = function(test, common) {
+  test('addendum: not set in source', function(t) {
+    var example = [{
+      '_id': '6295630',
+      'source': 'whosonfirst',
+      'layer': 'continent',
+      'source_id': '6295630',
+      'name': {
+        'default': 'Earth'
+      },
+      'center_point': {
+        'lon': 0,
+        'lat': 0
+      }
+    }];
+
+    let collection = geojsonify({}, example);
+    t.false(collection.features[0].properties.addendum);
+    t.end();
+  });
+  test('addendum: set in source', function(t) {
+    var example = [{
+      '_id': '6295630',
+      'source': 'whosonfirst',
+      'layer': 'continent',
+      'source_id': '6295630',
+      'name': {
+        'default': 'Earth'
+      },
+      'center_point': {
+        'lon': 0,
+        'lat': 0
+      },
+      'addendum': {
+        'wikipedia': codec.encode({ slug: 'HackneyCityFarm' }),
+        'geonames': codec.encode({ foreignkey: 1 })
+      }
+    }];
+
+    let collection = geojsonify({}, example);
+    t.deepEqual(collection.features[0].properties.addendum, {
+      wikipedia: { slug: 'HackneyCityFarm' },
+      geonames: { foreignkey: 1 }
+    });
+    t.end();
+  });
+  test('addendum: partially corrupted', function(t) {
+    var example = [{
+      '_id': '6295630',
+      'source': 'whosonfirst',
+      'layer': 'continent',
+      'source_id': '6295630',
+      'name': {
+        'default': 'Earth'
+      },
+      'center_point': {
+        'lon': 0,
+        'lat': 0
+      },
+      'addendum': {
+        'wikipedia': codec.encode({ slug: 'HackneyCityFarm' }),
+        'geonames': 'INVALID ENCODING'
+      }
+    }];
+
+    let collection = geojsonify({}, example);
+    t.deepEqual(collection.features[0].properties.addendum, {
+      wikipedia: { slug: 'HackneyCityFarm' }
+    });
+    t.end();
+  });
+  test('addendum: all corrupted', function(t) {
+    var example = [{
+      '_id': '6295630',
+      'source': 'whosonfirst',
+      'layer': 'continent',
+      'source_id': '6295630',
+      'name': {
+        'default': 'Earth'
+      },
+      'center_point': {
+        'lon': 0,
+        'lat': 0
+      },
+      'addendum': {
+        'wikipedia': 'INVALID ENCODING',
+        'geonames': 'INVALID ENCODING'
+      }
+    }];
+
+    let collection = geojsonify({}, example);
+    t.false(collection.features[0].properties.addendum);
+    t.end();
+  });
+};
+
 module.exports.all = (tape, common) => {
   function test(name, testFunction) {
     return tape(`geojsonify: ${name}`, testFunction);

@@ -1,4 +1,3 @@
-
 /**
 
   cmd can be any valid ES query command
@@ -10,11 +9,10 @@ var logger = require( 'pelias-logger' ).get( 'api' );
 function service( esclient, cmd, cb ){
 
   // query elasticsearch
+  const startTime = new Date();
   esclient.search( cmd, function( err, data ){
-
-    // log total ms elasticsearch reported the query took to execute
-    if( data && data.took ){
-      logger.verbose( 'time elasticsearch reported:', data.took / 1000 );
+    if (data) {
+      data.response_time = new Date() - startTime;
     }
 
     // handle elasticsearch errors
@@ -37,7 +35,6 @@ function service( esclient, cmd, cb ){
         // map metadata in to _source so we
         // can serve it up to the consumer
         hit._source._id = hit._id;
-        hit._source._type = hit._type;
         hit._source._score = hit._score;
         hit._source._matched_queries = hit.matched_queries;
 
@@ -46,7 +43,7 @@ function service( esclient, cmd, cb ){
     }
 
     // fire callback
-    return cb( null, docs, meta );
+    return cb( null, docs, meta, data );
   });
 
 }

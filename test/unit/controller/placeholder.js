@@ -1,5 +1,3 @@
-'use strict';
-
 const placeholder = require('../../../controller/placeholder');
 const proxyquire =  require('proxyquire').noCallThru();
 const mock_logger = require('pelias-mock-logger');
@@ -76,7 +74,7 @@ module.exports.tests.success = (test, common) => {
 
       const response = [
         {
-          id: 123,
+          id: '123',
           name: 'name 1',
           placetype: 'neighbourhood',
           population: 1234,
@@ -214,12 +212,11 @@ module.exports.tests.success = (test, common) => {
     controller(req, res, () => {
       const expected_res = {
         meta: {
-          query_type: 'fallback'
+          query_type: 'search_fallback'
         },
         data: [
           {
-            _id: '123',
-            _type: 'neighbourhood',
+            _id: 'whosonfirst:neighbourhood:123',
             layer: 'neighbourhood',
             source: 'whosonfirst',
             source_id: '123',
@@ -270,8 +267,7 @@ module.exports.tests.success = (test, common) => {
             }
           },
           {
-            _id: '456',
-            _type: 'locality',
+            _id: 'whosonfirst:locality:456',
             layer: 'locality',
             source: 'whosonfirst',
             source_id: '456',
@@ -293,7 +289,7 @@ module.exports.tests.success = (test, common) => {
       };
 
       t.deepEquals(res, expected_res);
-      t.ok(logger.isInfoMessage('[controller:placeholder] [result_count:2]'));
+      t.ok(logger.isDebugMessage('[controller:placeholder] [result_count:2]'));
       t.end();
     });
 
@@ -332,12 +328,11 @@ module.exports.tests.success = (test, common) => {
     controller(req, res, () => {
       const expected_res = {
         meta: {
-          query_type: 'fallback'
+          query_type: 'search_fallback'
         },
         data: [
           {
-            _id: '123',
-            _type: 'neighbourhood',
+            _id: 'whosonfirst:neighbourhood:123',
             layer: 'neighbourhood',
             source: 'whosonfirst',
             source_id: '123',
@@ -357,7 +352,7 @@ module.exports.tests.success = (test, common) => {
       };
 
       t.deepEquals(res, expected_res);
-      t.ok(logger.isInfoMessage('[controller:placeholder] [result_count:1]'));
+      t.ok(logger.isDebugMessage('[controller:placeholder] [result_count:1]'));
       t.end();
     });
 
@@ -395,12 +390,11 @@ module.exports.tests.success = (test, common) => {
     controller(req, res, () => {
       const expected_res = {
         meta: {
-          query_type: 'fallback'
+          query_type: 'search_fallback'
         },
         data: [
           {
-            _id: '123',
-            _type: 'neighbourhood',
+            _id: 'whosonfirst:neighbourhood:123',
             layer: 'neighbourhood',
             source: 'whosonfirst',
             source_id: '123',
@@ -417,7 +411,7 @@ module.exports.tests.success = (test, common) => {
       };
 
       t.deepEquals(res, expected_res);
-      t.ok(logger.isInfoMessage('[controller:placeholder] [result_count:1]'));
+      t.ok(logger.isDebugMessage('[controller:placeholder] [result_count:1]'));
       t.end();
     });
 
@@ -455,12 +449,11 @@ module.exports.tests.success = (test, common) => {
     controller(req, res, () => {
       const expected_res = {
         meta: {
-          query_type: 'fallback'
+          query_type: 'search_fallback'
         },
         data: [
           {
-            _id: '123',
-            _type: 'neighbourhood',
+            _id: 'whosonfirst:neighbourhood:123',
             layer: 'neighbourhood',
             source: 'whosonfirst',
             source_id: '123',
@@ -475,7 +468,7 @@ module.exports.tests.success = (test, common) => {
       };
 
       t.deepEquals(res, expected_res);
-      t.ok(logger.isInfoMessage('[controller:placeholder] [result_count:1]'));
+      t.ok(logger.isDebugMessage('[controller:placeholder] [result_count:1]'));
       t.end();
     });
 
@@ -520,12 +513,11 @@ module.exports.tests.success = (test, common) => {
       controller(req, res, () => {
         const expected_res = {
           meta: {
-            query_type: 'fallback'
+            query_type: 'search_fallback'
           },
           data: [
             {
-              _id: '456',
-              _type: 'neighbourhood',
+              _id: 'whosonfirst:neighbourhood:456',
               layer: 'neighbourhood',
               source: 'whosonfirst',
               source_id: '456',
@@ -540,7 +532,7 @@ module.exports.tests.success = (test, common) => {
         };
 
         t.deepEquals(res, expected_res);
-        t.ok(logger.isInfoMessage('[controller:placeholder] [result_count:1]'));
+        t.ok(logger.isDebugMessage('[controller:placeholder] [result_count:1]'));
       });
 
     });
@@ -585,12 +577,11 @@ module.exports.tests.success = (test, common) => {
     controller(req, res, () => {
       const expected_res = {
         meta: {
-          query_type: 'fallback'
+          query_type: 'search_fallback'
         },
         data: [
           {
-            _id: '1',
-            _type: 'neighbourhood',
+            _id: 'whosonfirst:neighbourhood:1',
             layer: 'neighbourhood',
             source: 'whosonfirst',
             source_id: '1',
@@ -609,7 +600,7 @@ module.exports.tests.success = (test, common) => {
       };
 
       t.deepEquals(res, expected_res);
-      t.ok(logger.isInfoMessage('[controller:placeholder] [result_count:1]'));
+      t.ok(logger.isDebugMessage('[controller:placeholder] [result_count:1]'));
       t.end();
     });
 
@@ -758,12 +749,11 @@ module.exports.tests.result_filtering = (test, common) => {
     controller(req, res, () => {
       const expected_res = {
         meta: {
-          query_type: 'fallback'
+          query_type: 'search_fallback'
         },
         data: [
           {
-            _id: '1',
-            _type: 'neighbourhood',
+            _id: 'whosonfirst:neighbourhood:1',
             layer: 'neighbourhood',
             source: 'whosonfirst',
             source_id: '1',
@@ -779,8 +769,7 @@ module.exports.tests.result_filtering = (test, common) => {
             }
           },
           {
-            _id: '10',
-            _type: 'neighbourhood',
+            _id: 'whosonfirst:neighbourhood:10',
             layer: 'neighbourhood',
             source: 'whosonfirst',
             source_id: '10',
@@ -876,12 +865,11 @@ module.exports.tests.result_filtering = (test, common) => {
     controller(req, res, () => {
       const expected_res = {
         meta: {
-          query_type: 'fallback'
+          query_type: 'search_fallback'
         },
         data: [
           {
-            _id: '1',
-            _type: 'neighbourhood',
+            _id: 'whosonfirst:neighbourhood:1',
             layer: 'neighbourhood',
             source: 'whosonfirst',
             source_id: '1',
@@ -897,8 +885,7 @@ module.exports.tests.result_filtering = (test, common) => {
             }
           },
           {
-            _id: '2',
-            _type: 'neighbourhood',
+            _id: 'whosonfirst:neighbourhood:2',
             layer: 'neighbourhood',
             source: 'whosonfirst',
             source_id: '2',
@@ -914,8 +901,7 @@ module.exports.tests.result_filtering = (test, common) => {
             }
           },
           {
-            _id: '3',
-            _type: 'neighbourhood',
+            _id: 'whosonfirst:neighbourhood:3',
             layer: 'neighbourhood',
             source: 'whosonfirst',
             source_id: '3',
@@ -1077,12 +1063,11 @@ module.exports.tests.result_filtering = (test, common) => {
     controller(req, res, () => {
       const expected_res = {
         meta: {
-          query_type: 'fallback'
+          query_type: 'search_fallback'
         },
         data: [
           {
-            _id: '1',
-            _type: 'neighbourhood',
+            _id: 'whosonfirst:neighbourhood:1',
             layer: 'neighbourhood',
             source: 'whosonfirst',
             source_id: '1',
@@ -1098,8 +1083,7 @@ module.exports.tests.result_filtering = (test, common) => {
             }
           },
           {
-            _id: '10',
-            _type: 'neighbourhood',
+            _id: 'whosonfirst:neighbourhood:10',
             layer: 'neighbourhood',
             source: 'whosonfirst',
             source_id: '10',
@@ -1193,12 +1177,11 @@ module.exports.tests.result_filtering = (test, common) => {
     controller(req, res, () => {
       const expected_res = {
         meta: {
-          query_type: 'fallback'
+          query_type: 'search_fallback'
         },
         data: [
           {
-            _id: '1',
-            _type: 'neighbourhood',
+            _id: 'whosonfirst:neighbourhood:1',
             layer: 'neighbourhood',
             source: 'whosonfirst',
             source_id: '1',
@@ -1214,8 +1197,7 @@ module.exports.tests.result_filtering = (test, common) => {
             }
           },
           {
-            _id: '2',
-            _type: 'neighbourhood',
+            _id: 'whosonfirst:neighbourhood:2',
             layer: 'neighbourhood',
             source: 'whosonfirst',
             source_id: '2',
@@ -1231,8 +1213,7 @@ module.exports.tests.result_filtering = (test, common) => {
             }
           },
           {
-            _id: '3',
-            _type: 'neighbourhood',
+            _id: 'whosonfirst:neighbourhood:3',
             layer: 'neighbourhood',
             source: 'whosonfirst',
             source_id: '3',
@@ -1347,12 +1328,11 @@ module.exports.tests.result_filtering = (test, common) => {
     controller(req, res, () => {
       const expected_res = {
         meta: {
-          query_type: 'fallback'
+          query_type: 'search_fallback'
         },
         data: [
           {
-            _id: '1',
-            _type: 'neighbourhood',
+            _id: 'whosonfirst:neighbourhood:1',
             layer: 'neighbourhood',
             source: 'whosonfirst',
             source_id: '1',
@@ -1368,8 +1348,7 @@ module.exports.tests.result_filtering = (test, common) => {
             }
           },
           {
-            _id: '3',
-            _type: 'locality',
+            _id: 'whosonfirst:locality:3',
             layer: 'locality',
             source: 'whosonfirst',
             source_id: '3',
@@ -1385,8 +1364,7 @@ module.exports.tests.result_filtering = (test, common) => {
             }
           },
           {
-            _id: '5',
-            _type: 'county',
+            _id: 'whosonfirst:county:5',
             layer: 'county',
             source: 'whosonfirst',
             source_id: '5',
@@ -1405,7 +1383,7 @@ module.exports.tests.result_filtering = (test, common) => {
       };
 
       t.deepEquals(res, expected_res);
-      t.ok(logger.isInfoMessage('[controller:placeholder] [result_count:3]'));
+      t.ok(logger.isDebugMessage('[controller:placeholder] [result_count:3]'));
       t.end();
     });
 
@@ -1482,12 +1460,11 @@ module.exports.tests.result_filtering = (test, common) => {
     controller(req, res, () => {
       const expected_res = {
         meta: {
-          query_type: 'fallback'
+          query_type: 'search_fallback'
         },
         data: [
           {
-            _id: '1',
-            _type: 'neighbourhood',
+            _id: 'whosonfirst:neighbourhood:1',
             layer: 'neighbourhood',
             source: 'whosonfirst',
             source_id: '1',
@@ -1503,8 +1480,7 @@ module.exports.tests.result_filtering = (test, common) => {
             }
           },
           {
-            _id: '2',
-            _type: 'borough',
+            _id: 'whosonfirst:borough:2',
             layer: 'borough',
             source: 'whosonfirst',
             source_id: '2',
@@ -1520,8 +1496,7 @@ module.exports.tests.result_filtering = (test, common) => {
             }
           },
           {
-            _id: '3',
-            _type: 'locality',
+            _id: 'whosonfirst:locality:3',
             layer: 'locality',
             source: 'whosonfirst',
             source_id: '3',
@@ -1540,7 +1515,7 @@ module.exports.tests.result_filtering = (test, common) => {
       };
 
       t.deepEquals(res, expected_res);
-      t.ok(logger.isInfoMessage('[controller:placeholder] [result_count:3]'));
+      t.ok(logger.isDebugMessage('[controller:placeholder] [result_count:3]'));
       t.end();
     });
 
@@ -1553,7 +1528,7 @@ module.exports.tests.result_filtering = (test, common) => {
       t.deepEqual(req, {
         param1: 'param1 value',
         clean: {
-          'boundary.country': 'ABC'
+          'boundary.country': ['ABC']
         }
       });
 
@@ -1623,7 +1598,7 @@ module.exports.tests.result_filtering = (test, common) => {
     const req = {
       param1: 'param1 value',
       clean: {
-        'boundary.country': 'ABC'
+        'boundary.country': ['ABC']
       }
     };
     const res = { };
@@ -1631,12 +1606,11 @@ module.exports.tests.result_filtering = (test, common) => {
     controller(req, res, () => {
       const expected_res = {
         meta: {
-          query_type: 'fallback'
+          query_type: 'search_fallback'
         },
         data: [
           {
-            _id: '1',
-            _type: 'locality',
+            _id: 'whosonfirst:locality:1',
             layer: 'locality',
             source: 'whosonfirst',
             source_id: '1',
@@ -1657,8 +1631,7 @@ module.exports.tests.result_filtering = (test, common) => {
             }
           },
           {
-            _id: '4',
-            _type: 'locality',
+            _id: 'whosonfirst:locality:4',
             layer: 'locality',
             source: 'whosonfirst',
             source_id: '4',
@@ -1682,7 +1655,7 @@ module.exports.tests.result_filtering = (test, common) => {
       };
 
       t.deepEquals(res, expected_res);
-      t.ok(logger.isInfoMessage('[controller:placeholder] [result_count:2]'));
+      t.ok(logger.isDebugMessage('[controller:placeholder] [result_count:2]'));
       t.end();
     });
 
@@ -1695,7 +1668,7 @@ module.exports.tests.result_filtering = (test, common) => {
       t.deepEqual(req, {
         param1: 'param1 value',
         clean: {
-          'boundary.country': 'ABC'
+          'boundary.country': ['ABC']
         }
       });
 
@@ -1773,7 +1746,7 @@ module.exports.tests.result_filtering = (test, common) => {
     const req = {
       param1: 'param1 value',
       clean: {
-        'boundary.country': 'ABC'
+        'boundary.country': ['ABC']
       }
     };
     const res = { };
@@ -1781,12 +1754,11 @@ module.exports.tests.result_filtering = (test, common) => {
     controller(req, res, () => {
       const expected_res = {
         meta: {
-          query_type: 'fallback'
+          query_type: 'search_fallback'
         },
         data: [
           {
-            _id: '1',
-            _type: 'locality',
+            _id: 'whosonfirst:locality:1',
             layer: 'locality',
             source: 'whosonfirst',
             source_id: '1',
@@ -1807,8 +1779,7 @@ module.exports.tests.result_filtering = (test, common) => {
             }
           },
           {
-            _id: '3',
-            _type: 'locality',
+            _id: 'whosonfirst:locality:3',
             layer: 'locality',
             source: 'whosonfirst',
             source_id: '3',
@@ -1829,8 +1800,7 @@ module.exports.tests.result_filtering = (test, common) => {
             }
           },
           {
-            _id: '4',
-            _type: 'locality',
+            _id: 'whosonfirst:locality:4',
             layer: 'locality',
             source: 'whosonfirst',
             source_id: '4',
@@ -1854,7 +1824,7 @@ module.exports.tests.result_filtering = (test, common) => {
       };
 
       t.deepEquals(res, expected_res);
-      t.ok(logger.isInfoMessage('[controller:placeholder] [result_count:3]'));
+      t.ok(logger.isDebugMessage('[controller:placeholder] [result_count:3]'));
       t.end();
     });
 
@@ -1908,12 +1878,11 @@ module.exports.tests.lineage_errors = (test, common) => {
     controller(req, res, () => {
       const expected_res = {
         meta: {
-          query_type: 'fallback'
+          query_type: 'search_fallback'
         },
         data: [
           {
-            _id: '123',
-            _type: 'neighbourhood',
+            _id: 'whosonfirst:neighbourhood:123',
             layer: 'neighbourhood',
             source: 'whosonfirst',
             source_id: '123',
@@ -1982,12 +1951,11 @@ module.exports.tests.lineage_errors = (test, common) => {
     controller(req, res, () => {
       const expected_res = {
         meta: {
-          query_type: 'fallback'
+          query_type: 'search_fallback'
         },
         data: [
           {
-            _id: '123',
-            _type: 'neighbourhood',
+            _id: 'whosonfirst:neighbourhood:123',
             layer: 'neighbourhood',
             source: 'whosonfirst',
             source_id: '123',
@@ -2055,12 +2023,11 @@ module.exports.tests.lineage_errors = (test, common) => {
     controller(req, res, () => {
       const expected_res = {
         meta: {
-          query_type: 'fallback'
+          query_type: 'search_fallback'
         },
         data: [
           {
-            _id: '123',
-            _type: 'neighbourhood',
+            _id: 'whosonfirst:neighbourhood:123',
             layer: 'neighbourhood',
             source: 'whosonfirst',
             source_id: '123',
@@ -2115,12 +2082,11 @@ module.exports.tests.geometry_errors = (test, common) => {
     controller(req, res, () => {
       const expected_res = {
         meta: {
-          query_type: 'fallback'
+          query_type: 'search_fallback'
         },
         data: [
           {
-            _id: '123',
-            _type: 'neighbourhood',
+            _id: 'whosonfirst:neighbourhood:123',
             layer: 'neighbourhood',
             source: 'whosonfirst',
             source_id: '123',
@@ -2174,12 +2140,11 @@ module.exports.tests.centroid_errors = (test, common) => {
     controller(req, res, () => {
       const expected_res = {
         meta: {
-          query_type: 'fallback'
+          query_type: 'search_fallback'
         },
         data: [
           {
-            _id: '123',
-            _type: 'neighbourhood',
+            _id: 'whosonfirst:neighbourhood:123',
             layer: 'neighbourhood',
             source: 'whosonfirst',
             source_id: '123',
@@ -2234,12 +2199,11 @@ module.exports.tests.centroid_errors = (test, common) => {
     controller(req, res, () => {
       const expected_res = {
         meta: {
-          query_type: 'fallback'
+          query_type: 'search_fallback'
         },
         data: [
           {
-            _id: '123',
-            _type: 'neighbourhood',
+            _id: 'whosonfirst:neighbourhood:123',
             layer: 'neighbourhood',
             source: 'whosonfirst',
             source_id: '123',
@@ -2304,12 +2268,11 @@ module.exports.tests.boundingbox_errors = (test, common) => {
       controller(req, res, () => {
         const expected_res = {
           meta: {
-            query_type: 'fallback'
+            query_type: 'search_fallback'
           },
           data: [
             {
-              _id: '123',
-              _type: 'neighbourhood',
+              _id: 'whosonfirst:neighbourhood:123',
               layer: 'neighbourhood',
               source: 'whosonfirst',
               source_id: '123',
@@ -2358,7 +2321,7 @@ module.exports.tests.error_conditions = (test, common) => {
     controller(req, res, () => {
       t.deepEquals(res, {}, 'res should not have been modified');
       t.deepEquals(req.errors, ['placeholder service error']);
-      t.notOk(logger.isInfoMessage(/\\[controller:placeholder\\] \\[result_count:\\d+\\]/));
+      t.notOk(logger.isDebugMessage(/\\[controller:placeholder\\] \\[result_count:\\d+\\]/));
       t.end();
     });
 
@@ -2387,7 +2350,7 @@ module.exports.tests.error_conditions = (test, common) => {
     controller(req, res, () => {
       t.deepEquals(res, {}, 'res should not have been modified');
       t.deepEquals(req.errors, ['placeholder service error']);
-      t.notOk(logger.isInfoMessage(/\\[controller:placeholder\\] \\[result_count:\\d+\\]/));
+      t.notOk(logger.isDebugMessage(/\\[controller:placeholder\\] \\[result_count:\\d+\\]/));
       t.end();
     });
 
@@ -2412,7 +2375,7 @@ module.exports.tests.error_conditions = (test, common) => {
     controller(req, res, () => {
       t.deepEquals(res, {}, 'res should not have been modified');
       t.deepEquals(req.errors, [{ error_key: 'error_value' }]);
-      t.notOk(logger.isInfoMessage(/\\[controller:placeholder\\] \\[result_count:\\d+\\]/));
+      t.notOk(logger.isDebugMessage(/\\[controller:placeholder\\] \\[result_count:\\d+\\]/));
       t.end();
     });
 

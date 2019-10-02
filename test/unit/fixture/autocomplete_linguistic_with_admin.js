@@ -1,104 +1,43 @@
-
 module.exports = {
   'query': {
     'bool': {
       'must': [
         {
           'match': {
-            'name.default': {
-              'analyzer': 'peliasQueryFullToken',
+            'phrase.default': {
+              'analyzer': 'peliasQuery',
               'type': 'phrase',
               'boost': 1,
               'slop': 3,
+              'cutoff_frequency': 0.01,
               'query': 'one two'
             }
+          }
+        },
+        {
+          'multi_match': {
+            'fields': [
+              'parent.country.ngram^1',
+              'parent.dependency.ngram^1',
+              'parent.macroregion.ngram^1',
+              'parent.region.ngram^1',
+              'parent.county.ngram^1',
+              'parent.localadmin.ngram^1',
+              'parent.locality.ngram^1',
+              'parent.borough.ngram^1',
+              'parent.neighbourhood.ngram^1',
+              'parent.locality_a.ngram^1',
+              'parent.region_a.ngram^4',
+              'parent.country_a.ngram^4',
+              'name.default^1'
+            ],
+            'query': 'three',
+            'analyzer': 'peliasAdmin',
+            'type': 'cross_fields'
           }
         }
       ],
       'should': [
-        {
-          'match': {
-            'parent.country': {
-              'analyzer': 'peliasAdmin',
-              'boost': 800,
-              'query': 'three'
-            }
-          }
-        },
-        {
-          'match': {
-            'parent.region': {
-              'analyzer': 'peliasAdmin',
-              'boost': 600,
-              'query': 'three'
-            }
-          }
-        },
-        {
-          'match': {
-            'parent.region_a': {
-              'analyzer': 'peliasAdmin',
-              'boost': 600,
-              'query': 'three'
-            }
-          }
-        },
-        {
-          'match': {
-            'parent.county': {
-              'analyzer': 'peliasAdmin',
-              'boost': 400,
-              'query': 'three'
-            }
-          }
-        },
-        {
-          'match': {
-            'parent.borough': {
-              'analyzer': 'peliasAdmin',
-              'boost': 600,
-              'query': 'three'
-            }
-          }
-        },
-        {
-          'match': {
-            'parent.localadmin': {
-              'analyzer': 'peliasAdmin',
-              'boost': 200,
-              'query': 'three'
-            }
-          }
-        },
-        {
-          'match': {
-            'parent.locality': {
-              'analyzer': 'peliasAdmin',
-              'boost': 200,
-              'query': 'three'
-            }
-          }
-        },
-        {
-          'match': {
-            'parent.neighbourhood': {
-              'analyzer': 'peliasAdmin',
-              'boost': 200,
-              'query': 'three'
-            }
-          }
-        },
-        {
-          'match': {
-            'phrase.default': {
-              'analyzer' : 'peliasPhrase',
-              'type' : 'phrase',
-              'boost' : 1,
-              'slop' : 3,
-              'query' : 'one two'
-            }
-          }
-        },
         {
           'function_score': {
             'query': {

@@ -1,4 +1,4 @@
-
+var field = require('../helper/fieldValue');
 var logger = require( 'pelias-logger' ).get( 'api' );
 const _ = require('lodash');
 
@@ -33,13 +33,19 @@ function setup(service, should_execute) {
       return next();
     }
 
+    const start = Date.now();
     service(req, res, (err, translations) => {
       // if there's an error, log it and bail
       if (err) {
-        logger.info(`[middleware:language][error]`);
         logger.error(err);
         return next();
       }
+
+      logger.info('language', {
+        response_time: Date.now() - start,
+        language: req.clean.lang.iso6391,
+        controller: 'language', //technically middleware, but this is consistent with other log lines
+      });
 
       // otherwise, update all the docs with translations
       updateDocs(req, res, _.defaultTo(translations, []));
@@ -58,6 +64,11 @@ function updateDocs( req, res, translations ){
 
   // iterate over response documents
   res.data.forEach( function( doc, p ){
+
+    // update name.default to the request language (if available)
+    if (req.clean.lang.defaulted === false) {
+      translateNameDefault(doc, req.clean.lang.iso6391);
+    }
 
     // skip invalid records
     if( !doc || !doc.parent ){ return; }
@@ -113,6 +124,13 @@ function updateDocs( req, res, translations ){
 function isLanguageChangeRequired( req, res ){
   return req && res && res.data && res.data.length &&
          req.hasOwnProperty('language');
+}
+
+// update name.default with the corresponding translation if available
+function translateNameDefault(doc, lang) {
+    if (lang && _.has(doc, 'name.' + lang)) {
+        doc.name.default = field.getStringValue(doc.name[lang]);
+    }
 }
 
 module.exports = setup;

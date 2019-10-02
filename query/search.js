@@ -1,5 +1,3 @@
-'use strict';
-
 const peliasQuery = require('pelias-query');
 const defaults = require('./search_defaults');
 const textParser = require('./text_parser');
@@ -24,6 +22,7 @@ fallbackQuery.filter( peliasQuery.view.boundary_rect );
 fallbackQuery.filter( peliasQuery.view.sources );
 fallbackQuery.filter( peliasQuery.view.layers );
 fallbackQuery.filter( peliasQuery.view.categories );
+fallbackQuery.filter( peliasQuery.view.boundary_gid );
 // --------------------------------
 
 /**
@@ -34,7 +33,6 @@ function generateQuery( clean ){
 
   const vs = new peliasQuery.Vars( defaults );
 
-  let logStr = '[query:search] [parser:libpostal] ';
 
   // input text
   vs.var( 'input:name', clean.text );
@@ -42,25 +40,21 @@ function generateQuery( clean ){
   // sources
   if( check.array(clean.sources) && clean.sources.length ) {
     vs.var( 'sources', clean.sources);
-    logStr += '[param:sources] ';
   }
 
   // layers
   if( check.array(clean.layers) && clean.layers.length ) {
     vs.var('layers', clean.layers);
-    logStr += '[param:layers] ';
   }
 
   // categories
-  if (clean.categories) {
+  if (clean.categories && clean.categories.length) {
     vs.var('input:categories', clean.categories);
-    logStr += '[param:categories] ';
   }
 
   // size
   if( clean.querySize ) {
     vs.var( 'size', clean.querySize );
-    logStr += '[param:querySize] ';
   }
 
   // focus point
@@ -70,7 +64,6 @@ function generateQuery( clean ){
       'focus:point:lat': clean['focus.point.lat'],
       'focus:point:lon': clean['focus.point.lon']
     });
-    logStr += '[param:focus_point] ';
   }
 
   // boundary rect
@@ -84,7 +77,6 @@ function generateQuery( clean ){
       'boundary:rect:bottom': clean['boundary.rect.min_lat'],
       'boundary:rect:left': clean['boundary.rect.min_lon']
     });
-    logStr += '[param:boundary_rect] ';
   }
 
   // boundary circle
@@ -101,15 +93,20 @@ function generateQuery( clean ){
         'boundary:circle:radius': Math.round( clean['boundary.circle.radius'] ) + 'km'
       });
     }
-    logStr += '[param:boundary_circle] ';
   }
 
   // boundary country
-  if( check.string(clean['boundary.country']) ){
+  if( check.nonEmptyArray(clean['boundary.country']) ){
     vs.set({
-      'boundary:country': clean['boundary.country']
+      'boundary:country': clean['boundary.country'].join(' ')
     });
-    logStr += '[param:boundary_country] ';
+  }
+
+  // boundary gid
+  if ( check.string(clean['boundary.gid']) ){
+    vs.set({
+      'boundary:gid': clean['boundary.gid']
+    });
   }
 
   // run the address parser
@@ -121,28 +118,18 @@ function generateQuery( clean ){
 
   //console.log(JSON.stringify(q, null, 2));
 
-  if (q !== undefined) {
-    logger.info(logStr);
-  }
-  else {
-    logger.info('[parser:libpostal] query type not supported');
-  }
-
   return q;
 }
 
 function getQuery(vs) {
-
-  logger.info(`[query:search] [search_input_type:${determineQueryType(vs)}]`);
-
-  if (hasStreet(vs) || isPostalCodeOnly(vs) || isPostalCodeWithCountry(vs)) {
+  if (hasStreet(vs) || isPostalCodeOnly(vs) || isPostalCodeWithAdmin(vs)) {
     return {
-      type: 'fallback',
+      type: 'search_fallback',
       body: fallbackQuery.render(vs)
     };
   }
 
-  // returning undefined is a signal to a later step that the addressit-parsed
+  // returning undefined is a signal to a later step that a fallback parser
   // query should be queried for
   return undefined;
 
@@ -179,21 +166,18 @@ function isPostalCodeOnly(vs) {
 
   return allowedFields.every(isSet) &&
     !disallowedFields.some(isSet);
-
 }
 
 
-function isPostalCodeWithCountry(vs) {
+function isPostalCodeWithAdmin(vs) {
     var isSet = (layer) => {
         return vs.isset(`input:${layer}`);
     };
-    
-    var allowedFields = ['postcode', 'country'];
-    var disallowedFields = ['query', 'category', 'housenumber', 'street', 'locality',
-                          'neighbourhood', 'borough', 'county', 'region'];
-        
-    return allowedFields.every(isSet) &&
-        !disallowedFields.some(isSet);
+
+    var disallowedFields = ['query', 'category', 'housenumber', 'street'];
+
+    return isSet('postcode') &&
+      !disallowedFields.some(isSet);
 }
 
 module.exports = generateQuery;

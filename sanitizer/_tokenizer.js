@@ -1,5 +1,4 @@
-
-var check = require('check-types');
+const _ = require('lodash');
 
 /**
   simplified version of the elaticsearch tokenizer, used in order to
@@ -23,30 +22,34 @@ function _sanitize( raw, clean ){
   var text = clean.text;
 
   // a boolean to track whether the input parser successfully ran; or not.
-  var inputParserRanSuccessfully = false;
+  var parserConsumedAllTokens = false;
 
-  // if the text parser has run then we only tokenize the 'name' section
+  // if the text parser has run then we only tokenize the 'subject' section
   // of the 'parsed_text' object, ignoring the 'admin' parts.
-  if( clean.hasOwnProperty('parsed_text') ) {
-    inputParserRanSuccessfully = true;
+  if( _.isPlainObject(clean, 'parsed_text') && !_.isEmpty(clean.parsed_text) ) {
+    // parsed_text.subject is set, this is the highest priority, use this string
+    if( _.has(clean.parsed_text, 'subject') ){
+      text = clean.parsed_text.subject; // use this string instead
 
-    // parsed_text.name is set, this is the highest priority, use this string
-    if( clean.parsed_text.hasOwnProperty('name') ){
-      text = clean.parsed_text.name; // use this string instead
-    }
+      // note: we cannot be sure that the input is complete if a street is
+      // detected because the parser will detect partially completed suffixes
+      // which are not safe to match against a phrase index
+      if( _.has(clean.parsed_text, 'street') ){
+        parserConsumedAllTokens = false;
+      }
 
-    // else handle the case where parsed_text.street was produced but
-    // no parsed_text.name is produced.
-    // additionally, handle the case where parsed_text.number is present
-    // note: the addressit module may also produce parsed_text.unit info
-    // for now, we discard that information as we don't have an appropriate
-    else if( clean.parsed_text.hasOwnProperty('street') ){
-      text = [
-        clean.parsed_text.number,
-        clean.parsed_text.street
-      ].filter(function(el){return el;})
-      .join(' '); // remove empty elements
+      // when $subject is not the end of $clean.text
+      // then there must be tokens coming afterwards
+      else if (!clean.text.endsWith(text)) {
+        parserConsumedAllTokens = true;
+      }
     }
+  }
+
+  // if the final character is a numeral then consider all tokens
+  // as complete in order to avoid prefix matching numerals.
+  if (/[0-9]$/.test(text) ) {
+    parserConsumedAllTokens = true;
   }
 
   // always set 'clean.tokens*' arrays for consistency and to avoid upstream errors.
@@ -55,14 +58,17 @@ function _sanitize( raw, clean ){
   clean.tokens_incomplete = [];
 
   // sanity check that the text is valid.
-  if( check.nonEmptyString( text ) ){
+  if( _.isString(text) && !_.isEmpty(text) ){
 
     // split according to the regex used in the elasticsearch tokenizer
     // see: https://github.com/pelias/schema/blob/master/settings.js
     // see: settings.analysis.tokenizer.peliasNameTokenizer
     clean.tokens = text
       .split(/[\s,\\\/]+/) // split on delimeters
-      .filter(function(el){return el;}); // remove empty elements
+      .filter(el => el); // remove empty elements
+  } else {
+    // text is empty, this sanitizer should be a no-op
+    return messages;
   }
 
   /**
@@ -77,7 +83,7 @@ function _sanitize( raw, clean ){
   if( clean.tokens.length ){
 
     // if all the tokens are complete, simply copy them from clean.tokens
-    if( inputParserRanSuccessfully ){
+    if( parserConsumedAllTokens ){
 
       // all these tokens are complete!
       clean.tokens_complete = clean.tokens.slice();
@@ -97,6 +103,9 @@ function _sanitize( raw, clean ){
       }
     }
 
+  } else {
+    // set error if no substantial tokens were found
+    messages.errors.push('invalid `text` input: must contain more than just delimiters');
   }
 
   return messages;

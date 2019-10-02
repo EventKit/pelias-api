@@ -1,5 +1,8 @@
-const check = require('check-types');
 const _ = require('lodash');
+const MAX_TEXT_LENGTH = 140;
+
+// ref: https://en.wikipedia.org/wiki/Quotation_mark
+const QUOTES = `"'«»‘’‚‛“”„‟‹›⹂「」『』〝〞〟﹁﹂﹃﹄＂＇｢｣`;
 
 // validate texts, convert types and apply defaults
 function _sanitize( raw, clean ){
@@ -7,15 +10,18 @@ function _sanitize( raw, clean ){
   // error & warning messages
   const messages = { errors: [], warnings: [] };
 
-  // invalid input 'text'
-  // must call `!check.nonEmptyString` since `check.emptyString` returns
-  //  `false` for `undefined` and `null`
-  if( !check.nonEmptyString( raw.text ) ){
-    messages.errors.push('invalid param \'text\': text length, must be >0');
+  // remove superfluous whitespace and quotes
+  let text =  _.trim( _.trim( raw.text ), QUOTES );
 
+  // validate input 'text'
+  if( !_.isString(text) || _.isEmpty(text) ){
+    messages.errors.push(`invalid param 'text': text length, must be >0`);
   } else {
-    clean.text = raw.text;
-
+    if( text.length > MAX_TEXT_LENGTH ){
+      messages.warnings.push(`param 'text' truncated to ${MAX_TEXT_LENGTH} characters`);
+      text = text.substring(0, MAX_TEXT_LENGTH);
+    }
+    clean.text = text;
   }
 
   return messages;

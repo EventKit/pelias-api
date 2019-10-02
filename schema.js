@@ -1,6 +1,5 @@
-'use strict';
 
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 
 // Schema Configuration
 // required:
@@ -20,9 +19,13 @@ module.exports = Joi.object().keys({
     documentationUrl: Joi.string(),
     indexName: Joi.string(),
     host: Joi.string(),
-    accessLog: Joi.string(),
+    accessLog: Joi.string().allow(''),
     relativeScores: Joi.boolean(),
     requestRetries: Joi.number().integer().min(0),
+    customBoosts: Joi.object().keys({
+      layer: Joi.object(),
+      source: Joi.object()
+    }),
     localization: Joi.object().keys({
       flipNumberAndStreetCountries: Joi.array().items(Joi.string().regex(/^[A-Z]{3}$/))
     }).unknown(false),

@@ -1,5 +1,3 @@
-'use strict';
-
 const _ = require('lodash');
 const retry = require('retry');
 
@@ -35,7 +33,17 @@ function setup( apiConfig, esclient ){
     // setup a new operation
     const operation = retry.operation(operationOptions);
 
-    const cmd = req.clean.ids.map( function(id) {
+    //generate old and new style Elasticsearch mget entries
+    //New: the Elasticsearch ID is the Pelias GID, type not used
+    //Old: the Elasticsearch ID is the Source ID, type is the layer
+    const ids = req.clean.ids.map( function(id) {
+      return {
+        _index: apiConfig.indexName,
+        _id: `${id.source}:${id.layer}:${id.id}`
+      };
+    });
+
+    const old_ids = req.clean.ids.map( function(id) {
       return {
         _index: apiConfig.indexName,
         _type: id.layer,
@@ -43,18 +51,29 @@ function setup( apiConfig, esclient ){
       };
     });
 
+    const cmd = old_ids.concat(ids);
+
     logger.debug( '[ES req]', cmd );
     debugLog.push(req, {ES_req: cmd});
 
     operation.attempt((currentAttempt) => {
       const initialTime = debugLog.beginTimer(req);
 
-      mgetService( esclient, cmd, function( err, docs ) {
+      mgetService( esclient, cmd, function( err, docs, data) {
+        const message = {
+          controller: 'place',
+          queryType: 'place',
+          result_count: _.get(data, 'docs.length'),
+          response_time: _.get(data, 'response_time', undefined),
+          params: req.clean,
+          retries: currentAttempt - 1
+        };
+        logger.info('elasticsearch', message);
+
         // returns true if the operation should be attempted again
         // (handles bookkeeping of maxRetries)
         // only consider for status 408 (request timeout)
         if (isRequestTimeout(err) && operation.retry(err)) {
-          logger.info(`request timed out on attempt ${currentAttempt}, retrying`);
           debugLog.stopTimer(req, initialTime, `request timed out on attempt ${currentAttempt}, retrying`);
           return;
         }
@@ -75,12 +94,6 @@ function setup( apiConfig, esclient ){
         }
         // set response data
         else {
-          // log that a retry was successful
-          // most requests succeed on first attempt so this declutters log files
-          if (currentAttempt > 1) {
-            logger.info(`succeeded on retry ${currentAttempt-1}`);
-          }
-
           res.data = docs;
         }
         logger.debug('[ES response]', docs);

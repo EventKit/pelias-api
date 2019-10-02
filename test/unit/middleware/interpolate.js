@@ -1,5 +1,3 @@
-'use strict';
-
 const setup = require('../../../middleware/interpolate');
 const proxyquire =  require('proxyquire').noCallThru();
 const _  = require('lodash');
@@ -58,8 +56,6 @@ module.exports.tests.success_conditions = (test, common) => {
 
     controller(req, undefined, () => {
       t.notOk(logger.hasErrorMessages(), 'there shouldn\'t be any error messages');
-      t.ok(logger.isInfoMessage(/\[interpolation\] \[took\] \d+ ms/));
-      t.ok(logger.isInfoMessage(/\[interpolation\] \[street_results\] count=0/));
       t.end();
 
     });
@@ -87,8 +83,6 @@ module.exports.tests.success_conditions = (test, common) => {
 
     controller(req, res, () => {
       t.notOk(logger.hasErrorMessages(), 'there shouldn\'t be any error messages');
-      t.ok(logger.isInfoMessage(/\[interpolation\] \[took\] \d+ ms/));
-      t.ok(logger.isInfoMessage(/\[interpolation\] \[street_results\] count=0/));
 
       t.deepEquals(res, {});
 
@@ -202,12 +196,6 @@ module.exports.tests.success_conditions = (test, common) => {
 
     controller(req, res, () => {
       t.notOk(logger.hasErrorMessages(), 'there shouldn\'t be any error messages');
-      t.ok(logger.isInfoMessage(/\[interpolation\] \[took\] \d+ ms/), 'timing should be info-logged');
-      t.ok(logger.isInfoMessage(/\[interpolation\] \[street_results\] count=3/), 'street count should be info-logged');
-
-      // test debug messages very vaguely to avoid brittle tests
-      t.ok(logger.isDebugMessage(/^\[interpolation\] \[hit\] this is req.clean.parsed_text \{.+?\}$/),
-        'hits should be debug-logged');
 
       t.deepEquals(res, {
         data: [
@@ -277,6 +265,81 @@ module.exports.tests.success_conditions = (test, common) => {
 
     });
 
+  });
+
+  test('results should be sorted first by address/non-address. previous ordering should otherwise be maintained via a stable sort', t => {
+    const service = (req, res, callback) => {
+      // results 5 and 7 will have interpolated results returned
+      // this is to ensure results are re-sorted to move the addresses first
+      if (res.id === 5 || res.id === 7) {
+        callback(null, {
+          properties: {
+            number: 17,
+            source: 'Source Abbr 1',
+            source_id: 'source 1 source id',
+            lat: 12.121212,
+            lon: 21.212121
+          }
+        });
+      } else {
+        // return empty results in most cases
+        callback(null, {});
+      }
+    };
+
+    const logger = require('pelias-mock-logger')();
+
+    const controller = proxyquire('../../../middleware/interpolate', {
+      'pelias-logger': logger
+    })(service, () => true);
+
+    const req = {
+      clean: {
+        parsed_text: 'this is req.clean.parsed_text'
+      }
+    };
+    const res = {};
+
+    // helper method to generate test results which default to streets
+    function generateTestStreets(id) {
+      return {
+        id: id+1,
+        layer: 'street',
+        name: { default: `name ${id+1}` },
+        address_parts: {},
+        source_id: 'original source_id'
+      };
+    }
+
+    // generate a set of street results of desired size
+    // NOTE: this set must be of 11 elements or greater
+    // Node.js uses stable insertion sort for arrays of 10 or fewer elements,
+    // but _unstable_ QuickSort for larger arrays
+    const resultCount = 11;
+    const sequence_array = Array.from(new Array(resultCount),(val,index)=>index);
+    res.data = sequence_array.map(generateTestStreets);
+
+    controller(req, res, () => {
+      t.notOk(logger.hasErrorMessages(), 'there shouldn\'t be any error messages');
+
+      const results = res.data;
+
+      t.equals(results.length, results.length, 'correct number of results should be returned');
+      t.equals(results[0].layer, 'address', 'first result should be interpolated address');
+      t.equals(results[1].layer, 'address', 'second result should be interpolated address');
+
+      // iterate through all remaining records, ensuring their ids are increasing,
+      // as was the case when the set of streets was originally generated
+      let previous_id;
+      for (let i = 2; i < results.length; i++) {
+        if (previous_id) {
+          t.ok(results[i].id > previous_id, `id ${results[i].id} should be higher than ${previous_id}, to ensure sort is stable`);
+        }
+        previous_id = results[i].id;
+      }
+
+      t.end();
+    });
   });
 
   test('service call returning error should not map in interpolated results for non-errors', t => {
@@ -377,12 +440,6 @@ module.exports.tests.success_conditions = (test, common) => {
         '[middleware:interpolation] id 2 produced an error string',
         '[middleware:interpolation] id 3 produced an error object'
       ]);
-      t.ok(logger.isInfoMessage(/\[interpolation\] \[took\] \d+ ms/), 'timing should be info-logged');
-      t.ok(logger.isInfoMessage(/\[interpolation\] \[street_results\] count=4/), 'street count should be info-logged');
-
-      // test debug messages very vaguely to avoid brittle tests
-      t.ok(logger.isDebugMessage(/^\[interpolation\] \[hit\] this is req.clean.parsed_text \{.+?\}$/),
-        'hits should be debug-logged');
 
       t.deepEquals(res, {
         data: [
@@ -445,7 +502,7 @@ module.exports.tests.success_conditions = (test, common) => {
 
   });
 
-  test('interpolation result without source_id should remove all together', t => {
+  test('interpolation result without source_id should default to street ID', t => {
     const service = (req, res, callback) => {
       if (res.id === 1) {
         callback(null, {
@@ -485,7 +542,7 @@ module.exports.tests.success_conditions = (test, common) => {
           name: {
             default: 'street name 1'
           },
-          // will be removed
+          // will be used in the case where interpolated result has no source_id
           source_id: 'original source_id',
           address_parts: {}
         }
@@ -494,8 +551,6 @@ module.exports.tests.success_conditions = (test, common) => {
 
     controller(req, res, () => {
       t.notOk(logger.hasErrorMessages(), 'there shouldn\'t be any error messages');
-      t.ok(logger.isInfoMessage(/\[interpolation\] \[took\] \d+ ms/));
-      t.ok(logger.isInfoMessage(/\[interpolation\] \[street_results\] count=1/), 'street count should be info-logged');
 
       t.deepEquals(res, {
         data: [
@@ -507,6 +562,7 @@ module.exports.tests.success_conditions = (test, common) => {
               default: '17 street name 1'
             },
             source: 'openaddresses',
+            source_id: 'original source_id',
             address_parts: {
               number: 17
             },
@@ -583,11 +639,6 @@ module.exports.tests.success_conditions = (test, common) => {
 
     controller(req, res, () => {
       t.notOk(logger.hasErrorMessages(), 'there shouldn\'t be any error messages');
-      t.ok(logger.isInfoMessage(/\[interpolation\] \[took\] \d+ ms/));
-      t.ok(logger.isInfoMessage(/\[interpolation\] \[street_results\] count=2/), 'street count should be info-logged');
-
-      // test debug messages very vaguely to avoid brittle tests
-      t.ok(logger.isDebugMessage('[interpolation] [miss] this is req.clean.parsed_text'));
 
       t.deepEquals(res, {
         data: [
@@ -684,11 +735,6 @@ module.exports.tests.success_conditions = (test, common) => {
 
     controller(req, res, () => {
       t.notOk(logger.hasErrorMessages(), 'there shouldn\'t be any error messages');
-      t.ok(logger.isInfoMessage(/\[interpolation\] \[took\] \d+ ms/));
-      t.ok(logger.isInfoMessage(/\[interpolation\] \[street_results\] count=2/), 'street count should be info-logged');
-
-      // test debug messages very vaguely to avoid brittle tests
-      t.ok(logger.isDebugMessage('[interpolation] [miss] this is req.clean.parsed_text'));
 
       t.deepEquals(res, {
         data: [

@@ -10,14 +10,6 @@ module.exports.tests.sanitize = function(test, common) {
     // rather than re-verify the functionality of all the sanitizers, this test just verifies that they
     //  were all called correctly
     var search = proxyquire('../../../sanitizer/structured_geocoding', {
-      '../sanitizer/_deprecate_quattroshapes': function () {
-        return {
-          sanitize: () => {
-            called_sanitizers.push('_deprecate_quattroshapes');
-            return { errors: [], warnings: [] };
-          }
-        };
-      },
       '../sanitizer/_single_scalar_parameters': function () {
         return {
           sanitize: () => {
@@ -145,13 +137,20 @@ module.exports.tests.sanitize = function(test, common) {
             return { errors: [], warnings: [] };
           }
         };
+      },
+      '../sanitizer/_boundary_gid': () => {
+        return {
+          sanitize: () => {
+            called_sanitizers.push('_boundary_gid');
+            return { errors: [], warnings: [] };
+          }
+        };
       }
     });
 
     var expected_sanitizers = [
       '_single_scalar_parameters',
       '_debug',
-      '_deprecate_quattroshapes',
       '_synthesize_analysis',
       '_iso2_to_iso3',
       '_city_name_standardizer',
@@ -164,7 +163,8 @@ module.exports.tests.sanitize = function(test, common) {
       '_geo_search',
       '_boundary_country',
       '_categories',
-      '_request_language'
+      '_request_language',
+      '_boundary_gid'
     ];
 
     var req = {};
