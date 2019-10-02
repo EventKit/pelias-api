@@ -106,12 +106,7 @@ function generatePolygonGeojson(polygonData){
 
 
 function geojsonifyPlace(params, place) {
-  // setup the base doc
-// <<<<<<< HEAD
-//   let doc = {
-//     id: place._id,
-//     gid: new Document(place.source, place.layer, place._id).getGid(),
-// =======
+
   const doc = {
     id: place.source_id,
     gid: new Document(place.source, place.layer, place.source_id).getGid(),

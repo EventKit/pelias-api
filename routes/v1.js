@@ -301,18 +301,17 @@ function addRoutes(app, peliasConfig) {
      not(placeholderShouldHaveExecuted)
    );
 
-  // defer to addressit for analysis IF there's no response AND placeholder should not have executed
-  //  const shouldDeferToAddressIt = all(
-  //    not(hasRequestErrors),
-  //    not(hasResponseData),
-  //    not(placeholderShouldHaveExecuted)
-  //  );
-  //
-  // // call very old prod query if addressit was the parser
-  //  const oldProdQueryShouldExecute = all(
-  //    not(hasRequestErrors),
-  //    isAddressItParse
-  //  );
+  // defer to pelias parser for analysis IF there's no response AND placeholder should not have executed
+  const shouldDeferToPeliasParser = all(
+    not(hasRequestErrors),
+    not(hasResponseData)
+  );
+
+  // call search_pelias_parser query if pelias_parser was the parser
+  const searchPeliasParserShouldExecute = all(
+    not(hasRequestErrors),
+    isPeliasParse
+  );
 
   // get language adjustments if:
   // - there's a response

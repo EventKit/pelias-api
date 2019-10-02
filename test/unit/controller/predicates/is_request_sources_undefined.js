@@ -9,7 +9,6 @@ module.exports.tests.interface = (test, common) => {
     t.end();
 
   });
-
 };
 
 module.exports.tests.true_conditions = (test, common) => {
@@ -70,7 +69,6 @@ module.exports.tests.false_conditions = (test, common) => {
 };
 
 module.exports.all = (tape, common) => {
-
   function test(name, testFunction) {
     return tape(`GET /is_request_sources_undefined ${name}`, testFunction);
   }

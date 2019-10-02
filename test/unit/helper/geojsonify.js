@@ -736,6 +736,7 @@ module.exports.tests.non_optimal_conditions = (test, common) => {
 
 };
 
+
 // ensure that if elasticsearch returns an array of values for name.default
 // .. that we handle this case and select the first element for the label.
 module.exports.tests.nameAliases = function(test, common) {

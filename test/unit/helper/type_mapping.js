@@ -45,6 +45,7 @@ module.exports.tests.interfaces = function(test, common) {
       geonames: [ 'geonames' ],
       whosonfirst: [ 'whosonfirst' ],
       geographicnames: [ 'geographicnames' ]
+
     });
     t.end();
   });
@@ -105,7 +106,6 @@ module.exports.tests.interfaces = function(test, common) {
                    'borough', 'neighbourhood', 'microhood', 'disputed', 'postalcode',
                    'continent', 'ocean', 'marinearea']);
    t.end();
-
   });
 
   test('complete layers by source', function(t) {
