@@ -760,7 +760,8 @@ function addRoutes(app, peliasConfig) {
    *         description: Layers
    *         in: query
    *         type: string
-   *         enum: [venue, address, street, country, macroregion, region, macrocounty, county, locality, localadmin, borough, neighbourhood, coarse]
+   *         enum: [venue, address, street, country, macroregion, region, macrocounty, county,
+   *                locality, localadmin, borough, neighbourhood, coarse]
    *       - name: boundary.county
    *         description: Country boundary
    *         in: query
@@ -866,11 +867,13 @@ function addRoutes(app, peliasConfig) {
    *         in: query
    *         type: string
    *       - name: neighbourhood
-   *         description: vernacular geographic entities that may not necessarily be official administrative divisions but are important nonetheless.
+   *         description: vernacular geographic entities that may not necessarily be official administrative
+   *                      divisions but are important nonetheless.
    *         in: query
    *         type: string
    *       - name: borough
-   *         description: mostly known in the context of New York City, even though they may exist in other cities, such as Mexico City.
+   *         description: mostly known in the context of New York City, even though they may exist in other cities,
+   *                      such as Mexico City.
    *         in: query
    *         type: string
    *       - name: locality
@@ -882,7 +885,9 @@ function addRoutes(app, peliasConfig) {
    *         in: query
    *         type: string
    *       - name: region
-   *         description: the first-level administrative divisions within countries, analogous to states and provinces in the United States and Canada, respectively, though most other countries contain regions as well
+   *         description: the first-level administrative divisions within countries, analogous to states and provinces
+   *                      in the United States and Canada, respectively, though most other countries contain regions
+   *                      as well
    *         in: query
    *         type: string
    *       - name: postalcode
@@ -890,7 +895,9 @@ function addRoutes(app, peliasConfig) {
    *         in: query
    *         type: string
    *       - name: country
-   *         description: highest-level administrative divisions supported in a search. In addition to full names, countries have common two- and three-letter abbreviations that are also supported values for the country parameter.
+   *         description: highest-level administrative divisions supported in a search. In addition to full names,
+   *                      countries have common two- and three-letter abbreviations that are also supported values for
+   *                      the country parameter.
    *         in: query
    *         type: string
    *     responses:
@@ -944,7 +951,8 @@ function addRoutes(app, peliasConfig) {
    *         description: Layers
    *         in: query
    *         type: string
-   *         enum: [venue, address, street, country, macroregion, region, macrocounty, county, locality, localadmin, borough, neighbourhood, coarse]
+   *         enum: [venue, address, street, country, macroregion, region, macrocounty, county, locality, localadmin,
+   *                borough, neighbourhood, coarse]
    *       - name: boundary.county
    *         description: Country boundary
    *         in: query
