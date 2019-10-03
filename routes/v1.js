@@ -36,7 +36,6 @@ const controllers = {
    placeholder: require('../controller/placeholder'),
   placeholder_geometries: require('../controller/placeholder_geometries'),
   search: require('../controller/search'),
-  search_with_ids: require('../controller/search_with_ids'),
   status: require('../controller/status'),
   convert: require('../controller/convert')
 };
@@ -165,58 +164,6 @@ function addRoutes(app, peliasConfig) {
      hasParsedTextProperties.all('address')
    );
 
-  // execute placeholder if libpostal only parsed as admin-only and needs to
-  //  be geodisambiguated
-
-  //   const placeholderGeodisambiguationShouldExecute = all(
-  //       not(hasResponseDataOrRequestErrors),
-  //       isPlaceholderServiceEnabled,
-  //       // check request.clean for several conditions first
-  //       not(
-  //           any(
-  //               // layers only contains venue, address, or street
-  //               isOnlyNonAdminLayers,
-  //               // don't geodisambiguate if categories were requested
-  //               hasRequestCategories
-  //           )
-  //       ),
-  //       any(
-  //           isRequestSourcesOnlyWhosOnFirst,
-  //           all(
-  //               isAdminOnlyAnalysis,
-  //               any(
-  //                   isRequestSourcesUndefined,
-  //                   isRequestSourcesIncludesWhosOnFirst
-  //               )
-  //           )
-  //       )
-  //   );
-  //
-  // // execute placeholder if libpostal identified address parts but ids need to
-  // //  be looked up for admin parts
-  //  const placeholderIdsLookupShouldExecute = all(
-  //    not(hasResponseDataOrRequestErrors),
-  //    isPlaceholderServiceEnabled,
-  //    // check clean.parsed_text for several conditions that must all be true
-  //    all(
-  //      // run placeholder if clean.parsed_text has 'street'
-  //      hasParsedTextProperties.any('street'),
-  //      // don't run placeholder if there's a query or category
-  //      not(hasParsedTextProperties.any('query', 'category')),
-  //      // run placeholder if there are any adminareas identified
-  //      hasParsedTextProperties.any('neighbourhood', 'borough', 'city', 'county', 'state', 'country')
-  //    )
-  //  );
-  //
-  //
-  //  const searchWithIdsShouldExecute = all(
-  //    not(hasRequestErrors),
-  //    // don't search-with-ids if there's a query or category
-  //    not(hasParsedTextProperties.any('query', 'category')),
-  //    // there must be a street
-  //    hasParsedTextProperties.any('street')
-  //  );
-
   // defer to pelias parser for analysis IF there's no response AND placeholder should not have executed
   const shouldDeferToPeliasParser = all(
       not(hasRequestErrors),
@@ -301,18 +248,6 @@ function addRoutes(app, peliasConfig) {
      not(placeholderShouldHaveExecuted)
    );
 
-  // defer to pelias parser for analysis IF there's no response AND placeholder should not have executed
-  const shouldDeferToPeliasParser = all(
-    not(hasRequestErrors),
-    not(hasResponseData)
-  );
-
-  // call search_pelias_parser query if pelias_parser was the parser
-  const searchPeliasParserShouldExecute = all(
-    not(hasRequestErrors),
-    isPeliasParse
-  );
-
   // get language adjustments if:
   // - there's a response
   // - theres's a lang parameter in req.clean
@@ -362,19 +297,11 @@ function addRoutes(app, peliasConfig) {
       sanitizers.search.middleware(peliasConfig.api),
       middleware.requestLanguage,
       middleware.calcSize(),
-      //  controllers.libpostal(libpostalService, libpostalShouldExecute),
-      //  controllers.placeholder(placeholderService, geometricFiltersApply, placeholderGeodisambiguationShouldExecute),
-      //  controllers.placeholder(placeholderService, geometricFiltersDontApply, placeholderIdsLookupShouldExecute),
-      //  controllers.placeholder_geometries(peliasConfig.api, esclient, placeholderGeometriesShouldExecute),
-      //  controllers.search_with_ids(peliasConfig.api, esclient, queries.address_using_ids, searchWithIdsShouldExecute),
       // // // 3rd parameter is which query module to use, use fallback first, then
-      // // //  use original search strategy if first query didn't return anything
-      //  controllers.search(peliasConfig.api, esclient, queries.cascading_fallback, fallbackQueryShouldExecute),
-      //  sanitizers.defer_to_addressit(shouldDeferToAddressIt),
-      //   controllers.search(peliasConfig.api, esclient, queries.very_old_prod, oldProdQueryShouldExecute),
       controllers.libpostal(libpostalService, libpostalShouldExecute),
       controllers.placeholder(placeholderService, geometricFiltersApply, placeholderGeodisambiguationShouldExecute),
       controllers.placeholder(placeholderService, geometricFiltersApply, placeholderIdsLookupShouldExecute),
+      controllers.placeholder_geometries(peliasConfig.api, esclient, placeholderGeometriesShouldExecute),
       // try 3 different query types: address search using ids, cascading fallback, pelias parser
       controllers.search(peliasConfig.api, esclient, queries.address_using_ids, searchWithIdsShouldExecute),
       controllers.search(peliasConfig.api, esclient, queries.cascading_fallback, fallbackQueryShouldExecute),
