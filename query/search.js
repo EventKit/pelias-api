@@ -2,7 +2,6 @@ const peliasQuery = require('pelias-query');
 const defaults = require('./search_defaults');
 const textParser = require('./text_parser');
 const check = require('check-types');
-const logger = require('pelias-logger').get('api');
 
 //------------------------------
 // general-purpose search query
@@ -116,7 +115,7 @@ function generateQuery( clean ){
 
   var q = getQuery(vs);
 
-  //console.log(JSON.stringify(q, null, 2));
+  // console.log(JSON.stringify(q, null, 2));
 
   return q;
 }

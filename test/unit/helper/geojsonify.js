@@ -133,7 +133,7 @@ module.exports.tests.all = (test, common) => {
 
   });
 
-  test('bounding_box should be calculated using polygons when avaiable', t => {
+  test('bounding_box should be calculated using polygons when available', t => {
     const input = [
       {
         _id: 'id 1',

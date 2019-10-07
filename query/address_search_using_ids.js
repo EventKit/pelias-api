@@ -1,6 +1,5 @@
 const peliasQuery = require('pelias-query');
 const defaults = require('./search_defaults');
-const logger = require('pelias-logger').get('api');
 const _ = require('lodash');
 const check = require('check-types');
 
@@ -94,7 +93,7 @@ function getIdsAtLayer(results, layer) {
 /**
   map request variables to query variables for all inputs
   provided by this HTTP request.  This function operates on res.data which is the
-  Document-ified placeholder repsonse.
+  Document-ified placeholder response.
 **/
 function generateQuery( clean, res ){
   const vs = new peliasQuery.Vars( defaults );

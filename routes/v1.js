@@ -27,13 +27,13 @@ const middleware = {
 };
 
 /** ----------------------- controllers ----------------------- **/
-const controllers = { 
+const controllers = {
   coarse_reverse: require('../controller/coarse_reverse'),
   mdToHTML: require('../controller/markdownToHtml'),
-   libpostal: require('../controller/libpostal'),
-   structured_libpostal: require('../controller/structured_libpostal'),
+  libpostal: require('../controller/libpostal'),
+  structured_libpostal: require('../controller/structured_libpostal'),
   place: require('../controller/place'),
-   placeholder: require('../controller/placeholder'),
+  placeholder: require('../controller/placeholder'),
   placeholder_geometries: require('../controller/placeholder_geometries'),
   search: require('../controller/search'),
   status: require('../controller/status'),
@@ -218,14 +218,13 @@ function addRoutes(app, peliasConfig) {
   );
 
   const searchWithIdsShouldExecute = all(
-    not(hasRequestErrors),
-    // don't search-with-ids if there's a query or category
-    not(hasParsedTextProperties.any('query', 'category')),
-    // at least one layer allowed by the query params must be related to addresses
-    isRequestLayersAnyAddressRelated,
-    // there must be a street
-    hasParsedTextProperties.any('street')
-  );
+      not(hasRequestErrors),
+      // don't search-with-ids if there's a query or category
+      not(hasParsedTextProperties.any('query', 'category')),
+      // at least one layer allowed by the query params must be related to addresses
+      isRequestLayersAnyAddressRelated,
+      // there must be a street
+      hasParsedTextProperties.any('street'));
 
   // placeholder should have executed, useful for determining whether to actually
   //  fallback or not (don't fallback to old search if the placeholder response
@@ -297,7 +296,7 @@ function addRoutes(app, peliasConfig) {
       sanitizers.search.middleware(peliasConfig.api),
       middleware.requestLanguage,
       middleware.calcSize(),
-      // // // 3rd parameter is which query module to use, use fallback first, then
+      // 3rd parameter is which query module to use, use fallback first, then
       controllers.libpostal(libpostalService, libpostalShouldExecute),
       controllers.placeholder(placeholderService, geometricFiltersApply, placeholderGeodisambiguationShouldExecute),
       controllers.placeholder(placeholderService, geometricFiltersApply, placeholderIdsLookupShouldExecute),
@@ -319,7 +318,7 @@ function addRoutes(app, peliasConfig) {
       postProc.renamePlacenames(),
       postProc.parseBoundingBox(),
       postProc.normalizeParentIds(),
-       postProc.changeLanguage(changeLanguageService, changeLanguageShouldExecute),
+      postProc.changeLanguage(changeLanguageService, changeLanguageShouldExecute),
       postProc.assignLabels(),
       postProc.geocodeJSON(peliasConfig.api, base),
       postProc.sendJSON
@@ -413,7 +412,7 @@ function addRoutes(app, peliasConfig) {
       postProc.renamePlacenames(),
       postProc.parseBoundingBox(),
       postProc.normalizeParentIds(),
-       postProc.changeLanguage(changeLanguageService, changeLanguageShouldExecute),
+      postProc.changeLanguage(changeLanguageService, changeLanguageShouldExecute),
       postProc.assignLabels(),
       postProc.geocodeJSON(peliasConfig.api, base),
       postProc.sendJSON
