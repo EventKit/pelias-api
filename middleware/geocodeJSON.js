@@ -46,7 +46,11 @@ function convertToGeocodeJSON(req, res, next, opts) {
   // OPTIONAL. Default: null. The attribution of the data. In case of multiple sources,
   // and then multiple attributions, can be an object with one key by source.
   // Can be a URI on the server, which outlines attribution details.
-  res.body.geocoding.attribution = url.resolve(opts.config.host, opts.basePath + 'attribution');
+  res.body.geocoding.attribution = opts.config.attributionURL || url.format({
+    protocol: req.protocol,
+    host: req.get('host'),
+    pathname: 'attribution'
+  });
 
   // OPTIONAL. Default: null. The query that has been issued to trigger the
   // search.
@@ -56,6 +60,7 @@ function convertToGeocodeJSON(req, res, next, opts) {
   res.body.geocoding.query = req.clean;
 
   // remove arrays produced by the tokenizer (only intended to be used internally).
+  delete res.body.geocoding.query.tokens;
   delete res.body.geocoding.query.tokens_complete;
   delete res.body.geocoding.query.tokens_incomplete;
 

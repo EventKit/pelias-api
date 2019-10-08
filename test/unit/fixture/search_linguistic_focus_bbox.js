@@ -12,7 +12,9 @@ module.exports = {
                 'must': [
                   {
                     'match_phrase': {
-                      'address_parts.street': 'street value'
+                      'address_parts.street': {
+                        'query': 'street value'
+                      }
                     }
                   }
                 ],
@@ -55,7 +57,7 @@ module.exports = {
       'functions': [
         {
           'weight': 2,
-          'linear': {
+          'exp': {
             'center_point': {
               'origin': {
                 'lat': 29.49136,

@@ -98,15 +98,11 @@ function synthesizeDoc(results) {
 
     const esDoc = doc.toESDocument();
     esDoc.data._id = esDoc._id;
-    esDoc.data._type = esDoc._type;
     return esDoc.data;
 
   } catch( e ) {
-
     // an error occurred when generating a new Document
-    logger.info(`[controller:coarse_reverse][error]`);
-    logger.error(e);
-    logger.info(results);
+    logger.error('[controller:coarse_reverse][error]', e);
 
     return null;
   }
@@ -134,16 +130,20 @@ function setup(service, should_execute) {
       lon: req.clean['point.lon']
     };
 
-    service(req, (err, results) => {
+    service(req, (err, results, metadata) => {
       // if there's an error, log it and bail
       if (err) {
-        logger.info(`[controller:coarse_reverse][error]`);
-        logger.error(err);
+        logger.error('error contacting PIP service', err);
         return next();
       }
 
-      // log how many results there were
-      logger.info(`[controller:coarse_reverse][queryType:pip][result_count:${_.size(results)}]`);
+      const logInfo = {
+        controller: 'coarse_reverse',
+        queryType: 'pip',
+        response_time: _.get(metadata, 'response_time'),
+        result_count: _.size(results)
+      };
+      logger.info('pip', logInfo);
 
       // now keep everything from the response that is equal to or less granular
       // than the most granular layer requested.  that is, if effective_layers=['county'],

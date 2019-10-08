@@ -11,9 +11,10 @@
  * - detection (or specification) of query type. i.e. an address shouldn't match an admin address.
  */
 
-var stats = require('stats-lite');
-var logger = require('pelias-logger').get('api');
-var check = require('check-types');
+const stats = require('stats-lite');
+const logger = require('pelias-logger').get('api');
+const check = require('check-types');
+const field = require('../helper/fieldValue');
 
 var RELATIVE_SCORES = true;
 
@@ -25,10 +26,10 @@ function setup(peliasConfig) {
 }
 
 function computeScores(req, res, next) {
-  // do nothing if no result data set or if query is not of the original variety
+  // do nothing if no result data set or if query is not of the pelias_parser variety
   if (check.undefined(req.clean) || check.undefined(res) ||
       check.undefined(res.data) || check.undefined(res.meta) ||
-      res.meta.query_type !== 'original') {
+      res.meta.query_type !== 'search_pelias_parser') {
     return next();
   }
 
@@ -131,12 +132,12 @@ function checkDistanceFromMean(score, mean, stdev) {
 function checkName(text, parsed_text, hit) {
   // parsed_text name should take precedence if available since it's the cleaner name property
   if (check.assigned(parsed_text) && check.assigned(parsed_text.name) &&
-    hit.name.default.toLowerCase() === parsed_text.name.toLowerCase()) {
+    field.getStringValue(hit.name.default).toLowerCase() === parsed_text.name.toLowerCase()) {
     return 1;
   }
 
   // if no parsed_text check the text value as provided against result's default name
-  if (hit.name.default.toLowerCase() === text.toLowerCase()) {
+  if (field.getStringValue(hit.name.default).toLowerCase() === text.toLowerCase()) {
     return 1;
   }
 

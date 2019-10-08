@@ -1,5 +1,3 @@
-'use strict';
-
 const peliasQuery = require('pelias-query');
 const defaults = require('./reverse_defaults');
 const check = require('check-types');
@@ -12,7 +10,7 @@ const logger = require('pelias-logger').get('api');
 var query = new peliasQuery.layout.FilteredBooleanQuery();
 
 // mandatory matches
-query.score( peliasQuery.view.boundary_country, 'must' );
+// (none)
 
 // scoring boost
 query.sort( peliasQuery.view.sort_distance );
@@ -22,6 +20,8 @@ query.filter( peliasQuery.view.boundary_circle );
 query.filter( peliasQuery.view.sources );
 query.filter( peliasQuery.view.layers );
 query.filter( peliasQuery.view.categories );
+query.filter( peliasQuery.view.boundary_country );
+query.filter( peliasQuery.view.boundary_gid );
 
 // --------------------------------
 
@@ -29,25 +29,20 @@ function generateQuery( clean ){
 
   const vs = new peliasQuery.Vars( defaults );
 
-  let logStr = '[query:reverse] ';
-
   // set size
   if( clean.querySize ){
     vs.var( 'size', clean.querySize);
-    logStr += '[param:querySize] ';
   }
 
   // sources
   if( check.array(clean.sources) && clean.sources.length ) {
     vs.var('sources', clean.sources);
-    logStr += '[param:sources] ';
   }
 
   // layers
   if( check.array(clean.layers) && clean.layers.length ) {
     // only include non-coarse layers
     vs.var( 'layers', _.intersection(clean.layers, ['address', 'street', 'venue']));
-    logStr += '[param:layers] ';
   }
 
   // focus point to score by distance
@@ -57,7 +52,6 @@ function generateQuery( clean ){
       'focus:point:lat': clean['point.lat'],
       'focus:point:lon': clean['point.lon']
     });
-    logStr += '[param:focus_point] ';
   }
 
   // bounding circle
@@ -83,24 +77,26 @@ function generateQuery( clean ){
             'boundary:circle:radius': clean['boundary.circle.radius'] + 'km'
           });
         }
-    logStr += '[param:boundary_circle] ';
   }
 
   // boundary country
-  if( check.string(clean['boundary.country']) ){
+  if( check.nonEmptyArray(clean['boundary.country']) ){
     vs.set({
-      'boundary:country': clean['boundary.country']
+      'boundary:country': clean['boundary.country'].join(' ')
     });
-    logStr += '[param:boundary_country] ';
+  }
+
+  // boundary gid
+  if ( check.string(clean['boundary.gid']) ){
+    vs.set({
+      'boundary:gid': clean['boundary.gid']
+    });
   }
 
   // categories
   if (clean.categories) {
     vs.var('input:categories', clean.categories);
-    logStr += '[param:categories] ';
   }
-
-  logger.info(logStr);
 
   return {
     type: 'reverse',

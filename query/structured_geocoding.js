@@ -21,6 +21,7 @@ structuredQuery.filter( peliasQuery.view.boundary_rect );
 structuredQuery.filter( peliasQuery.view.sources );
 structuredQuery.filter( peliasQuery.view.layers );
 structuredQuery.filter( peliasQuery.view.categories );
+structuredQuery.filter( peliasQuery.view.boundary_gid );
 // --------------------------------
 
 /**
@@ -84,9 +85,16 @@ function generateQuery( clean ){
   }
 
   // boundary country
-  if( check.string(clean['boundary.country']) ){
+  if( check.nonEmptyArray(clean['boundary.country']) ){
     vs.set({
-      'boundary:country': clean['boundary.country']
+      'boundary:country': clean['boundary.country'].join(' ')
+    });
+  }
+
+  // boundary gid
+  if ( check.string(clean['boundary.gid']) ){
+    vs.set({
+      'boundary:gid': clean['boundary.gid']
     });
   }
 
@@ -104,7 +112,7 @@ function generateQuery( clean ){
 
 function getQuery(vs) {
   return {
-    type: 'fallback',
+    type: 'structured',
     body: structuredQuery.render(vs)
   };
 }

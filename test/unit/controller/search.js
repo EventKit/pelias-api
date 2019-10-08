@@ -1,5 +1,4 @@
-'use strict';
-
+const _ = require('lodash');
 const setup = require('../../../controller/search');
 const proxyquire =  require('proxyquire').noCallThru();
 
@@ -69,9 +68,6 @@ module.exports.tests.success = function(test, common) {
       t.deepEquals(res.data, [{}, {}]);
       t.deepEquals(res.meta, { key: 'value', query_type: 'this is the query type' });
 
-      t.ok(infoMesssages.find((msg) => {
-        return msg === '[controller:search] [queryType:this is the query type] [es_result_count:2]';
-      }));
       t.end();
     };
 
@@ -133,9 +129,6 @@ module.exports.tests.success = function(test, common) {
       t.deepEquals(res.data, [{}, {}]);
       t.deepEquals(res.meta, { query_type: 'this is the query type' });
 
-      t.ok(infoMesssages.find((msg) => {
-        return msg === '[controller:search] [queryType:this is the query type] [es_result_count:2]';
-      }));
       t.end();
     };
 
@@ -186,7 +179,7 @@ module.exports.tests.success = function(test, common) {
     })(config, esclient, query, () => { return true; });
 
     const req = { clean: { }, errors: [], warnings: [] };
-    const res = {};
+    const res = { meta: { query_type: 'this is the query type from a previous query'} };
 
     const next = () => {
       t.deepEqual(req, {
@@ -194,12 +187,14 @@ module.exports.tests.success = function(test, common) {
         errors: [],
         warnings: []
       });
-      t.equals(res.data, undefined);
-      t.deepEquals(res.meta, { key: 'value', query_type: 'this is the query type' });
 
-      t.ok(infoMesssages.find((msg) => {
-        return msg === '[controller:search] [queryType:this is the query type] [es_result_count:0]';
-      }));
+      t.equals(res.data, undefined, 'no data set');
+
+      const expected_meta = {
+        query_type: 'this is the query type from a previous query'
+      };
+      t.deepEquals(res.meta, expected_meta, 'previous query meta information left unchanged');
+
       t.end();
     };
 
@@ -256,8 +251,8 @@ module.exports.tests.success = function(test, common) {
         get: (service) => {
           t.equal(service, 'api');
           return {
-            info: (msg) => {
-              infoMesssages.push(msg);
+            info: (msg, json) => {
+              infoMesssages.push({ msg: msg, json: json});
             },
             debug: () => {}
           };
@@ -278,11 +273,7 @@ module.exports.tests.success = function(test, common) {
       t.deepEquals(res.meta, { key: 'value', query_type: 'this is the query type' });
 
       t.ok(infoMesssages.find((msg) => {
-        return msg === '[controller:search] [queryType:this is the query type] [es_result_count:2]';
-      }));
-
-      t.ok(infoMesssages.find((msg) => {
-        return msg === 'succeeded on retry 2';
+        return _.get(msg, 'json.retries') === 2;
       }));
 
       t.end();
@@ -334,8 +325,8 @@ module.exports.tests.timeout = function(test, common) {
         get: (service) => {
           t.equal(service, 'api');
           return {
-            info: (msg) => {
-              infoMesssages.push(msg);
+            info: (msg, json) => {
+              infoMesssages.push({msg: msg, json: json});
             },
             debug: () => {}
           };
@@ -349,9 +340,9 @@ module.exports.tests.timeout = function(test, common) {
     const next = () => {
       t.equal(searchServiceCallCount, 3+1);
 
-      t.ok(infoMesssages.indexOf('request timed out on attempt 1, retrying') !== -1);
-      t.ok(infoMesssages.indexOf('request timed out on attempt 2, retrying') !== -1);
-      t.ok(infoMesssages.indexOf('request timed out on attempt 3, retrying') !== -1);
+      t.ok(infoMesssages.find(function(msg) {
+        return _.get(msg, 'json.retries') === 2;
+      }));
 
       t.deepEqual(req, {
         clean: {},

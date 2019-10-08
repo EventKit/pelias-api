@@ -1,6 +1,4 @@
-'use strict';
-
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 const schema = require('../../schema');
 const _ = require('lodash');
 

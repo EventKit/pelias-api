@@ -1,4 +1,3 @@
-
 module.exports = {
   'query': {
     'bool': {
@@ -7,11 +6,12 @@ module.exports = {
           'query': {
             'match': {
               'name.default': {
-                'analyzer': 'peliasQueryPartialToken',
+                'analyzer': 'peliasQuery',
                 'boost': 100,
                 'query': 'test',
                 'type': 'phrase',
                 'operator': 'and',
+                'cutoff_frequency': 0.01,
                 'slop': 3
               }
             }

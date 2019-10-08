@@ -1,4 +1,14 @@
-var generate = require('../../../query/autocomplete');
+const proxyquire = require('proxyquire').noCallThru();
+const realPeliasConfig = require('pelias-config');
+const defaultPeliasConfig = {
+  generate: function() {
+    return realPeliasConfig.generateDefaults();
+  }
+};
+
+var generate = proxyquire('../../../query/autocomplete', {
+  'pelias-config': defaultPeliasConfig
+});
 
 module.exports.tests = {};
 
@@ -42,13 +52,30 @@ module.exports.tests.query = function(test, common) {
     t.end();
   });
 
+  // This is to prevent a query like '30 west' from considering the 'west' part as an admin component
+  test('valid lingustic autocomplete with 3 tokens - first two are numeric', function (t) {
+    var query = generate({
+      text: '1 1 three',
+      tokens: ['1', '2', 'three'],
+      tokens_complete: ['1', '2'],
+      tokens_incomplete: ['three']
+    });
+
+    var compiled = JSON.parse(JSON.stringify(query));
+    var expected = require('../fixture/autocomplete_linguistic_multiple_tokens_complete_numeric');
+
+    t.deepEqual(compiled.type, 'autocomplete', 'query type set');
+    t.deepEqual(compiled.body, expected, 'autocomplete_linguistic_multiple_tokens_complete_numeric');
+    t.end();
+  });
+
   test('valid lingustic autocomplete with comma delimited admin section', function(t) {
     var query = generate({
       text: 'one two, three',
       parsed_text: {
+        subject: 'one two',
         name: 'one two',
-        regions: [ 'one two', 'three' ],
-        admin_parts: 'three'
+        admin: 'three'
       },
       tokens: ['one','two'],
       tokens_complete: ['one','two'],
@@ -81,6 +108,79 @@ module.exports.tests.query = function(test, common) {
     t.deepEqual(compiled.body, expected, 'autocomplete_linguistic_final_token');
     t.end();
   });
+
+
+  /*
+   * Custom pelias.json settings used by the next 3 tests
+   */
+  const customConfig = {
+    api: {
+      autocomplete: {
+        exclude_address_length: 2
+      }
+    }
+  };
+
+  const configWithCustomSettings = {
+    generate: function() {
+      return realPeliasConfig.generateCustom(customConfig);
+    }
+  };
+
+  const generate_custom = proxyquire('../../../query/autocomplete', {
+    'pelias-config': configWithCustomSettings
+  });
+
+  test('valid lingustic autocomplete one character token', function(t) {
+    var query = generate_custom({
+      text: 't',
+      tokens: ['t'],
+      tokens_complete: [],
+      tokens_incomplete: ['t']
+    });
+
+    var compiled = JSON.parse( JSON.stringify( query ) );
+    var expected = require('../fixture/autocomplete_linguistic_one_char_token');
+
+    t.deepEqual(compiled.type, 'autocomplete', 'query type set');
+    t.deepEqual(compiled.body, expected, 'autocomplete_linguistic_one_char_token');
+    t.end();
+  });
+
+  test('valid lingustic autocomplete two character token', function(t) {
+    console.log(`config value: ${configWithCustomSettings.generate().get('api.autocomplete.exclude_address_length')}`);
+    var query = generate_custom({
+      text: 'te',
+      tokens: ['te'],
+      tokens_complete: [],
+      tokens_incomplete: ['te']
+    });
+
+    var compiled = JSON.parse( JSON.stringify( query ) );
+    var expected = require('../fixture/autocomplete_linguistic_two_char_token');
+
+    t.deepEqual(compiled.type, 'autocomplete', 'query type set');
+    t.deepEqual(compiled.body, expected, 'autocomplete_linguistic_two_char_token');
+    t.end();
+  });
+
+  test('valid lingustic autocomplete three character token', function(t) {
+    var query = generate_custom({
+      text: 'tes',
+      tokens: ['tes'],
+      tokens_complete: [],
+      tokens_incomplete: ['tes']
+    });
+
+    var compiled = JSON.parse( JSON.stringify( query ) );
+    var expected = require('../fixture/autocomplete_linguistic_three_char_token');
+
+    t.deepEqual(compiled.type, 'autocomplete', 'query type set');
+    t.deepEqual(compiled.body, expected, 'autocomplete_linguistic_three_char_token');
+    t.end();
+  });
+
+  // end tests with custom pelias.json settings
 
   test('autocomplete + focus', function(t) {
     var query = generate({
@@ -152,13 +252,33 @@ module.exports.tests.query = function(test, common) {
     t.end();
   });
 
+  test('valid categories filter', function (t) {
+    var clean = {
+      text: 'test',
+      tokens: ['test'],
+      tokens_complete: [],
+      tokens_incomplete: ['test'],
+      categories: ['retail', 'food']
+    };
+
+    var query = generate(clean);
+
+    var compiled = JSON.parse( JSON.stringify( query ) );
+    var expected = require('../fixture/autocomplete_with_category_filtering');
+
+    t.deepEqual(compiled.type, 'autocomplete', 'query type set');
+    t.deepEqual(compiled.body, expected, 'valid autocomplete query with category filtering');
+    t.end();
+  });
+
   test('single character street address', function(t) {
     var query = generate({
       text: 'k road, laird',
       parsed_text: {
-        name: 'k road',
+        subject: 'k road',
         street: 'k road',
-        regions: [ 'laird' ]
+        locality: 'laird',
+        admin: 'laird'
       },
       tokens: ['k', 'road'],
       tokens_complete: ['k', 'road'],
@@ -179,7 +299,7 @@ module.exports.tests.query = function(test, common) {
       tokens: ['test'],
       tokens_complete: [],
       tokens_incomplete: ['test'],
-      'boundary.country': 'ABC'
+      'boundary.country': ['ABC']
     });
 
     var compiled = JSON.parse( JSON.stringify( query ) );
@@ -206,7 +326,43 @@ module.exports.tests.query = function(test, common) {
     var expected = require('../fixture/autocomplete_linguistic_bbox_san_francisco');
 
     t.deepEqual(compiled.type, 'autocomplete', 'query type set');
-    t.deepEqual(compiled.body, expected, 'autocomplete_linguistic_focus_null_island');
+    t.deepEqual(compiled.body, expected, 'autocomplete_linguistic_bbox_san_francisco');
+    t.end();
+  });
+
+  test('autocomplete + circle around San Francisco', function(t) {
+    var query = generate({
+      text: 'test',
+      'boundary.circle.lat': 37.83239,
+      'boundary.circle.lon': -122.35698,
+      'boundary.circle.radius': 20,
+      tokens: ['test'],
+      tokens_complete: [],
+      tokens_incomplete: ['test']
+    });
+
+    var compiled = JSON.parse( JSON.stringify( query ) );
+    var expected = require('../fixture/autocomplete_linguistic_circle_san_francisco');
+
+    t.deepEqual(compiled.type, 'autocomplete', 'query type set');
+    t.deepEqual(compiled.body, expected, 'query matches autocomplete_linguistic_circle_san_francisco fixture');
+    t.end();
+  });
+
+  test('valid boundary.gid search', function(t) {
+    var query = generate({
+      text: 'test',
+      tokens: ['test'],
+      tokens_complete: [],
+      tokens_incomplete: ['test'],
+      'boundary.gid': '123'
+    });
+
+    var compiled = JSON.parse( JSON.stringify( query ) );
+    var expected = require('../fixture/autocomplete_boundary_gid');
+
+    t.deepEqual(compiled.type, 'autocomplete', 'query type set');
+    t.deepEqual(compiled.body, expected, 'autocomplete: valid boundary.gid query');
     t.end();
   });
 };

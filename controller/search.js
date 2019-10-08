@@ -1,5 +1,3 @@
-'use strict';
-
 const _ = require('lodash');
 
 const searchService = require('../service/search');
@@ -24,10 +22,11 @@ function setup( apiConfig, esclient, query, should_execute ){
     if (logging.isDNT(req)) {
       cleanOutput = logging.removeFields(cleanOutput);
     }
-    // log clean parameters for stats
-    logger.info('[req]', 'endpoint=' + req.path, cleanOutput);
 
-    const renderedQuery = query(req.clean);
+    // rendering a query requires passing the `clean` object, which contains
+    // validated options from query parameters, and the `res` object, since
+    // some queries use the results of previous queries to Placeholder
+    const renderedQuery = query(req.clean, res);
 
     // if there's no query to call ES with, skip the service
     if (_.isUndefined(renderedQuery)) {
@@ -60,21 +59,33 @@ function setup( apiConfig, esclient, query, should_execute ){
     operation.attempt((currentAttempt) => {
       const initialTime = debugLog.beginTimer(req, `Attempt ${currentAttempt}`);
       // query elasticsearch
-      searchService( esclient, cmd, function( err, docs, meta ){
+      searchService( esclient, cmd, function( err, docs, meta, data ){
+        const message = {
+          controller: 'search',
+          queryType: renderedQuery.type,
+          es_hits: _.get(data, 'hits.total'),
+          result_count: _.get(res, 'data', []).length,
+          es_took: _.get(data, 'took', undefined),
+          response_time: _.get(data, 'response_time', undefined),
+          params: req.clean,
+          retries: currentAttempt - 1,
+          text_length: _.get(req, 'clean.text.length', 0)
+        };
+        logger.info('elasticsearch', message);
+
         // returns true if the operation should be attempted again
         // (handles bookkeeping of maxRetries)
         // only consider for status 408 (request timeout)
         if (isRequestTimeout(err) && operation.retry(err)) {
-          logger.info(`request timed out on attempt ${currentAttempt}, retrying`);
           debugLog.stopTimer(req, initialTime, 'request timed out, retrying');
           return;
         }
 
         // if execution has gotten this far then one of three things happened:
-        // - the request didn't time out
+        // - the request returned a response, either success or error
         // - maxRetries has been hit so we're giving up
         // - another error occurred
-        // in either case, handle the error or results
+        // in any case, handle the error or results
 
         // error handler
         if( err ){
@@ -86,27 +97,24 @@ function setup( apiConfig, esclient, query, should_execute ){
         }
         // set response data
         else {
-          // log that a retry was successful
-          // most requests succeed on first attempt so this declutters log files
-          if (currentAttempt > 1) {
-            logger.info(`succeeded on retry ${currentAttempt-1}`);
+          // because this controller may be called multiple times, there may already
+          // be results.  if there are no results from this ES call, don't overwrite
+          // what's already there from a previous call.
+          if (!_.isEmpty(docs)) {
+            res.data = docs;
+            res.meta = meta || {};
+            // store the query_type for subsequent middleware
+            res.meta.query_type = renderedQuery.type;
           }
 
-          res.data = docs;
-          res.meta = meta || {};
-          // store the query_type for subsequent middleware
-          res.meta.query_type = renderedQuery.type;
-
-          const messageParts = [
-            '[controller:search]',
-            `[queryType:${renderedQuery.type}]`,
-            `[es_result_count:${_.get(res, 'data', []).length}]`
-          ];
-
-          logger.info(messageParts.join(' '));
+          // put an entry in the debug log no matter the number of results
           debugLog.push(req, {queryType: {
             [renderedQuery.type] : {
-              es_result_count: parseInt(messageParts[2].slice(17, -1))
+              es_took: message.es_took,
+              response_time: message.response_time,
+              retries: message.retries,
+              es_hits: message.es_hits,
+              es_result_count: message.result_count
             }
           }});
         }
@@ -115,7 +123,6 @@ function setup( apiConfig, esclient, query, should_execute ){
       });
       debugLog.stopTimer(req, initialTime);
     });
-
   }
 
   return controller;

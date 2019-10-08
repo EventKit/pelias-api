@@ -1,4 +1,3 @@
-
 const _ = require('lodash');
 const logger = require( 'pelias-logger' ).get( 'api' );
 
@@ -102,8 +101,7 @@ module.exports = function middleware( req, res, next ){
     defaulted: req.language.defaulted
   };
 
-  // logging
-  logger.info( '[lang] \'%s\' via \'%s\'', lang.iso6391, via );
+  logger.debug( '[lang] \'%s\' via \'%s\'', lang.iso6391, via );
 
   next();
 };

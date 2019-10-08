@@ -1,6 +1,5 @@
 const peliasQuery = require('pelias-query');
 const defaults = require('./search_defaults');
-const logger = require('pelias-logger').get('api');
 const _ = require('lodash');
 const check = require('check-types');
 
@@ -18,6 +17,7 @@ addressUsingIdsQuery.filter( peliasQuery.view.boundary_country );
 addressUsingIdsQuery.filter( peliasQuery.view.boundary_circle );
 addressUsingIdsQuery.filter( peliasQuery.view.boundary_rect );
 addressUsingIdsQuery.filter( peliasQuery.view.sources );
+addressUsingIdsQuery.filter( peliasQuery.view.boundary_gid );
 // --------------------------------
 
 // This query is a departure from traditional Pelias queries where textual
@@ -93,29 +93,34 @@ function getIdsAtLayer(results, layer) {
 /**
   map request variables to query variables for all inputs
   provided by this HTTP request.  This function operates on res.data which is the
-  Document-ified placeholder repsonse.
+  Document-ified placeholder response.
 **/
 function generateQuery( clean, res ){
   const vs = new peliasQuery.Vars( defaults );
   const results = _.defaultTo(res.data, []);
 
-  const logParts = ['query:address_search_using_ids', 'parser:libpostal'];
-
   // sources
   if( !_.isEmpty(clean.sources) ) {
     vs.var( 'sources', clean.sources);
-    logParts.push('param:sources');
   }
 
   // size
   if( clean.querySize ) {
     vs.var( 'size', clean.querySize );
-    logParts.push('param:querySize');
   }
 
   if( ! _.isEmpty(clean.parsed_text.number) ){
     vs.var( 'input:housenumber', clean.parsed_text.number );
   }
+
+  if( ! _.isEmpty(clean.parsed_text.unit) ){
+    vs.var( 'input:unit', clean.parsed_text.unit );
+  }
+
+  if( ! _.isEmpty(clean.parsed_text.postalcode) ){
+    vs.var( 'input:postcode', clean.parsed_text.postalcode );
+  }
+
   vs.var( 'input:street', clean.parsed_text.street );
 
   // find the first granularity band for which there are results
@@ -173,17 +178,21 @@ function generateQuery( clean, res ){
   }
 
   // boundary country
-  if( check.string(clean['boundary.country']) ){
+  if( check.nonEmptyArray(clean['boundary.country']) ){
     vs.set({
-      'boundary:country': clean['boundary.country']
+      'boundary:country': clean['boundary.country'].join(' ')
     });
   }
 
-  // format the log parts into a single coherent string
-  logger.info(logParts.map(part => `[${part}]`).join(' '));
+  // boundary gid
+  if ( check.string(clean['boundary.gid']) ){
+    vs.set({
+      'boundary:gid': clean['boundary.gid']
+    });
+  }
 
   return {
-    type: 'fallback',
+    type: 'address_search_using_ids',
     body: addressUsingIdsQuery.render(vs)
   };
 

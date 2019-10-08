@@ -24,10 +24,10 @@ module.exports.tests.sanitizers = function(test, common) {
           }
         };
       },
-      '../sanitizer/_text_addressit': function () {
+      '../sanitizer/_text_pelias_parser': function () {
         return {
           sanitize: () => {
-            called_sanitizers.push('_text_addressit');
+            called_sanitizers.push('_text_pelias_parser');
             return { errors: [], warnings: [] };
           }
         };
@@ -41,15 +41,15 @@ module.exports.tests.sanitizers = function(test, common) {
         };
       },
       '../sanitizer/_size': function () {
-        if (_.isEqual(_.values(arguments), [10, 10, 10])) {
+        if (_.isEmpty(arguments)) {
           return {
             sanitize: () => {
               called_sanitizers.push('_size');
               return { errors: [], warnings: [] };
-              }
+            }
           };
         } else {
-          throw new Error('incorrect parameters passed to _size');
+          throw new Error('should not have passed any parameters to _size');
         }
       },
       '../sanitizer/_targets': function (type) {
@@ -128,13 +128,21 @@ module.exports.tests.sanitizers = function(test, common) {
             return { errors: [], warnings: [] };
           }
         };
+      },
+      '../sanitizer/_boundary_gid': () => {
+        return {
+          sanitize: () => {
+            called_sanitizers.push('_boundary_gid');
+            return { errors: [], warnings: [] };
+          }
+        };
       }
     });
 
     const expected_sanitizers = [
       '_single_scalar_parameters',
       '_debug',
-      '_text_addressit',
+      '_text_pelias_parser',
       '_tokenizer',
       '_size',
       '_targets/layers',
@@ -145,7 +153,8 @@ module.exports.tests.sanitizers = function(test, common) {
       '_geo_autocomplete',
       '_boundary_country',
       '_categories',
-      '_request_language'
+      '_request_language',
+      '_boundary_gid'
     ];
 
     const req = {};

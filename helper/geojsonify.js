@@ -4,14 +4,24 @@ const logger = require('pelias-logger').get('geojsonify');
 const collectDetails = require('./geojsonify_place_details');
 const _ = require('lodash');
 const Document = require('pelias-model').Document;
+const codec = require('pelias-model').codec;
+const field = require('./fieldValue');
 
 function geojsonifyPlaces(params, docs, geometriesParam, errors){
 
   // Parse geometries param for valid types
   let requestedGeometries = geometriesParam ? parseGeometries(geometriesParam, errors) : ['point'];
-  // Weed out non-geo data.
-  const geodata = docs.filter(doc => !!_.has(doc, 'center_point'));
-  
+
+  // flatten & expand data for geojson conversion
+  const geodata = docs.filter(doc => {
+    if (!_.has(doc, 'center_point')) {
+      logger.warn('No doc or center_point property');
+      return false;
+    } else {
+      return true;
+    }
+  });
+
   // Initial parse to separate polygons and points on basis of request parameter.
   let parsedDocs = parseDocs(geodata, requestedGeometries);
 
@@ -96,10 +106,10 @@ function generatePolygonGeojson(polygonData){
 
 
 function geojsonifyPlace(params, place) {
-  // setup the base doc
-  let doc = {
-    id: place._id,
-    gid: new Document(place.source, place.layer, place._id).getGid(),
+
+  const doc = {
+    id: place.source_id,
+    gid: new Document(place.source, place.layer, place.source_id).getGid(),
     layer: place.layer,
     source: place.source,
     source_id: place.source_id,
@@ -108,7 +118,7 @@ function geojsonifyPlace(params, place) {
   
   // assign name, logging a warning if it doesn't exist
   if (_.has(place, 'name.default')) {
-    doc.name = place.name.default;
+    doc.name = field.getStringValue(place.name.default);
   } else {
     logger.warn(`doc ${doc.gid} does not contain name.default`);
   }
@@ -122,6 +132,23 @@ function geojsonifyPlace(params, place) {
   }
   // assign all the details info into the doc
   Object.assign(doc, collectDetails(params, place));
+
+  // add addendum data if available
+  // note: this should be the last assigned property, for aesthetic reasons.
+  if (_.has(place, 'addendum')) {
+    let addendum = {};
+    for(let namespace in place.addendum){
+      try {
+        addendum[namespace] = codec.decode(place.addendum[namespace]);
+      } catch( e ){
+        logger.warn(`doc ${doc.gid} failed to decode addendum namespace ${namespace}`);
+      }
+    }
+    if( Object.keys(addendum).length ){
+      doc.addendum = addendum;
+    }
+  }
+
   return doc;
 }
 
@@ -193,8 +220,8 @@ function computeBBox(geojson, geojsonExtentPoints) {
       geojson.bbox = bbox;
     }
   } catch( e ){
-    console.error( 'bbox error', e.message, e.stack );
-    console.error( 'geojson', JSON.stringify( geojsonExtentPoints, null, 2 ) );
+    logger.error( 'bbox error', e.message, e.stack );
+    logger.error( 'geojson', geojsonExtentPoints );
   }
 }
 

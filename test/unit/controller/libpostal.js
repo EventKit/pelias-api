@@ -1,5 +1,3 @@
-'use strict';
-
 const proxyquire =  require('proxyquire').noCallThru();
 const libpostal = require('../../../controller/libpostal');
 const _ = require('lodash');
@@ -301,6 +299,482 @@ module.exports.tests.success_conditions = (test, common) => {
 
     });
 
+  });
+
+};
+
+module.exports.tests.bug_fixes = (test, common) => {
+  test('bug fix: incorrect parsing of diagonal directionals', t => {
+    const service = (req, callback) => {
+      const response =[
+        {
+          'label': 'house_number',
+          'value': '4004'
+        },
+        {
+          'label': 'road',
+          'value': 'nw'
+        },
+        {
+          'label': 'suburb',
+          'value': 'beaverton-hillsdale'
+        },
+        {
+          'label': 'city',
+          'value': 'portland'
+        }
+      ];
+
+      callback(null, response);
+    };
+
+    const controller = libpostal(service, () => true);
+
+    const req = {
+      clean: {
+        text: 'original query'
+      },
+      errors: []
+    };
+
+    controller(req, undefined, () => {
+      t.deepEquals(req, {
+        clean: {
+          text: 'original query',
+          parser: 'libpostal',
+          parsed_text: {
+            number: '4004',
+            street: 'nw beaverton-hillsdale',
+            city: 'portland'
+          }
+        },
+        errors: []
+      }, 'req should not have been modified');
+
+      t.end();
+
+    });
+
+  });
+
+  test('bug fix: incorrect parsing of diagonal directionals - no subsequent element', t => {
+    const service = (req, callback) => {
+      const response = [
+        {
+          'label': 'test',
+          'value': 'test'
+        },
+        {
+          'label': 'road',
+          'value': 'nw'
+        }
+      ];
+
+      callback(null, response);
+    };
+
+    const controller = libpostal(service, () => true);
+
+    const req = {
+      clean: {
+        text: 'original query'
+      },
+      errors: []
+    };
+
+    controller(req, undefined, () => {
+      t.deepEquals(req, {
+        clean: {
+          text: 'original query',
+          parser: 'libpostal',
+          parsed_text: {
+            street: 'nw'
+          }
+        },
+        errors: []
+      }, 'req should not have been modified');
+
+      t.end();
+
+    });
+
+  });
+
+  test('bug fix: recast label for "zoo" from borough/city_district to house', t => {
+    const service = (req, callback) => {
+      const response = [
+        {
+          'label': 'city_district',
+          'value': 'zoo'
+        }
+      ];
+
+      callback(null, response);
+    };
+
+    const controller = libpostal(service, () => true);
+
+    const req = {
+      clean: {
+        text: 'original query'
+      },
+      errors: []
+    };
+
+    controller(req, undefined, () => {
+      t.deepEquals(req, {
+        clean: {
+          text: 'original query',
+          parser: 'libpostal',
+          parsed_text: {
+            query: 'zoo'
+          }
+        },
+        errors: []
+      }, 'req should not have been modified');
+
+      t.end();
+
+    });
+
+  });
+
+  test('bug fix: correctly parse australian-style unit numbers', t => {
+    const service = (req, callback) => {
+      const response = [
+        {
+          'label': 'house_number',
+          'value': '11/1015'
+        },
+        {
+          'label': 'road',
+          'value': 'nudgee road'
+        },
+        {
+          'label': 'suburb',
+          'value': 'banyo'
+        },
+        {
+          'label': 'postcode',
+          'value': '4014'
+        },
+        {
+          'label': 'state',
+          'value': 'qld'
+        }
+      ];
+
+      callback(null, response);
+    };
+
+    const controller = libpostal(service, () => true);
+
+    const req = {
+      clean: {
+        text: 'original query'
+      },
+      errors: []
+    };
+
+    controller(req, undefined, () => {
+      t.deepEquals(req, {
+        clean: {
+          text: 'original query',
+          parser: 'libpostal',
+          parsed_text: {
+            unit: '11',
+            number: '1015',
+            street: 'nudgee road',
+            neighbourhood: 'banyo',
+            postalcode: '4014',
+            state: 'qld'
+          }
+        },
+        errors: []
+      }, 'req should not have been modified');
+
+      t.end();
+
+    });
+
+  });
+
+  test('bug fix: correctly parse australian-style unit numbers - with plus', t => {
+    const service = (req, callback) => {
+      const response = [
+        {
+          'label': 'house_number',
+          'value': '2+3/32'
+        },
+        {
+          'label': 'road',
+          'value': 'dixon street'
+        },
+        {
+          'label': 'suburb',
+          'value': 'strathpine'
+        },
+        {
+          'label': 'postcode',
+          'value': '4500'
+        },
+        {
+          'label': 'state',
+          'value': 'qld'
+        }
+      ];
+
+      callback(null, response);
+    };
+
+    const controller = libpostal(service, () => true);
+
+    const req = {
+      clean: {
+        text: 'original query'
+      },
+      errors: []
+    };
+
+    controller(req, undefined, () => {
+      t.deepEquals(req, {
+        clean: {
+          text: 'original query',
+          parser: 'libpostal',
+          parsed_text: {
+            unit: '2+3',
+            number: '32',
+            street: 'dixon street',
+            neighbourhood: 'strathpine',
+            postalcode: '4500',
+            state: 'qld'
+          }
+        },
+        errors: []
+      }, 'req should not have been modified');
+
+      t.end();
+
+    });
+
+  });
+
+  test('bug fix: correctly parse australian-style unit numbers - with unit spelled out', t => {
+    const service = (req, callback) => {
+      const response = [
+        {
+          'label': 'house_number',
+          'value': 'unit 3 /30'
+        },
+        {
+          'label': 'road',
+          'value': 'dan rees street'
+        },
+        {
+          'label': 'suburb',
+          'value': 'wallsend'
+        },
+        {
+          'label': 'postcode',
+          'value': '2287'
+        },
+        {
+          'label': 'state',
+          'value': 'nsw'
+        }
+      ];
+
+      callback(null, response);
+    };
+
+    const controller = libpostal(service, () => true);
+
+    const req = {
+      clean: {
+        text: 'original query'
+      },
+      errors: []
+    };
+
+    controller(req, undefined, () => {
+      t.deepEquals(req, {
+        clean: {
+          text: 'original query',
+          parser: 'libpostal',
+          parsed_text: {
+            unit: 'unit 3',
+            number: '30',
+            street: 'dan rees street',
+            neighbourhood: 'wallsend',
+            postalcode: '2287',
+            state: 'nsw'
+          }
+        },
+        errors: []
+      }, 'req should not have been modified');
+
+      t.end();
+
+    });
+
+  });
+
+  test('bug fix: correctly parse australian-style unit numbers - no-op if "unit" already assigned', t => {
+    const service = (req, callback) => {
+      const response = [
+        {
+          'label': 'unit',
+          'value': '99'
+        },
+        {
+          'label': 'house_number',
+          'value': '11/1015'
+        },
+        {
+          'label': 'road',
+          'value': 'nudgee road'
+        },
+        {
+          'label': 'suburb',
+          'value': 'banyo'
+        },
+        {
+          'label': 'postcode',
+          'value': '4014'
+        },
+        {
+          'label': 'state',
+          'value': 'qld'
+        }
+      ];
+
+      callback(null, response);
+    };
+
+    const controller = libpostal(service, () => true);
+
+    const req = {
+      clean: {
+        text: 'original query'
+      },
+      errors: []
+    };
+
+    controller(req, undefined, () => {
+      t.deepEquals(req, {
+        clean: {
+          text: 'original query',
+          parser: 'libpostal',
+          parsed_text: {
+            unit: '99',
+            number: '11/1015',
+            street: 'nudgee road',
+            neighbourhood: 'banyo',
+            postalcode: '4014',
+            state: 'qld'
+          }
+        },
+        errors: []
+      }, 'req should not have been modified');
+
+      t.end();
+
+    });
+
+  });
+
+  test('bug fix: recast entirely numeric input - 9', t => {
+    const service = (req, callback) => {
+      callback(null, [{
+        'label': 'city',
+        'value': '9'
+      }]);
+    };
+    const controller = libpostal(service, () => true);
+    const req = {
+      clean: {
+        text: '9'
+      },
+      errors: []
+    };
+    controller(req, undefined, () => {
+      t.deepEquals(req, {
+        clean: {
+          text: '9',
+          parser: 'libpostal',
+          parsed_text: {
+            query: '9'
+          }
+        },
+        errors: []
+      }, 'req should not have been modified');
+
+      t.end();
+    });
+  });
+
+  test('bug fix: recast entirely numeric input - 99', t => {
+    const service = (req, callback) => {
+      callback(null, [{
+        'label': 'suburb',
+        'value': '99'
+      }]);
+    };
+    const controller = libpostal(service, () => true);
+    const req = {
+      clean: {
+        text: '99'
+      },
+      errors: []
+    };
+    controller(req, undefined, () => {
+      t.deepEquals(req, {
+        clean: {
+          text: '99',
+          parser: 'libpostal',
+          parsed_text: {
+            query: '99'
+          }
+        },
+        errors: []
+      }, 'req should not have been modified');
+
+      t.end();
+    });
+  });
+
+  test('bug fix: do not skip parse if there are more than one numeric label', t => {
+    const service = (req, callback) => {
+      callback(null, [{
+        'label': 'city',
+        'value': '9'
+      },{
+        'label': 'suburb',
+        'value': '99'
+      }]);
+    };
+    const controller = libpostal(service, () => true);
+    const req = {
+      clean: {
+        text: '9 99'
+      },
+      errors: []
+    };
+    controller(req, undefined, () => {
+      t.deepEquals(req, {
+        clean: {
+          text: '9 99',
+          parser: 'libpostal',
+          parsed_text: {
+            city: '9',
+            neighbourhood: '99'
+          }
+        },
+        errors: []
+      }, 'req should not have been modified');
+
+      t.end();
+    });
   });
 
 };

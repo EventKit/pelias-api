@@ -1,11 +1,11 @@
-
 module.exports = {
   'query': {
     'bool': {
       'must': [{
         'match': {
-          'name.default': {
-            'analyzer': 'peliasQueryFullToken',
+          'phrase.default': {
+            'analyzer': 'peliasQuery',
+            'cutoff_frequency': 0.01,
             'boost': 1,
             'slop': 3,
             'query': 'one',
@@ -14,16 +14,6 @@ module.exports = {
         }
       }],
       'should':[{
-        'match': {
-          'phrase.default': {
-            'analyzer': 'peliasPhrase',
-            'boost': 1,
-            'slop': 3,
-            'query': 'one',
-            'type': 'phrase'
-          }
-        }
-      },{
         'function_score': {
           'query': {
             'match_all': {}

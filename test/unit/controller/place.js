@@ -1,5 +1,4 @@
-'use strict';
-
+const _ = require('lodash');
 const setup = require('../../../controller/place');
 const proxyquire =  require('proxyquire').noCallThru();
 
@@ -37,6 +36,14 @@ module.exports.tests.success = (test, common) => {
             _index: 'indexName value',
             _type: 'layer2',
             _id: 'id2'
+          },
+          {
+            _index: 'indexName value',
+            _id: 'source1:layer1:id1'
+          },
+          {
+            _index: 'indexName value',
+            _id: 'source2:layer2:id2'
           }
         ]);
 
@@ -50,10 +57,12 @@ module.exports.tests.success = (test, common) => {
       clean: {
         ids: [
           {
+            source: 'source1',
             id: 'id1',
             layer: 'layer1'
           },
           {
+            source: 'source2',
             id: 'id2',
             layer: 'layer2'
           }
@@ -179,8 +188,8 @@ module.exports.tests.timeout = function(test, common) {
         get: (service) => {
           t.equal(service, 'api');
           return {
-            info: (msg) => {
-              infoMesssages.push(msg);
+            info: (msg, json) => {
+              infoMesssages.push({ msg:msg, json:json});
             },
             debug: () => {}
           };
@@ -205,9 +214,9 @@ module.exports.tests.timeout = function(test, common) {
     const next = () => {
       t.equal(searchServiceCallCount, 3+1);
 
-      t.ok(infoMesssages.indexOf('request timed out on attempt 1, retrying') !== -1);
-      t.ok(infoMesssages.indexOf('request timed out on attempt 2, retrying') !== -1);
-      t.ok(infoMesssages.indexOf('request timed out on attempt 3, retrying') !== -1);
+      t.ok(infoMesssages.find(function(msg) {
+        return _.get(msg, 'json.retries', 2);
+      }));
 
       t.deepEqual(req.errors, [timeoutError.message]);
       t.deepEqual(res, {});

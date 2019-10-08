@@ -1,5 +1,3 @@
-'use strict';
-
 const proxyquire =  require('proxyquire').noCallThru();
 const libpostal = require('../../../controller/structured_libpostal');
 const _ = require('lodash');
@@ -286,6 +284,55 @@ module.exports.tests.success_conditions = (test, common) => {
         },
         errors: []
       }, 'req should not have been modified');
+
+      t.end();
+
+    });
+
+  });
+
+  test('service returning house_number and unit should set req.clean.parsed_text.unit', t => {
+    const service = (req, callback) => {
+      const response = [
+        {
+          label: 'road',
+          value: 'the street'
+        },
+        {
+          label: 'house_number',
+          value: '22'
+        },
+        {
+          label: 'unit',
+          value: '1 th'
+        }
+      ];
+
+      callback(null, response);
+    };
+
+    const controller = libpostal(service, () => true);
+
+    const req = {
+      clean: {
+        parsed_text: {
+          address: 'the street 22 1 th'
+        }
+      },
+      errors: []
+    };
+
+    controller(req, undefined, () => {
+      t.deepEquals(req, {
+        clean: {
+          parsed_text: {
+            street: 'the street',
+            number: '22',
+            unit: '1 th'
+          }
+        },
+        errors: []
+      }, 'req should have been modified');
 
       t.end();
 

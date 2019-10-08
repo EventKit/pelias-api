@@ -1,4 +1,3 @@
-
 module.exports = {
   'query': {
     'bool': {
@@ -7,21 +6,15 @@ module.exports = {
           'query': {
             'match': {
               'name.default': {
-                'analyzer': 'peliasQueryPartialToken',
+                'analyzer': 'peliasQuery',
                 'boost': 100,
                 'query': 'test',
+                'cutoff_frequency': 0.01,
                 'type': 'phrase',
                 'operator': 'and',
                 'slop': 3
               }
             }
-          }
-        }
-      }, {
-        'match': {
-          'parent.country_a': {
-            'analyzer': 'standard',
-            'query': 'ABC'
           }
         }
       }],
@@ -58,6 +51,14 @@ module.exports = {
             },
             'weight': 3
           }]
+        }
+      }],
+      'filter': [{
+        'match': {
+          'parent.country_a.ngram': {
+            'analyzer': 'standard',
+            'query': 'ABC'
+          }
         }
       }]
     }

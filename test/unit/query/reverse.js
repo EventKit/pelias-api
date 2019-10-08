@@ -11,7 +11,8 @@ const views = {
   sources: 'sources view',
   layers: 'layers view',
   categories: 'categories view',
-  sort_distance: 'sort_distance view'
+  sort_distance: 'sort_distance view',
+  boundary_gid: 'boundary_gid view'
 };
 
 module.exports.tests = {};
@@ -54,16 +55,18 @@ module.exports.tests.query = (test, common) => {
     t.notOk(query.body.vs.isset('boundary:circle:radius'));
     t.notOk(query.body.vs.isset('boundary:country'));
     t.notOk(query.body.vs.isset('input:categories'));
+    t.notOk(query.body.vs.isset('boundary:gid'));
 
     t.deepEquals(query.body.score_functions, [
-      'boundary_country view'
     ]);
 
     t.deepEquals(query.body.filter_functions, [
       'boundary_circle view',
       'sources view',
       'layers view',
-      'categories view'
+      'categories view',
+      'boundary_country view',
+      'boundary_gid view'
     ]);
 
     t.deepEquals(query.body.sort_functions, [
@@ -459,7 +462,7 @@ module.exports.tests.boundary_country = (test, common) => {
 
   test('string boundary.country should set boundary:country', t => {
     const clean = {
-      'boundary.country': 'boundary country value'
+      'boundary.country': ['boundary country', 'value']
     };
 
     const query = proxyquire('../../../query/reverse', {
@@ -498,6 +501,31 @@ module.exports.tests.categories = (test, common) => {
     })(clean);
 
     t.deepEquals(query.body.vs.var('input:categories').toString(), 'categories value');
+    t.end();
+
+  });
+
+};
+
+
+module.exports.tests.boundary_gid = (test, common) => {
+  test('valid boundary.gid should set boundary:gid', t => {
+    const clean = {
+      'boundary.gid': '123'
+    };
+
+    const query = proxyquire('../../../query/reverse', {
+      'pelias-query': {
+        layout: {
+          FilteredBooleanQuery: MockQuery
+        },
+        view: views,
+        Vars: require('pelias-query').Vars
+      },
+      './reverse_defaults': {}
+    })(clean);
+
+    t.deepEquals(query.body.vs.var('boundary:gid').toString(), '123');
     t.end();
 
   });

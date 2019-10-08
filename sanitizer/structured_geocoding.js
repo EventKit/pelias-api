@@ -6,7 +6,6 @@ module.exports.middleware = (_api_pelias_config) => {
   var sanitizers = {
         singleScalarParameters: require('../sanitizer/_single_scalar_parameters')(),
         debug: require('../sanitizer/_debug')(),
-        quattroshapes_deprecation: require('../sanitizer/_deprecate_quattroshapes')(),
         synthesize_analysis: require('../sanitizer/_synthesize_analysis')(),
         iso2_to_iso3: require('../sanitizer/_iso2_to_iso3')(),
         city_name_standardizer: require('../sanitizer/_city_name_standardizer')(),
@@ -21,7 +20,8 @@ module.exports.middleware = (_api_pelias_config) => {
         geo_search: require('../sanitizer/_geo_search')(),
         boundary_country: require('../sanitizer/_boundary_country')(),
         categories: require('../sanitizer/_categories')(),
-        request_language: require('../sanitizer/_request_language')()
+        request_language: require('../sanitizer/_request_language')(),
+        boundary_gid: require('../sanitizer/_boundary_gid')()
       };
 
   return ( req, res, next ) => {
