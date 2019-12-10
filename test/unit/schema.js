@@ -1,4 +1,3 @@
-const Joi = require('@hapi/joi');
 const schema = require('../../schema');
 const _ = require('lodash');
 
@@ -41,7 +40,7 @@ module.exports.tests.completely_valid = (test, common) => {
       }
     };
 
-    const result = Joi.validate(config, schema);
+    const result = schema.validate(config);
 
     t.notOk(result.error);
     t.end();
@@ -60,7 +59,7 @@ module.exports.tests.completely_valid = (test, common) => {
       }
     };
 
-    const result = Joi.validate(config, schema);
+    const result = schema.validate(config);
 
     t.notOk(result.error);
     t.deepEquals(result.value.api.services, {}, 'missing api.services should default to empty object');
@@ -76,7 +75,7 @@ module.exports.tests.api_validation = (test, common) => {
       esclient: {}
     };
 
-    const result = Joi.validate(config, schema);
+    const result = schema.validate(config);
 
     t.equals(result.error.details.length, 1);
     t.equals(result.error.details[0].message, '"api" is required');
@@ -95,7 +94,7 @@ module.exports.tests.api_validation = (test, common) => {
       esclient: {}
     };
 
-    const result = Joi.validate(config, schema);
+    const result = schema.validate(config);
 
     t.notOk(result.error);
     t.end();
@@ -113,10 +112,10 @@ module.exports.tests.api_validation = (test, common) => {
         esclient: {}
       };
 
-      const result = Joi.validate(config, schema);
+      const result = schema.validate(config);
 
       t.equals(result.error.details.length, 1);
-      t.equals(result.error.details[0].message, '"version" must be a string');
+      t.equals(result.error.details[0].message, '"api.version" must be a string');
 
     });
 
@@ -135,10 +134,10 @@ module.exports.tests.api_validation = (test, common) => {
         esclient: {}
       };
 
-      const result = Joi.validate(config, schema);
+      const result = schema.validate(config);
 
       t.equals(result.error.details.length, 1);
-      t.equals(result.error.details[0].message, '"indexName" must be a string');
+      t.equals(result.error.details[0].message, '"api.indexName" must be a string');
 
     });
 
@@ -157,10 +156,10 @@ module.exports.tests.api_validation = (test, common) => {
         esclient: {}
       };
 
-      const result = Joi.validate(config, schema);
+      const result = schema.validate(config);
 
       t.equals(result.error.details.length, 1);
-      t.equals(result.error.details[0].message, '"host" must be a string');
+      t.equals(result.error.details[0].message, '"api.host" must be a string');
 
     });
 
@@ -180,10 +179,10 @@ module.exports.tests.api_validation = (test, common) => {
         esclient: {}
       };
 
-      const result = Joi.validate(config, schema);
+      const result = schema.validate(config);
 
       t.equals(result.error.details.length, 1);
-      t.equals(result.error.details[0].message, '"accessLog" must be a string');
+      t.equals(result.error.details[0].message, '"api.accessLog" must be a string');
 
     });
 
@@ -203,10 +202,10 @@ module.exports.tests.api_validation = (test, common) => {
         esclient: {}
       };
 
-      const result = Joi.validate(config, schema);
+      const result = schema.validate(config);
 
       t.equals(result.error.details.length, 1);
-      t.equals(result.error.details[0].message, '"relativeScores" must be a boolean');
+      t.equals(result.error.details[0].message, '"api.relativeScores" must be a boolean');
 
     });
 
@@ -226,10 +225,10 @@ module.exports.tests.api_validation = (test, common) => {
         esclient: {}
       };
 
-      const result = Joi.validate(config, schema);
+      const result = schema.validate(config);
 
       t.equals(result.error.details.length, 1);
-      t.equals(result.error.details[0].message, '"localization" must be an object');
+      t.equals(result.error.details[0].message, '"api.localization" must be of type object');
 
     });
 
@@ -250,10 +249,10 @@ module.exports.tests.api_validation = (test, common) => {
       esclient: {}
     };
 
-    const result = Joi.validate(config, schema);
+    const result = schema.validate(config);
 
     t.equals(result.error.details.length, 1);
-    t.equals(result.error.details[0].message, '"unknown_property" is not allowed');
+    t.equals(result.error.details[0].message, '"api.localization.unknown_property" is not allowed');
 
     t.end();
 
@@ -273,10 +272,10 @@ module.exports.tests.api_validation = (test, common) => {
         esclient: {}
       };
 
-      const result = Joi.validate(config, schema);
+      const result = schema.validate(config);
 
       t.equals(result.error.details.length, 1);
-      t.equals(result.error.details[0].message, '"flipNumberAndStreetCountries" must be an array');
+      t.equals(result.error.details[0].message, '"api.localization.flipNumberAndStreetCountries" must be an array');
 
     });
 
@@ -298,10 +297,10 @@ module.exports.tests.api_validation = (test, common) => {
         esclient: {}
       };
 
-      const result = Joi.validate(config, schema);
+      const result = schema.validate(config);
 
       t.equals(result.error.details.length, 1);
-      t.equals(result.error.details[0].message, '"0" must be a string');
+      t.equals(result.error.details[0].message, '"api.localization.flipNumberAndStreetCountries[0]" must be a string');
 
     });
 
@@ -323,10 +322,12 @@ module.exports.tests.api_validation = (test, common) => {
         esclient: {}
       };
 
-      const result = Joi.validate(config, schema);
+      const result = schema.validate(config);
 
       t.equals(result.error.details.length, 1);
-      t.equals(result.error.details[0].message, `"0" with value "${value}" fails to match the required pattern: /^[A-Z]{3}$/`);
+      t.equals(result.error.details[0].message,
+        `"api.localization.flipNumberAndStreetCountries[0]" with value "${value}" fails to match the required pattern: /^[A-Z]{3}$/`
+      );
 
     });
 
@@ -346,10 +347,10 @@ module.exports.tests.api_validation = (test, common) => {
         esclient: {}
       };
 
-      const result = Joi.validate(config, schema);
+      const result = schema.validate(config);
 
       t.equals(result.error.details.length, 1);
-      t.equals(result.error.details[0].message, '"requestRetries" must be a number');
+      t.equals(result.error.details[0].message, '"api.requestRetries" must be a number');
 
     });
 
@@ -368,10 +369,10 @@ module.exports.tests.api_validation = (test, common) => {
       esclient: {}
     };
 
-    const result = Joi.validate(config, schema);
+    const result = schema.validate(config);
 
     t.equals(result.error.details.length, 1);
-    t.equals(result.error.details[0].message, '"requestRetries" must be an integer');
+    t.equals(result.error.details[0].message, '"api.requestRetries" must be an integer');
     t.end();
 
   });
@@ -387,10 +388,10 @@ module.exports.tests.api_validation = (test, common) => {
       esclient: {}
     };
 
-    const result = Joi.validate(config, schema);
+    const result = schema.validate(config);
 
     t.equals(result.error.details.length, 1);
-    t.equals(result.error.details[0].message, '"requestRetries" must be larger than or equal to 0');
+    t.equals(result.error.details[0].message, '"api.requestRetries" must be larger than or equal to 0');
     t.end();
 
   });
@@ -408,10 +409,10 @@ module.exports.tests.api_validation = (test, common) => {
         esclient: {}
       };
 
-      const result = Joi.validate(config, schema);
+      const result = schema.validate(config);
 
       t.equals(result.error.details.length, 1);
-      t.equals(result.error.details[0].message, '"placeholderService" is not allowed');
+      t.equals(result.error.details[0].message, '"api.placeholderService" is not allowed');
 
     });
 
@@ -432,7 +433,7 @@ module.exports.tests.api_validation = (test, common) => {
         esclient: {}
       };
 
-      const result = Joi.validate(config, schema);
+      const result = schema.validate(config);
 
       t.notOk(result.error);
 
@@ -456,10 +457,10 @@ module.exports.tests.api_validation = (test, common) => {
         esclient: {}
       };
 
-      const result = Joi.validate(config, schema);
+      const result = schema.validate(config);
 
       t.equals(result.error.details.length, 1);
-      t.equals(result.error.details[0].message, '"focus.point.lat" must be a number');
+      t.equals(result.error.details[0].message, '"api.defaultParameters.focus.point.lat" must be a number');
 
     });
 
@@ -481,10 +482,10 @@ module.exports.tests.api_validation = (test, common) => {
         esclient: {}
       };
 
-      const result = Joi.validate(config, schema);
+      const result = schema.validate(config);
 
       t.equals(result.error.details.length, 1);
-      t.equals(result.error.details[0].message, '"focus.point.lon" must be a number');
+      t.equals(result.error.details[0].message, '"api.defaultParameters.focus.point.lon" must be a number');
 
     });
 
@@ -504,10 +505,10 @@ module.exports.tests.api_validation = (test, common) => {
         esclient: {}
       };
 
-      const result = Joi.validate(config, schema);
+      const result = schema.validate(config);
 
       t.equals(result.error.details.length, 1);
-      t.equals(result.error.details[0].message, '"defaultParameters" must be an object');
+      t.equals(result.error.details[0].message, '"api.defaultParameters" must be of type object');
 
     });
 
@@ -532,10 +533,10 @@ module.exports.tests.api_services_validation = (test, common) => {
       esclient: {}
     };
 
-    const result = Joi.validate(config, schema);
+    const result = schema.validate(config);
 
     t.equals(result.error.details.length, 1);
-    t.equals(result.error.details[0].message, '"unknown_property" is not allowed');
+    t.equals(result.error.details[0].message, '"api.services.unknown_property" is not allowed');
     t.end();
 
   });
@@ -562,7 +563,7 @@ module.exports.tests.service_validation = (test, common) => {
         url: 'http://localhost'
       };
 
-      const result = Joi.validate(config, schema);
+      const result = schema.validate(config);
 
       t.equals(result.value.api.services[service].timeout, 250);
       t.equals(result.value.api.services[service].retries, 3);
@@ -587,10 +588,10 @@ module.exports.tests.service_validation = (test, common) => {
 
       config.api.services[service] = {};
 
-      const result = Joi.validate(config, schema);
+      const result = schema.validate(config);
 
       t.equals(result.error.details.length, 1);
-      t.equals(result.error.details[0].message, '"url" is required');
+      t.equals(result.error.details[0].message, `"api.services.${service}.url" is required`);
     });
 
     t.end();
@@ -614,10 +615,10 @@ module.exports.tests.service_validation = (test, common) => {
           url: value
         };
 
-        const result = Joi.validate(config, schema);
+        const result = schema.validate(config);
 
         t.equals(result.error.details.length, 1);
-        t.equals(result.error.details[0].message, '"url" must be a string');
+        t.equals(result.error.details[0].message, `"api.services.${service}.url" must be a string`);
 
       });
 
@@ -644,10 +645,12 @@ module.exports.tests.service_validation = (test, common) => {
           url: `${scheme}://localhost`
         };
 
-        const result = Joi.validate(config, schema);
+        const result = schema.validate(config);
 
         t.equals(result.error.details.length, 1);
-        t.equals(result.error.details[0].message, '"url" must be a valid uri with a scheme matching the https\? pattern');
+        t.equals(result.error.details[0].message,
+          `"api.services.${service}.url" must be a valid uri with a scheme matching the https\? pattern`
+        );
 
       });
 
@@ -674,10 +677,10 @@ module.exports.tests.service_validation = (test, common) => {
         unknown_property: 'value'
       };
 
-      const result = Joi.validate(config, schema);
+      const result = schema.validate(config);
 
       t.equals(result.error.details.length, 1);
-      t.equals(result.error.details[0].message, '"unknown_property" is not allowed');
+      t.equals(result.error.details[0].message, `"api.services.${service}.unknown_property" is not allowed`);
 
     });
 
@@ -703,10 +706,10 @@ module.exports.tests.service_validation = (test, common) => {
           timeout: value
         };
 
-        const result = Joi.validate(config, schema);
+        const result = schema.validate(config);
 
         t.equals(result.error.details.length, 1);
-        t.equals(result.error.details[0].message, '"timeout" must be a number');
+        t.equals(result.error.details[0].message, `"api.services.${service}.timeout" must be a number`);
 
       });
 
@@ -733,10 +736,10 @@ module.exports.tests.service_validation = (test, common) => {
         timeout: 17.3
       };
 
-      const result = Joi.validate(config, schema);
+      const result = schema.validate(config);
 
       t.equals(result.error.details.length, 1);
-      t.equals(result.error.details[0].message, '"timeout" must be an integer');
+      t.equals(result.error.details[0].message, `"api.services.${service}.timeout" must be an integer`);
 
     });
 
@@ -761,10 +764,10 @@ module.exports.tests.service_validation = (test, common) => {
         timeout: -1
       };
 
-      const result = Joi.validate(config, schema);
+      const result = schema.validate(config);
 
       t.equals(result.error.details.length, 1);
-      t.equals(result.error.details[0].message, '"timeout" must be larger than or equal to 0');
+      t.equals(result.error.details[0].message, `"api.services.${service}.timeout" must be larger than or equal to 0`);
 
     });
 
@@ -790,10 +793,10 @@ module.exports.tests.service_validation = (test, common) => {
           retries: value
         };
 
-        const result = Joi.validate(config, schema);
+        const result = schema.validate(config);
 
         t.equals(result.error.details.length, 1);
-        t.equals(result.error.details[0].message, '"retries" must be a number');
+        t.equals(result.error.details[0].message, `"api.services.${service}.retries" must be a number`);
 
       });
 
@@ -820,10 +823,10 @@ module.exports.tests.service_validation = (test, common) => {
         retries: 17.3
       };
 
-      const result = Joi.validate(config, schema);
+      const result = schema.validate(config);
 
       t.equals(result.error.details.length, 1);
-      t.equals(result.error.details[0].message, '"retries" must be an integer');
+      t.equals(result.error.details[0].message, `"api.services.${service}.retries" must be an integer`);
 
     });
 
@@ -848,10 +851,10 @@ module.exports.tests.service_validation = (test, common) => {
         retries: -1
       };
 
-      const result = Joi.validate(config, schema);
+      const result = schema.validate(config);
 
       t.equals(result.error.details.length, 1);
-      t.equals(result.error.details[0].message, '"retries" must be larger than or equal to 0');
+      t.equals(result.error.details[0].message, `"api.services.${service}.retries" must be larger than or equal to 0`);
 
     });
 
@@ -871,7 +874,7 @@ module.exports.tests.esclient_validation = (test, common) => {
       }
     };
 
-    const result = Joi.validate(config, schema);
+    const result = schema.validate(config);
 
     t.equals(result.error.details.length, 1);
     t.equals(result.error.details[0].message, '"esclient" is required');
@@ -890,10 +893,10 @@ module.exports.tests.esclient_validation = (test, common) => {
         esclient: value
       };
 
-      const result = Joi.validate(config, schema);
+      const result = schema.validate(config);
 
       t.equals(result.error.details.length, 1);
-      t.equals(result.error.details[0].message, '"esclient" must be an object');
+      t.equals(result.error.details[0].message, '"esclient" must be of type object');
 
     });
 
@@ -901,7 +904,7 @@ module.exports.tests.esclient_validation = (test, common) => {
 
   });
 
-  test('config with non-number esclient.requestTimeout should throw error', (t) => {
+  test('config with non-number requestTimeout should throw error', (t) => {
     [null, 'string', {}, [], false].forEach((value) => {
       var config = {
         api: {
@@ -914,10 +917,10 @@ module.exports.tests.esclient_validation = (test, common) => {
         }
       };
 
-      const result = Joi.validate(config, schema);
+      const result = schema.validate(config);
 
       t.equals(result.error.details.length, 1);
-      t.equals(result.error.details[0].message, '"requestTimeout" must be a number');
+      t.equals(result.error.details[0].message, '"esclient.requestTimeout" must be a number');
 
     });
 
@@ -925,7 +928,7 @@ module.exports.tests.esclient_validation = (test, common) => {
 
   });
 
-  test('config with non-integer esclient.requestTimeout should throw error', (t) => {
+  test('config with non-integer requestTimeout should throw error', (t) => {
     var config = {
       api: {
         version: 'version value',
@@ -937,15 +940,15 @@ module.exports.tests.esclient_validation = (test, common) => {
       }
     };
 
-    const result = Joi.validate(config, schema);
+    const result = schema.validate(config);
 
     t.equals(result.error.details.length, 1);
-    t.equals(result.error.details[0].message, '"requestTimeout" must be an integer');
+    t.equals(result.error.details[0].message, '"esclient.requestTimeout" must be an integer');
     t.end();
 
   });
 
-  test('config with negative esclient.requestTimeout should throw error', (t) => {
+  test('config with negative requestTimeout should throw error', (t) => {
     var config = {
       api: {
         version: 'version value',
@@ -957,10 +960,10 @@ module.exports.tests.esclient_validation = (test, common) => {
       }
     };
 
-    const result = Joi.validate(config, schema);
+    const result = schema.validate(config);
 
     t.equals(result.error.details.length, 1);
-    t.equals(result.error.details[0].message, '"requestTimeout" must be larger than or equal to 0');
+    t.equals(result.error.details[0].message, '"esclient.requestTimeout" must be larger than or equal to 0');
     t.end();
 
   });

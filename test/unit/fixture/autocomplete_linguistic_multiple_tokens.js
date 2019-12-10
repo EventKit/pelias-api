@@ -2,20 +2,18 @@ module.exports = {
   'query': {
     'bool': {
       'must': [{
-        'match': {
+        'match_phrase': {
           'phrase.default': {
             'analyzer': 'peliasQuery',
-            'type': 'phrase',
             'boost': 1,
             'slop': 3,
-            'cutoff_frequency': 0.01,
             'query': 'one two'
           }
         }
       },
       {
         'constant_score': {
-          'query': {
+          'filter': {
             'multi_match': {
               'fields': [
                 'parent.country.ngram^1',
@@ -28,9 +26,9 @@ module.exports = {
                 'parent.borough.ngram^1',
                 'parent.neighbourhood.ngram^1',
                 'parent.locality_a.ngram^1',
-                'parent.region_a.ngram^4',
-                'parent.country_a.ngram^4',
-                'name.default^1'
+                'parent.region_a.ngram^1',
+                'parent.country_a.ngram^1',
+                'name.default^1.5'
               ],
               'query': 'three',
               'analyzer': 'peliasQuery',

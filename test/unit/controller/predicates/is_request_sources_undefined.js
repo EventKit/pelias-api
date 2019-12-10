@@ -7,7 +7,6 @@ module.exports.tests.interface = (test, common) => {
   test('valid interface', (t) => {
     t.ok(_.isFunction(is_request_sources_undefined), 'is_request_sources_undefined is a function');
     t.end();
-
   });
 };
 

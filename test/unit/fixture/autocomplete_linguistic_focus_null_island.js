@@ -3,15 +3,12 @@ module.exports = {
     'bool': {
       'must': [{
         'constant_score': {
-          'query': {
-            'match': {
+          'filter': {
+            'match_phrase': {
               'name.default': {
                 'analyzer': 'peliasQuery',
-                'cutoff_frequency': 0.01,
                 'boost': 100,
                 'query': 'test',
-                'type': 'phrase',
-                'operator': 'and',
                 'slop': 3
               }
             }
@@ -21,14 +18,11 @@ module.exports = {
       'should': [{
         'function_score': {
           'query': {
-            'match': {
+            'match_phrase': {
               'name.default': {
                 'analyzer': 'peliasQuery',
-                'cutoff_frequency': 0.01,
                 'boost': 100,
                 'query': 'test',
-                'type': 'phrase',
-                'operator': 'and',
                 'slop': 3
               }
             }

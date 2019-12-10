@@ -22,17 +22,16 @@ module.exports = _.merge({}, peliasQuery.defaults, {
   'ngram:cutoff_frequency': 0.01,
   'ngram:minimum_should_match': '1<-1 3<-25%',
 
-  'phrase:analyzer': 'peliasPhrase',
-  'phrase:field': 'phrase.default',
-  'phrase:boost': 1,
-  'phrase:slop': 2,
-  'phrase:cutoff_frequency': 0.01,
+  'match_phrase:main:analyzer': 'peliasPhrase',
+  'match_phrase:main:field': 'phrase.default',
+  'match_phrase:main:boost': 1,
+  'match_phrase:main:slop': 2,
 
   'focus:function': 'exp',
   'focus:offset': '0km',
   'focus:scale': '50km',
   'focus:decay': 0.5,
-  'focus:weight': 2,
+  'focus:weight': 3,
 
   'function_score:score_mode': 'avg',
   'function_score:boost_mode': 'replace',
@@ -45,6 +44,7 @@ module.exports = _.merge({}, peliasQuery.defaults, {
   'address:street:analyzer': 'peliasStreet',
   'address:street:field': 'address_parts.street',
   'address:street:boost': 5,
+  'address:street:slop': 1,
   'address:street:cutoff_frequency': 0.01,
 
   'address:postcode:analyzer': 'peliasZip',

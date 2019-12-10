@@ -13,7 +13,8 @@ module.exports = {
                   {
                     'match_phrase': {
                       'address_parts.street': {
-                        'query': 'street value'
+                        'query': 'street value',
+                        'slop': 1
                       }
                     }
                   }
@@ -56,7 +57,7 @@ module.exports = {
       'max_boost': 20,
       'functions': [
         {
-          'weight': 2,
+          'weight': 3,
           'exp': {
             'center_point': {
               'origin': {

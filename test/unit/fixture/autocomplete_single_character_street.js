@@ -2,11 +2,9 @@ module.exports = {
   'query': {
     'bool': {
       'must': [{
-        'match': {
+        'match_phrase': {
           'phrase.default': {
             'analyzer': 'peliasQuery',
-            'cutoff_frequency': 0.01,
-            'type': 'phrase',
             'boost': 1,
             'slop': 3,
             'query': 'k road'
@@ -25,9 +23,9 @@ module.exports = {
             'parent.borough.ngram^1',
             'parent.neighbourhood.ngram^1',
             'parent.locality_a.ngram^1',
-            'parent.region_a.ngram^4',
-            'parent.country_a.ngram^4',
-            'name.default^1'
+            'parent.region_a.ngram^1',
+            'parent.country_a.ngram^1',
+            'name.default^1.5'
           ],
           'query': 'laird',
           'analyzer': 'peliasAdmin',
@@ -40,7 +38,7 @@ module.exports = {
             'address_parts.street': {
               'query': 'k road',
               'cutoff_frequency': 0.01,
-              'boost': 5,
+              'boost': 1,
               'analyzer': 'peliasStreet'
             }
           }

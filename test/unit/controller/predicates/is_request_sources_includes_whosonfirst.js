@@ -41,7 +41,6 @@ module.exports.tests.true_conditions = (test, common) => {
 };
 
 module.exports.tests.false_conditions = (test, common) => {
-
   test('undefined req should return false', (t) => {
     t.notOk(is_request_sources_includes_whosonfirst(undefined));
     t.end();

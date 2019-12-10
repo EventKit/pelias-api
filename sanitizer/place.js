@@ -5,6 +5,7 @@ var sanitizeAll = require('../sanitizer/sanitizeAll'),
       ids: require('../sanitizer/_ids')(),
       geometries: require('../sanitizer/_geometries')(),
       private: require('../sanitizer/_flag_bool')('private', false),
+      categories: require('../sanitizer/_categories')(true),
       request_language: require('../sanitizer/_request_language')()
     };
 
