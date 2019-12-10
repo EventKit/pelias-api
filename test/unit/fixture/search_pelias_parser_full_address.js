@@ -15,12 +15,10 @@ module.exports = {
         }
       }],
       'should': [{
-        'match': {
+        'match_phrase': {
           'phrase.default': {
             'query': '123 main st',
-            'cutoff_frequency': 0.01,
             'analyzer': 'peliasPhrase',
-            'type': 'phrase',
             'slop': 2,
             'boost': 1
           }
@@ -29,16 +27,7 @@ module.exports = {
       {
         'function_score': {
           'query': {
-            'match': {
-              'phrase.default': {
-                'query': '123 main st',
-                'cutoff_frequency': 0.01,
-                'analyzer': 'peliasPhrase',
-                'type': 'phrase',
-                'slop': 2,
-                'boost': 1
-              }
-            }
+            'match_all': { }
           },
           'max_boost': 20,
           'score_mode': 'first',
@@ -55,16 +44,7 @@ module.exports = {
       },{
         'function_score': {
           'query': {
-            'match': {
-              'phrase.default': {
-                'query': '123 main st',
-                'cutoff_frequency': 0.01,
-                'analyzer': 'peliasPhrase',
-                'type': 'phrase',
-                'slop': 2,
-                'boost': 1
-              }
-            }
+            'match_all': { }
           },
           'max_boost': 20,
           'score_mode': 'first',

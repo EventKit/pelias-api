@@ -21,7 +21,7 @@ module.exports.tests = {};
 module.exports.tests.interfaces = function(test, common) {
 
   test('complete sources', function(t) {
-    t.deepEquals(type_mapping.sources, [ 'openstreetmap', 'openaddresses', 'geonames', 'whosonfirst', 'geographicnames' ]);
+    t.deepEquals(type_mapping.sources, ['openstreetmap', 'openaddresses', 'geonames', 'whosonfirst', 'geographicnames']);
     t.end();
   });
 
@@ -45,7 +45,6 @@ module.exports.tests.interfaces = function(test, common) {
       geonames: [ 'geonames' ],
       whosonfirst: [ 'whosonfirst' ],
       geographicnames: [ 'geographicnames' ]
-
     });
     t.end();
   });
@@ -105,7 +104,7 @@ module.exports.tests.interfaces = function(test, common) {
                    'region', 'locality', 'localadmin', 'macrocounty', 'county', 'macrohood',
                    'borough', 'neighbourhood', 'microhood', 'disputed', 'postalcode',
                    'continent', 'ocean', 'marinearea']);
-   t.end();
+    t.end();
   });
 
   test('complete layers by source', function(t) {

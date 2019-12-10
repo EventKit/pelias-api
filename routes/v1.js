@@ -164,18 +164,6 @@ function addRoutes(app, peliasConfig) {
      hasParsedTextProperties.all('address')
    );
 
-  // defer to pelias parser for analysis IF there's no response AND placeholder should not have executed
-  const shouldDeferToPeliasParser = all(
-      not(hasRequestErrors),
-      not(hasResponseData)
-  );
-
-  // call search_pelias_parser query if pelias_parser was the parser
-  const searchPeliasParserShouldExecute = all(
-      not(hasRequestErrors),
-      isPeliasParse
-  );
-
   const placeholderGeodisambiguationShouldExecute = all(
     not(hasResponseDataOrRequestErrors),
     isPlaceholderServiceEnabled,
@@ -218,13 +206,14 @@ function addRoutes(app, peliasConfig) {
   );
 
   const searchWithIdsShouldExecute = all(
-      not(hasRequestErrors),
-      // don't search-with-ids if there's a query or category
-      not(hasParsedTextProperties.any('query', 'category')),
-      // at least one layer allowed by the query params must be related to addresses
-      isRequestLayersAnyAddressRelated,
-      // there must be a street
-      hasParsedTextProperties.any('street'));
+    not(hasRequestErrors),
+    // don't search-with-ids if there's a query or category
+    not(hasParsedTextProperties.any('query', 'category')),
+    // at least one layer allowed by the query params must be related to addresses
+    isRequestLayersAnyAddressRelated,
+    // there must be a street
+    hasParsedTextProperties.any('street')
+  );
 
   // placeholder should have executed, useful for determining whether to actually
   //  fallback or not (don't fallback to old search if the placeholder response
@@ -241,11 +230,24 @@ function addRoutes(app, peliasConfig) {
 
   // don't execute the cascading fallback query IF placeholder should have executed
   //  that way, if placeholder didn't return anything, don't try to find more things the old way
-   const fallbackQueryShouldExecute = all(
-     not(hasRequestErrors),
-     not(hasResponseData),
-     not(placeholderShouldHaveExecuted)
-   );
+
+  const fallbackQueryShouldExecute = all(
+    not(hasRequestErrors),
+    not(hasResponseData),
+    not(placeholderShouldHaveExecuted)
+  );
+
+  // defer to pelias parser for analysis IF there's no response AND placeholder should not have executed
+  const shouldDeferToPeliasParser = all(
+    not(hasRequestErrors),
+    not(hasResponseData)
+  );
+
+  // call search_pelias_parser query if pelias_parser was the parser
+  const searchPeliasParserShouldExecute = all(
+    not(hasRequestErrors),
+    isPeliasParse
+  );
 
   // get language adjustments if:
   // - there's a response

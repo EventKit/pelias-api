@@ -13,12 +13,11 @@ module.exports = {
         }
       }],
       'should': [{
-        'match': {
+        'match_phrase': {
           'phrase.default': {
             'query': 'test',
             'cutoff_frequency': 0.01,
             'analyzer': 'peliasPhrase',
-            'type': 'phrase',
             'boost': 1,
             'slop': 2
           }
@@ -26,10 +25,9 @@ module.exports = {
       }, {
         'function_score': {
           'query': {
-            'match': {
+            'match_phrase': {
               'phrase.default': {
                 'analyzer': 'peliasPhrase',
-                'type': 'phrase',
                 'boost': 1,
                 'slop': 2,
                 'cutoff_frequency': 0.01,
@@ -49,7 +47,7 @@ module.exports = {
                 'decay': 0.5
               }
             },
-            'weight': 2
+            'weight': 3
           }],
           'score_mode': 'avg',
           'boost_mode': 'replace'
@@ -57,16 +55,7 @@ module.exports = {
       },{
         'function_score': {
           'query': {
-            'match': {
-              'phrase.default': {
-                'query': 'test',
-                'cutoff_frequency': 0.01,
-                'analyzer': 'peliasPhrase',
-                'type': 'phrase',
-                'slop': 2,
-                'boost': 1
-              }
-            }
+            'match_all': { }
           },
           'max_boost': 20,
           'score_mode': 'first',
@@ -83,16 +72,7 @@ module.exports = {
       },{
         'function_score': {
           'query': {
-            'match': {
-              'phrase.default': {
-                'query': 'test',
-                'cutoff_frequency': 0.01,
-                'analyzer': 'peliasPhrase',
-                'type': 'phrase',
-                'slop': 2,
-                'boost': 1
-              }
-            }
+            'match_all': { }
           },
           'max_boost': 20,
           'score_mode': 'first',
