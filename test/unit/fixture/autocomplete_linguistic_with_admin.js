@@ -8,7 +8,6 @@ module.exports = {
               'analyzer': 'peliasQuery',
               'boost': 1,
               'slop': 3,
-              'cutoff_frequency': 0.01,
               'query': 'one two'
             }
           }

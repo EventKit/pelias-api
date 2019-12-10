@@ -18,7 +18,6 @@ module.exports = {
         'match_phrase': {
           'phrase.default': {
             'query': 'soho grand',
-            'cutoff_frequency': 0.01,
             'analyzer': 'peliasPhrase',
             'slop': 2,
             'boost': 1

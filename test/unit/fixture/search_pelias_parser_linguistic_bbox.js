@@ -16,7 +16,6 @@ module.exports = {
         'match_phrase': {
           'phrase.default': {
             'query': 'test',
-            'cutoff_frequency': 0.01,
             'analyzer': 'peliasPhrase',
             'boost': 1,
             'slop': 2

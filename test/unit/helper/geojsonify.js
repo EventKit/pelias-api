@@ -21,7 +21,6 @@ module.exports.tests.earth = function(test, common) {
       '_id': 'whosonfirst:continent:6295630',
       'source': 'whosonfirst',
       'layer': 'continent',
-      'source_id': '6295630',
       'name': {
         'default': 'Earth'
       },
@@ -40,7 +39,7 @@ module.exports.tests.earth = function(test, common) {
 };
 
 module.exports.tests.all = (test, common) => {
-  test('bounding_box should be calculated using points when available', t => {
+  test('bounding_box should be calculated using points when avaiable', t => {
     const input = [
       {
         _id: 'source 1:layer 1:id 1',
@@ -133,7 +132,7 @@ module.exports.tests.all = (test, common) => {
 
   });
 
-  test('bounding_box should be calculated using polygons when available', t => {
+  test('bounding_box should be calculated using polygons when avaiable', t => {
     const input = [
       {
         _id: 'source 1:layer 1:id 1',
@@ -344,7 +343,6 @@ module.exports.tests.all = (test, common) => {
 };
 
 module.exports.tests.non_optimal_conditions = (test, common) => {
-
   test('null/undefined places should log warnings and be ignored', t => {
     const logger = require('pelias-mock-logger')();
 
@@ -474,6 +472,7 @@ module.exports.tests.non_optimal_conditions = (test, common) => {
     };
 
     t.deepEquals(actual, expected);
+    t.ok(logger.isWarnMessage('No doc or center_point property'));
     t.end();
 
   });
@@ -627,106 +626,7 @@ module.exports.tests.non_optimal_conditions = (test, common) => {
 
   });
 
-  test('polygon should be not be interpreted as polygon if the parameter is not specified', t => {
-    const logger = require('pelias-mock-logger')();
-
-    const input = [
-      null,
-      undefined,
-      {
-        _id: 'source 1:layer 1:id 1',
-        source: 'source 1',
-        source_id: 'id 1',
-        layer: 'layer 1',
-        name: {
-          default: 'name 1',
-        },
-        center_point: {
-          lat: 12.121212,
-          lon: 21.212121
-        },
-        polygon: {
-          coordinates: [
-
-            [0,1],
-            [0.5,1],
-            [1,0],
-            [1,0.5],
-            [0,1]
-
-          ]
-        },
-        bounding_box: {
-          min_lon: 0,
-          max_lon: 1,
-          min_lat: 0,
-          max_lat: 1
-        }
-      }
-    ];
-
-    const geojsonify = proxyquire('../../../helper/geojsonify', {
-      './geojsonify_place_details': (params, source, dst) => {
-        if (source._id === 'source 1:layer 1:id 1') {
-          return {
-            property1: 'property 1',
-            property2: 'property 2'
-          };
-        }
-      },
-      'pelias-logger': logger
-    });
-
-    const actual = geojsonify({}, input, 'point');
-
-    const expected = {
-      type: 'FeatureCollection',
-      features: [
-        {
-          type: 'Feature',
-          geometry: {
-            type: 'Point',
-            coordinates: [ 21.212121, 12.121212 ]
-          },
-          properties: {
-            _id: 'id 1',
-            gid: 'source 1:layer 1:id 1',
-            layer: 'layer 1',
-            source: 'source 1',
-            source_id: 'id 1',
-            name: 'name 1',
-            property1: 'property 1',
-            property2: 'property 2'
-          },
-          bbox: [0,0,1,1]
-        }
-      ],
-      bbox: [0,0,1,1]
-    };
-
-    t.deepEquals(actual, expected);
-    t.end();
-  });
-
-
-  test('errors should be populated if a geometry type is invalid', t => {
-    const logger = require('pelias-mock-logger')();
-    const geojsonify = proxyquire('../../../helper/geojsonify', {
-      'pelias-logger': logger
-    });
-    let errorList = [];
-    geojsonify({}, [], 'point,polgon', errorList);
-    const expected = ['polgon is not a valid geometry type'];
-
-    t.deepEquals(errorList, expected);
-    t.end();
-  });
-
 };
-
-
-
-
 
 // ensure that if elasticsearch returns an array of values for name.default
 // .. that we handle this case and select the first element for the label.

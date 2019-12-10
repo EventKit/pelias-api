@@ -26,7 +26,7 @@ function isLayerDifferent(item1, item2){
   if( isPropertyDifferent(item1, item2, 'layer') ){
     // consider all custom layers to be analogous to a venue
     if( ( item1.layer === 'venue' || !_.includes( canonicalLayers, item1.layer ) ) &&
-        ( item2.layer === 'venue' || !_.includes( canonicalLayers, item2.layer ) ) ){
+      ( item2.layer === 'venue' || !_.includes( canonicalLayers, item2.layer ) ) ){
       return false;
     }
     // consider some layers to be synonymous
@@ -73,7 +73,7 @@ function isParentHierarchyDifferent(item1, item2){
     maxRank = rank1 - 1;
   }
 
-  // if the records have different ranks then check ranks lower than
+    // if the records have different ranks then check ranks lower than
   // the lowest rank of the two (inclusive).
   else {
     maxRank = Math.min(rank1, rank2);
