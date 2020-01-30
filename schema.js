@@ -16,6 +16,7 @@ module.exports = Joi.object().keys({
   api: Joi.object().required().keys({
     version: Joi.string(),
     indexName: Joi.string(),
+    basePath: Joi.string(),
     host: Joi.string(),
     accessLog: Joi.string().allow(''),
     relativeScores: Joi.boolean(),
