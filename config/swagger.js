@@ -8,7 +8,6 @@ const options = {
             'title': 'Pelias API',
             'version': '1.0.0'
         },
-        'schemes': ['http','https'],
         'securityDefinitions': {
             'JWT': {
                 'type': 'apiKey',
