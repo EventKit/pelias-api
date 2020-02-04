@@ -1,23 +1,25 @@
-const options = { 
+const peliasConfig = require('pelias-config').generate(require('../schema'));
+
+const options = {
     'swaggerDefinition' : {
-    'info': {
-        'description': 'Swagger documentation for Pelias API',
-        'title': 'Pelias API',
-        'version': '1.0.0'
+        'basePath': peliasConfig.api.basePath,
+        'info': {
+            'description': 'Swagger documentation for Pelias API',
+            'title': 'Pelias API',
+            'version': '1.0.0'
+        },
+        'securityDefinitions': {
+            'JWT': {
+                'type': 'apiKey',
+                'name': 'Authorization',
+                'in': 'header'
+            }
+        },
+        'security': [
+        { 'JWT': []}
+        ]
     },
-    'schemes': ['http','https'],
-    'securityDefinitions': { 
-        'JWT': {
-            'type': 'apiKey',
-            'name': 'Authorization',
-            'in': 'header'
-        }
-    },
-    'security': [
-       { 'JWT': []} 
-    ]
-    },
-    'basePath': __dirname,
+
     'apis': ['./routes/*.js']
 };
 
