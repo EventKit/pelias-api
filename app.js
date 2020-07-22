@@ -1,6 +1,6 @@
 const app = require('express')();
 const swaggerJSDoc = require('swagger-jsdoc');
-const swaggerUi = require('swagger-ui-express');
+const swaggerUi = require('express-swaggerize-ui');
 const peliasConfig = require( 'pelias-config' ).generate(require('./schema'));
 
 if( peliasConfig.api.accessLog ){
@@ -9,14 +9,18 @@ if( peliasConfig.api.accessLog ){
 
 var swaggerSpec = swaggerJSDoc(require( './config/swagger'));
 
+app.get('/api-docs.json', function(req, res) {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
+
 app.use('/api-docs', function (req, res, next) {
   // Strip the URL query param to prevent other urls from overwriting the docs.
   if (req.query.url) {
     res.redirect('/api-docs');
   }
   next();
-}, swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
+}, swaggerUi());
 /** ----------------------- pre-processing-middleware ----------------------- **/
 
 app.use( require('./middleware/headers') );
