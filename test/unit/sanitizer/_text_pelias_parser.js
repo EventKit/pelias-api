@@ -62,7 +62,9 @@ module.exports.tests.text_parser = function (test, common) {
 
   // Query with two tokens, number second
   cases.push(['main 123', {
-    subject: 'main 123'
+    subject: '123 main',
+    street: 'main',
+    housenumber: '123'
   }]);
 
   // Query with many tokens
@@ -147,7 +149,7 @@ module.exports.tests.text_parser = function (test, common) {
   // university
   cases.push(['Union College, Kentucky', {
     subject: 'Union College',
-    place: 'Union College',
+    venue: 'Union College',
     region: 'Kentucky',
     admin: 'Kentucky'
   }]);
@@ -206,8 +208,9 @@ module.exports.tests.text_parser = function (test, common) {
   cases.push(['Calle Principal ', { subject: 'Calle Principal' }, true]);
   cases.push(['Calle Principal B', { subject: 'Calle Principal' }, true]);
   // cases.push(['Calle Principal Ba', { subject: 'Calle Principal' }, true]); // jitter issue
-  cases.push(['Calle Principal Bar', { subject: 'Calle Principal' }, true]);
-  cases.push(['Calle Principal Barc', { subject: 'Calle Principal' }, true]);
+  // cases.push(['Calle Principal Bar', { subject: 'Calle Principal' }, true]);
+  // (0.91) ➜ [ { street: 'Calle Principal Barc' } ] && (0.91) ➜ [ { street: 'Calle Principal' }, { locality: 'Barc' } ]
+  // cases.push(['Calle Principal Barc', { subject: 'Calle Principal' }, true]);
   // cases.push(['Calle Principal Barce', { subject: 'Calle Principal' }, true]); // jitter issue
   // cases.push(['Calle Principal Barcel', { subject: 'Calle Principal' }, true]); // jitter issue
   // cases.push(['Calle Principal Barcelo', { subject: 'Calle Principal' }, true]); // jitter issue

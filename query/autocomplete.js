@@ -47,12 +47,6 @@ query.score( views.ngrams_last_token_only_multi( adminFields ), 'must' );
 query.score( views.admin_multi_match_first( adminFields ), 'must');
 query.score( views.admin_multi_match_last( adminFields ), 'must');
 
-// address components
-query.score( peliasQuery.view.address('housenumber') );
-query.score( peliasQuery.view.address('street') );
-query.score( peliasQuery.view.address('cross_street') );
-query.score( peliasQuery.view.address('postcode') );
-
 // scoring boost
 query.score( peliasQuery.view.focus( views.ngrams_strict ) );
 query.score( peliasQuery.view.popularity( peliasQuery.view.leaf.match_all ) );
@@ -170,6 +164,11 @@ function generateQuery( clean ){
     vs.var('input:categories', clean.categories);
   }
 
+  // size
+  if( clean.querySize ) {
+    vs.var( 'size', clean.querySize );
+  }
+
   // run the address parser
   if( clean.parsed_text ){
     textParser( clean, vs );
@@ -182,6 +181,11 @@ function generateQuery( clean ){
   // see code comments above for additional information.
   let isAdminSet = adminFields.some(field => vs.isset('input:' + field));
   if ( isAdminSet ){ vs.var('input:add_name_to_multimatch', 'enabled'); }
+
+  // Search in the user lang
+  if(clean.lang && _.isString(clean.lang.iso6391)) {
+    vs.var('lang', clean.lang.iso6391);
+  }
 
   return {
     type: 'autocomplete',

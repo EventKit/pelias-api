@@ -46,6 +46,14 @@ module.exports.tests.sanitize = function(test, common) {
             throw new Error('incorrect parameters passed to _flag_bool');
         }
       },
+      '../sanitizer/_geometries': function () {
+        return {
+          sanitize: () => {
+            called_sanitizers.push('_geometries');
+            return { errors: [], warnings: [] };
+          }
+        };
+      },
       '../sanitizer/_request_language': () => {
         return {
           sanitize: () => {
@@ -60,6 +68,7 @@ module.exports.tests.sanitize = function(test, common) {
       '_single_scalar_parameters',
       '_debug',
       '_ids',
+      '_geometries',
       '_flag_bool',
       '_request_language'
     ];
@@ -67,7 +76,7 @@ module.exports.tests.sanitize = function(test, common) {
     const req = {};
     const res = {};
 
-    place.middleware(req, res, () => {
+    place.middleware({})(req, res, () => {
       t.deepEquals(called_sanitizers, expected_sanitizers);
       t.end();
     });

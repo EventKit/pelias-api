@@ -11,6 +11,8 @@
 
 const _ = require('lodash');
 const logger = require('pelias-logger').get('api');
+const Debug = require('../helper/debug');
+const debugLog = new Debug('middleware:confidenceScoreFallback');
 
 function setup() {
   return computeScores;
@@ -20,7 +22,7 @@ function computeScores(req, res, next) {
   // do nothing if no result data set or if the query is not of the fallback variety
   // later add disambiguation to this list
   if (_.isUndefined(req.clean) || _.isUndefined(res) ||
-    _.isUndefined(res.data) || _.isUndefined(res.meta)) {
+      _.isUndefined(res.data) || _.isUndefined(res.meta)) {
     return next();
   }
 
@@ -129,54 +131,54 @@ const fallbackRules = [
   {
     name: 'address',
     notSet: ['query'],
-    set: ['number', 'street'],
+    set: ['housenumber', 'street'],
     expectedLayers: ['address']
   },
   {
     name: 'street',
-    notSet: ['query', 'number'],
+    notSet: ['query', 'housenumber'],
     set: ['street'],
     expectedLayers: ['street']
   },
   {
     name: 'postalcode',
-    notSet: ['query', 'number', 'street'],
+    notSet: ['query', 'housenumber', 'street'],
     set: ['postalcode'],
     expectedLayers: ['postalcode']
   },
   {
     name: 'neighbourhood',
-    notSet: ['query', 'number', 'street', 'postalcode'],
+    notSet: ['query', 'housenumber', 'street', 'postalcode'],
     set: ['neighbourhood'],
     expectedLayers: ['neighbourhood']
   },
   {
     name: 'borough',
-    notSet: ['query', 'number', 'street', 'postalcode', 'neighbourhood'],
+    notSet: ['query', 'housenumber', 'street', 'postalcode', 'neighbourhood'],
     set: ['borough'],
     expectedLayers: ['borough']
   },
   {
     name: 'city',
-    notSet: ['query', 'number', 'street', 'postalcode', 'neighbourhood', 'borough'],
+    notSet: ['query', 'housenumber', 'street', 'postalcode', 'neighbourhood', 'borough'],
     set: ['city'],
     expectedLayers: ['borough', 'locality', 'localadmin']
   },
   {
     name: 'county',
-    notSet: ['query', 'number', 'street', 'postalcode', 'neighbourhood', 'borough', 'city'],
+    notSet: ['query', 'housenumber', 'street', 'postalcode', 'neighbourhood', 'borough', 'city'],
     set: ['county'],
     expectedLayers: ['county']
   },
   {
     name: 'state',
-    notSet: ['query', 'number', 'street', 'postalcode', 'neighbourhood', 'borough', 'city', 'county'],
+    notSet: ['query', 'housenumber', 'street', 'postalcode', 'neighbourhood', 'borough', 'city', 'county'],
     set: ['state'],
     expectedLayers: ['region']
   },
   {
     name: 'country',
-    notSet: ['query', 'number', 'street', 'postalcode', 'neighbourhood', 'borough', 'city', 'county', 'state'],
+    notSet: ['query', 'housenumber', 'street', 'postalcode', 'neighbourhood', 'borough', 'city', 'county', 'state'],
     set: ['country'],
     expectedLayers: ['country']
   }
@@ -196,6 +198,10 @@ function checkFallbackOccurred(req, hit) {
       rule.expectedLayers.indexOf(hit.layer) === -1
     );
   });
+
+  if (res) {
+    debugLog.push(req, hit, {'fallback rule matched': res});
+  }
 
   return !!res;
 }

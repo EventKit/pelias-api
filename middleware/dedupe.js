@@ -130,10 +130,8 @@ function isPreferred(existingHit, candidateHit) {
     switch( existingHit.source ){
       // WOF has bbox and is generally preferred
       case 'geonames': return candidateHit.source === 'whosonfirst' || candidateHit.source === 'openstreetmap';
-
       // WOF has bbox and is generally preferred
       case 'geographicnames': return candidateHit.source === 'whosonfirst' || candidateHit.source === 'openstreetmap';
-
       // addresses are generally better in OA
       case 'openstreetmap': return candidateHit.source === 'openaddresses';
       // venues are better in OSM than WOF

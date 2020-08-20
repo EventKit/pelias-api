@@ -110,7 +110,6 @@ function generatePolygonGeojson(polygonData){
 function geojsonifyPlace(params, place) {
 
   const gid_components = decode_gid(place._id);
-
   // setup the base doc
   const doc = {
     id: gid_components.id,
@@ -119,6 +118,8 @@ function geojsonifyPlace(params, place) {
     source: place.source,
     source_id: gid_components.id,
     bounding_box: place.bounding_box,
+    lat: parseFloat(place.center_point.lat),
+    lng: parseFloat(place.center_point.lon),
   };
   
   // assign name, logging a warning if it doesn't exist

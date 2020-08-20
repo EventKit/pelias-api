@@ -25,4 +25,3 @@ module.exports = (request, response) => {
     );
     return polygonPresent;
 };
-

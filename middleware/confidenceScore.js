@@ -27,10 +27,9 @@ function setup(peliasConfig) {
 
 function computeScores(req, res, next) {
   // do nothing if no result data set or if query is not of the pelias_parser variety
-
   if (_.isUndefined(req.clean) || _.isUndefined(res) ||
-    _.isUndefined(res.data) || _.isUndefined(res.meta) ||
-    res.meta.query_type !== 'search_pelias_parser') {
+      _.isUndefined(res.data) || _.isUndefined(res.meta) ||
+      res.meta.query_type !== 'search_pelias_parser') {
     return next();
   }
 
@@ -155,7 +154,7 @@ function checkName(text, parsed_text, hit) {
  * @returns {number}
  */
 function checkQueryType(text, hit) {
-  if (!_.isNil(text) && !_.isNil(text.number) &&
+  if (!_.isNil(text) && !_.isNil(text.housenumber) &&
       (_.isUndefined(hit.address_parts) ||
       (!_.isNil(hit.address_parts) && _.isUndefined(hit.address_parts.number)))) {
     return 0;
@@ -201,7 +200,7 @@ function propMatch(textProp, hitProp, expectEnriched) {
  * against the results
  *
  * @param {object} text
- * @param {string|number} [text.number]
+ * @param {string|number} [text.housenumber]
  * @param {string} [text.street]
  * @param {string} [text.postalcode]
  * @param {string} [text.state]
@@ -219,8 +218,8 @@ function checkAddress(text, hit) {
   var checkCount = 5;
   var res = 0;
 
-  if (!_.isNil(text) && !_.isNil(text.number) && !_.isNil(text.street)) {
-    res += propMatch(text.number, (hit.address_parts ? hit.address_parts.number : null), false);
+  if (!_.isNil(text) && !_.isNil(text.housenumber) && !_.isNil(text.street)) {
+    res += propMatch(text.housenumber, (hit.address_parts ? hit.address_parts.number : null), false);
     res += propMatch(text.street, (hit.address_parts ? hit.address_parts.street : null), false);
     res += propMatch(text.postalcode, (hit.address_parts ? hit.address_parts.zip: null), true);
     res += propMatch(text.state, ((hit.parent && hit.parent.region_a) ? hit.parent.region_a[0] : null), true);
