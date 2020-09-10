@@ -115,8 +115,6 @@ function generateQuery( clean ){
 
   var q = getQuery(vs);
 
-  //console.log(JSON.stringify(q, null, 2));
-
   return q;
 }
 

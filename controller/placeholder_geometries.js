@@ -8,7 +8,6 @@ function setup(apiConfig, esclient, should_execute) {
   function controller(req, res, next) {
     // bail early if req/res don't pass conditions for execution
     const initialTime = debugLog.beginTimer(req);
-
     if (!should_execute(req, res)) {
       return next();
     }
@@ -16,23 +15,12 @@ function setup(apiConfig, esclient, should_execute) {
     //generate old and new style Elasticsearch mget entries
     //New: the Elasticsearch ID is the Pelias GID, type not used
     //Old: the Elasticsearch ID is the Source ID, type is the layer
-    const ids = res.data.map(function (doc) {
+    const cmd = res.data.map(function (doc) {
       return {
         _index: apiConfig.indexName,
         _id: doc._id
       };
     });
-
-    const old_ids = res.data.map(function (doc) {
-      return {
-        _index: apiConfig.indexName,
-        _type: doc.layer,
-        _id: doc.source_id
-      };
-    });
-
-    const cmd = old_ids.concat(ids);
-
     mgetService(esclient, cmd, (err, docs, data) => {
       if (err) {
         // push err.message or err onto req.errors

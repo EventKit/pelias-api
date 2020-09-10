@@ -503,10 +503,7 @@ function addRoutes(app, peliasConfig) {
    * <a href=\"https://creativecommons.org/licenses/by/4.0/\">CC-BY-4.0</a></li><li><a href=\"https://www.whosonfirst.org/\">
    * WhosOnFirst</a> under <a href=\"https://whosonfirst.org/docs/licenses/\">various CC-BY or CC-0 equivalent licenses</a>
    * </li></ul></li></ul>"
-  if (peliasConfig.api.exposeInternalDebugTools) {
-    app.use ( '/frontend',                   express.static('node_modules/pelias-compare/dist-api/'));
-  }
-}
+   * }
    */
   app.get ( base + 'attribution', routers.attribution );
   app.get ( '/attribution', routers.attribution );
@@ -902,7 +899,11 @@ function addRoutes(app, peliasConfig) {
    *           type: object
    *           $ref: '#/definitions/convertErrorReturn'
    */
-  app.get ( base + 'convert', routers.convert );
+  app.get( base + 'convert', routers.convert );
+
+  if (peliasConfig.api.exposeInternalDebugTools) {
+    app.use ( '/frontend', express.static('node_modules/pelias-compare/dist-api/'));
+  }
 }
 /**
  * Helper function for creating routers
