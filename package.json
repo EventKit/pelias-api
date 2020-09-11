@@ -51,7 +51,7 @@
     "markdown": "^0.5.0",
     "morgan": "^1.8.2",
     "pelias-compare": "^0.1.16",
-    "pelias-config": "git://github.com/eventkit/pelias-config.git#syncUpstream",
+    "pelias-config": "git://github.com/eventkit/pelias-config.git#v4.12.1.1",
     "pelias-labels": "^1.8.0",
     "pelias-logger": "^1.2.0",
     "pelias-microservice-wrapper": "^1.7.0",
