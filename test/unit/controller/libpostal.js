@@ -242,7 +242,7 @@ module.exports.tests.success_conditions = (test, common) => {
             island: 'island value',
             category: 'category value',
             query: 'house value',
-            number: 'house_number value',
+            housenumber: 'house_number value',
             street: 'road value',
             neighbourhood: 'suburb value',
             borough: 'city_district value',
@@ -304,7 +304,7 @@ module.exports.tests.success_conditions = (test, common) => {
 };
 
 module.exports.tests.bug_fixes = (test, common) => {
-  test('bug fix: incorrect parsing of diagonal directionals', t => {
+  test('bug fix: incorrect parsing of diagonal directionals - pre-directional', t => {
     const service = (req, callback) => {
       const response =[
         {
@@ -343,8 +343,62 @@ module.exports.tests.bug_fixes = (test, common) => {
           text: 'original query',
           parser: 'libpostal',
           parsed_text: {
-            number: '4004',
+            housenumber: '4004',
             street: 'nw beaverton-hillsdale',
+            city: 'portland'
+          }
+        },
+        errors: []
+      }, 'req should not have been modified');
+
+      t.end();
+
+    });
+
+  });
+
+  test('bug fix: incorrect parsing of diagonal directionals - post-directional', t => {
+    const service = (req, callback) => {
+      // 1125 Couch St NW, Portland
+      const response = [
+        {
+          'label': 'house_number',
+          'value': '1125'
+        },
+        {
+          'label': 'road',
+          'value': 'couch st'
+        },
+        {
+          'label': 'suburb',
+          'value': 'nw'
+        },
+        {
+          'label': 'city',
+          'value': 'portland'
+        }
+      ];
+
+      callback(null, response);
+    };
+
+    const controller = libpostal(service, () => true);
+
+    const req = {
+      clean: {
+        text: 'original query'
+      },
+      errors: []
+    };
+
+    controller(req, undefined, () => {
+      t.deepEquals(req, {
+        clean: {
+          text: 'original query',
+          parser: 'libpostal',
+          parsed_text: {
+            housenumber: '1125',
+            street: 'couch st nw',
             city: 'portland'
           }
         },
@@ -483,7 +537,7 @@ module.exports.tests.bug_fixes = (test, common) => {
           parser: 'libpostal',
           parsed_text: {
             unit: '11',
-            number: '1015',
+            housenumber: '1015',
             street: 'nudgee road',
             neighbourhood: 'banyo',
             postalcode: '4014',
@@ -543,7 +597,7 @@ module.exports.tests.bug_fixes = (test, common) => {
           parser: 'libpostal',
           parsed_text: {
             unit: '2+3',
-            number: '32',
+            housenumber: '32',
             street: 'dixon street',
             neighbourhood: 'strathpine',
             postalcode: '4500',
@@ -603,7 +657,7 @@ module.exports.tests.bug_fixes = (test, common) => {
           parser: 'libpostal',
           parsed_text: {
             unit: 'unit 3',
-            number: '30',
+            housenumber: '30',
             street: 'dan rees street',
             neighbourhood: 'wallsend',
             postalcode: '2287',
@@ -667,7 +721,7 @@ module.exports.tests.bug_fixes = (test, common) => {
           parser: 'libpostal',
           parsed_text: {
             unit: '99',
-            number: '11/1015',
+            housenumber: '11/1015',
             street: 'nudgee road',
             neighbourhood: 'banyo',
             postalcode: '4014',

@@ -105,8 +105,6 @@ function generateQuery( clean ){
 
   const q = getQuery(vs);
 
-  // console.log(JSON.stringify(q.body, null, 2));
-
   return q;
 }
 

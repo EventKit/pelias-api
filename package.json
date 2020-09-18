@@ -33,7 +33,7 @@
     "url": "https://github.com/pelias/api/issues"
   },
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=10.0.0"
   },
   "dependencies": {
     "@hapi/joi": "^16.0.1",
@@ -42,27 +42,26 @@
     "axios": "^0.17.1",
     "elasticsearch": "^16.0.0",
     "express": "^4.8.8",
-    "express-jwt": "^0.3.1",
     "express-swaggerize-ui": "^1.0.2",
     "geojson": "^0.5.0",
-    "jsonwebtoken": "^5.0.1",
     "geolib": "^3.0.0",
     "iso-639-3": "^1.0.0",
     "locale": "^0.1.0",
     "lodash": "^4.17.4",
     "markdown": "^0.5.0",
     "morgan": "^1.8.2",
-    "pelias-categories": "^1.2.0",
-    "pelias-config": "git://github.com/eventkit/pelias-config.git#merge470",
+    "pelias-compare": "^0.1.16",
+    "pelias-config": "git://github.com/eventkit/pelias-config.git#v4.12.1.1",
     "pelias-labels": "^1.8.0",
     "pelias-logger": "^1.2.0",
     "pelias-microservice-wrapper": "^1.7.0",
     "pelias-model": "^7.0.0",
-    "pelias-parser": "1.38.0",
-    "pelias-query": "^9.14.0",
+    "pelias-parser": "1.53.0",
+    "pelias-query": "^10.0.0",
     "pelias-sorting": "^1.2.0",
     "predicates": "^2.0.0",
     "regenerate": "^1.4.0",
+    "require-all": "^3.0.0",
     "retry": "^0.12.0",
     "stable": "^0.1.8",
     "stats-lite": "^2.0.4",
@@ -78,7 +77,7 @@
     "precommit-hook": "^3.0.0",
     "proxyquire": "^2.0.0",
     "tap-dot": "^2.0.0",
-    "tape": "^4.5.1"
+    "tape": "^5.0.0"
   },
   "pre-commit": [
     "lint",

@@ -4,7 +4,9 @@ const debugLog = new Debug('controller:predicates:polygons_parameter_present');
 const stackTraceLine = require('../../helper/stackTraceLine');
 
 module.exports = (request, response) => {
+
     let geometries = request.query.geometries || undefined;
+
     let polygonPresent = false;
     if( geometries ) {
         const validType = 'polygon';
@@ -25,4 +27,3 @@ module.exports = (request, response) => {
     );
     return polygonPresent;
 };
-
